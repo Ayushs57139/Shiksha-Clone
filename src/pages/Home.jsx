@@ -49,14 +49,23 @@ const Home = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary to-orange-600 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Find Your Perfect College
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 opacity-90">
-            Discover the best colleges, courses, and career opportunities
-          </p>
+      <section
+        className="relative bg-cover bg-center bg-no-repeat text-white py-20"
+        style={{ backgroundImage: "url('2.jpg')" }} // Change to your image name
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div className="relative container mx-auto px-4 text-center z-10"></div>
+        
+        {/* Dark overlay to enhance text visibility */}
+  <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+
+  <div className="relative container mx-auto px-4 text-center z-10">
+    <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
+      Find Your Perfect College
+    </h1>
+    <p className="text-xl md:text-2xl mb-8 text-white drop-shadow-md">
+      Discover the best colleges, courses, and career opportunities
+    </p>
           
           {/* Search Box */}
           <div className="max-w-4xl mx-auto bg-white rounded-lg p-2 shadow-lg">

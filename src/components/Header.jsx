@@ -26,20 +26,9 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="bg-white sticky top-0 z-50">
       {/* Top Bar */}
-      <div className="bg-secondary text-white py-2">
-        <div className="container mx-auto px-4 flex justify-between items-center text-sm">
-          <div className="flex space-x-4">
-            <span>📞 1800-572-9877</span>
-            <span>✉️ support@shiksha.com</span>
-          </div>
-          <div className="flex space-x-4">
-            <Link to="/login" className="hover:text-primary transition-colors">Login</Link>
-            <Link to="/register" className="hover:text-primary transition-colors">Register</Link>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Main Header */}
       <div className="container mx-auto px-4 py-4">
@@ -178,7 +167,8 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white border-t">
+        <div className="lg:hidden bg-white">
+
           <nav className="container mx-auto px-4 py-4 space-y-4">
             {menuItems.map((item) => (
               <Link

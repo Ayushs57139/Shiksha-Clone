@@ -18,6 +18,9 @@ import Search from './pages/Search';
 import Compare from './pages/Compare';
 import Reviews from './pages/Reviews';
 import AdminDashboard from './pages/AdminDashboard';
+import Navbar from './components/Navbar'; // ✅ use only this import
+import TopMbaIndia from './pages/TopMbaIndia';
+import TopMbaDelhi from './pages/TopMbaDelhi';
 
 function App() {
   return (
@@ -25,6 +28,8 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Header />
+          <Navbar /> {/* ✅ Render the Navbar */}
+          
           <main>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -42,8 +47,11 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/top-mba-india" element={<TopMbaIndia />} />
+              <Route path="/top-mba-delhi" element={<TopMbaDelhi />} />
             </Routes>
           </main>
+
           <Footer />
         </div>
       </Router>
