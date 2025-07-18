@@ -228,18 +228,56 @@ const Navbar = () => {
     {
       title: "Popular Specializations",
       key: "engg-specializations",
-      links: [
-        { label: "Computer Science Engineering", to: "/cse" },
-        { label: "Electronics & Communication", to: "/ece" },
-        { label: "Mechanical Engineering", to: "/mechanical" },
-        { label: "Civil Engineering", to: "/civil" },
-        { label: "Electrical Engineering", to: "/electrical" },
-        { label: "Information Technology", to: "/it" },
-        { label: "Chemical Engineering", to: "/chemical" },
-        { label: "Aerospace Engineering", to: "/aerospace" },
-        { label: "Biotechnology", to: "/biotech" },
-        { label: "Automobile Engineering", to: "/automobile" }
-      ]
+      links: 
+        [
+  { label: "Computer Science Engineering", to: "/specialization/cse" },
+  { label: "Mechanical Engineering", to: "/specialization/mechanical" },
+  { label: "Civil Engineering", to: "/specialization/civil" },
+  { label: "Electronics & Communication Engineering", to: "/specialization/ece" },
+  { label: "Aeronautical Engineering", to: "/specialization/aeronautical" },
+  { label: "Aerospace Engineering", to: "/specialization/aerospace" },
+  { label: "Information Technology", to: "/specialization/it" },
+  { label: "Electrical Engineering", to: "/specialization/electrical" },
+  { label: "Electronics Engineering", to: "/specialization/electronics" },
+  { label: "Nanotechnology", to: "/specialization/nanotech" },
+  { label: "Chemical Engineering", to: "/specialization/chemical" },
+  { label: "Automobile Engineering", to: "/specialization/automobile" },
+  { label: "Biomedical Engineering", to: "/specialization/biomedical" },
+  { label: "Construction Engineering", to: "/specialization/construction" },
+  { label: "Pulp & Paper Technology", to: "/specialization/pulp-paper" },
+  { label: "Marine Engineering", to: "/specialization/marine" },
+  { label: "Genetic Engineering", to: "/specialization/genetic" },
+  { label: "Food Technology", to: "/specialization/food-tech" },
+  { label: "Petroleum Engineering", to: "/specialization/petroleum" },
+  { label: "Control Systems", to: "/specialization/control-systems" },
+  { label: "Industrial Engineering", to: "/specialization/industrial" },
+  { label: "Production Engineering", to: "/specialization/production" },
+  { label: "Environmental Engineering", to: "/specialization/environmental" },
+  { label: "Robotics Engineering", to: "/specialization/robotics" },
+  { label: "Telecommunication Engineering", to: "/specialization/telecommunication" },
+  { label: "Materials Science", to: "/specialization/materials-science" },
+  { label: "Structural Engineering", to: "/specialization/structural" },
+  { label: "Aircraft Maintenance", to: "/specialization/aircraft-maintenance" },
+  { label: "RF & Microwave Engineering", to: "/specialization/rf-microwave" },
+  { label: "VLSI Design", to: "/specialization/vlsi" },
+  { label: "Mechatronics Engineering", to: "/specialization/mechatronics" },
+  { label: "Mining Engineering", to: "/specialization/mining" },
+  { label: "Biotechnology Engineering", to: "/specialization/biotech" },
+  { label: "Transportation Engineering", to: "/specialization/transportation" },
+  { label: "Metallurgical Engineering", to: "/specialization/metallurgical" },
+  { label: "Textile Engineering", to: "/specialization/textile" },
+  { label: "Naval Architecture", to: "/specialization/naval-architecture" },
+  { label: "Power Engineering", to: "/specialization/power" },
+  { label: "Dairy Technology", to: "/specialization/dairy-tech" },
+  { label: "Microelectronics", to: "/specialization/microelectronics" },
+  { label: "Communications Engineering", to: "/specialization/communications" },
+  { label: "Tool Engineering", to: "/specialization/tool" },
+  { label: "Ceramic Engineering", to: "/specialization/ceramic" },
+  { label: "Jute & Fiber Technology", to: "/specialization/jute-fiber" }
+]
+
+        
+      
     },
     {
       title: "Exams",
@@ -749,24 +787,23 @@ const Navbar = () => {
 
                     {openSubMenu === submenu.key && (
   <div
-    className="absolute left-full top-0 ml-2 w-64 bg-white text-black rounded-lg shadow-lg z-[1000] py-2"
-    style={{
-      boxShadow: "0 8px 24px rgba(0,0,0,0.15)"
-    }}
+    className="absolute left-full top-0 ml-2 w-[600px] bg-white rounded-lg shadow-lg z-[1000] p-4"
   >
+    <div className="w-[800px] grid grid-cols-6 gap-4 p-4 bg-white shadow-lg z-50">
     {submenu.links.map((link, i) => (
-      <Link
-        key={i}
-        to={link.to}
-        onClick={() => {
-          setOpenMainMenu(null);
-          setOpenSubMenu(null);
-        }}
-        className="block px-4 py-2 text-sm hover:bg-gray-100 hover:text-black transition-colors duration-150"
-      >
-        {link.label}
-      </Link>
-    ))}
+        <Link
+          key={i}
+          to={link.to}
+          className="block px-6 py-2 text-sm text-black hover:bg-gray-100 rounded whitespace-normal"
+          onClick={() => {
+            setOpenMainMenu(null);
+            setOpenSubMenu(null);
+          }}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </div>
   </div>
 )}
 
