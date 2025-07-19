@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Colleges from './pages/Colleges';
@@ -18,7 +17,7 @@ import Search from './pages/Search';
 import Compare from './pages/Compare';
 import Reviews from './pages/Reviews';
 import AdminDashboard from './pages/AdminDashboard';
-import Navbar from './components/Navbar'; // ✅ use only this import
+import Navbar from './components/navbar';
 import TopMbaIndia from './pages/TopMbaIndia';
 import TopMbaDelhi from './pages/TopMbaDelhi';
 
@@ -27,7 +26,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="min-h-screen bg-gray-50">
-          <Header />
+          {/* <Header /> */}
           <Navbar /> {/* ✅ Render the Navbar */}
           
           <main>
