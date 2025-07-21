@@ -16,10 +16,13 @@ import Register from './pages/Register';
 import Search from './pages/Search';
 import Compare from './pages/Compare';
 import Reviews from './pages/Reviews';
-import AdminDashboard from './pages/AdminDashboard';
-import Navbar from './components/navbar';
-import TopMbaIndia from './pages/TopMbaIndia';
 import TopMbaDelhi from './pages/TopMbaDelhi';
+
+import Navbar from './components/navbar';
+import AdminLogin from "./admin/AdminLogin";
+import AdminDashboard from "./admin/AdminDashboard";
+import UsersList from "./admin/UsersList";
+import TopMbaIndia from "./pages/TopMbaIndia";
 
 function App() {
   return (
@@ -48,6 +51,9 @@ function App() {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/top-mba-india" element={<TopMbaIndia />} />
               <Route path="/top-mba-delhi" element={<TopMbaDelhi />} />
+                      <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<UsersList />} />
             </Routes>
           </main>
 
