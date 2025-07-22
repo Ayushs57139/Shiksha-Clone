@@ -51,9 +51,9 @@ function App() {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/top-mba-india" element={<TopMbaIndia />} />
               <Route path="/top-mba-delhi" element={<TopMbaDelhi />} />
-                      <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<UsersList />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<UsersList />} />
             </Routes>
           </main>
 

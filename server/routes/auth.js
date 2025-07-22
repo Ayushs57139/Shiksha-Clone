@@ -4,24 +4,24 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
 
-
 const router = express.Router();
 
-// Generate JWT Token
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
+// ✅ Generate JWT Token with userId and role
+const generateToken = (user) => {
+  return jwt.sign(
+    { userId: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRE }
+  );
 };
 
-// @route   POST /api/auth/register
+// ✅ REGISTER - /api/auth/register
 router.post('/register', [
   body('firstName').trim().isLength({ min: 2 }),
   body('lastName').trim().isLength({ min: 2 }),
   body('email').isEmail().normalizeEmail(),
   body('phone').matches(/^\d{10}$/),
-  body('password').isLength({ min: 8 })
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/),
+  body('password').isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/),
   body('dateOfBirth').isISO8601(),
   body('city').trim().isLength({ min: 2 }),
   body('interestedIn').isIn([
@@ -44,14 +44,21 @@ router.post('/register', [
     }
 
     const user = new User({
-      firstName, lastName, email, phone, password,
-      dateOfBirth, city, interestedIn,
-      subscribeNewsletter: subscribeNewsletter || false
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      dateOfBirth,
+      city,
+      interestedIn,
+      subscribeNewsletter: subscribeNewsletter || false,
+      role: 'user' // Default role
     });
 
     await user.save();
 
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.status(201).json({
       success: true,
@@ -69,7 +76,7 @@ router.post('/register', [
   }
 });
 
-// @route   POST /api/auth/login
+// ✅ LOGIN - /api/auth/login
 router.post('/login', [
   body('email').isEmail().normalizeEmail(),
   body('password').exists()
@@ -86,7 +93,7 @@ router.post('/login', [
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.json({
       success: true,
@@ -104,7 +111,7 @@ router.post('/login', [
   }
 });
 
-// ✅ FIXED: @route GET /api/auth/me (line 128)
+// ✅ GET CURRENT USER - /api/auth/me
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
@@ -133,7 +140,7 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-// @route PUT /api/auth/profile
+// ✅ UPDATE PROFILE - /api/auth/profile
 router.put('/profile', auth, [
   body('firstName').optional().trim().isLength({ min: 2 }),
   body('lastName').optional().trim().isLength({ min: 2 }),
