@@ -8,7 +8,9 @@
     "start": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:all": "node start-servers.js",
+    "scrape": "cd shiksha-scraper && npm run scrape"
   },
   "dependencies": {
     "axios": "^1.6.0",

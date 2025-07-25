@@ -1,17 +1,13 @@
-// db.js
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB connected");
-  } catch (err) {
-    console.error("❌ MongoDB connection error:", err);
-    process.exit(1);
-  }
-};
-
-export default connectDB;
+const schema = new mongoose.Schema({
+  name: String,
+  link: String,
+  slug: { type: String, unique: true },
+  fees: String,
+  salary: String,
+  rating: String,
+  reviews: Number,
+  category: String,
+});
+export default mongoose.models.College || mongoose.model('College', schema);

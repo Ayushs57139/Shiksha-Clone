@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Filter, MapPin, Star, Users, Award, Search } from 'lucide-react';
+import CollegeList from '../components/CollegeList';
 
 const Colleges = () => {
   const [searchParams] = useSearchParams();
@@ -13,7 +14,8 @@ const Colleges = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  // Mock data - in real app, this would come from API
+  // We'll use the CollegeList component which fetches data from API
+  // This mock data is kept for reference but won't be used
   const mockColleges = [
     {
       id: 1,
@@ -249,84 +251,11 @@ const Colleges = () => {
               </select>
             </div>
 
-            <div className="space-y-6">
-              {colleges.map((college) => (
-                <div key={college.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="flex flex-col md:flex-row">
-                    <div className="md:w-1/3">
-                      <img
-                        src={college.image}
-                        alt={college.name}
-                        className="w-full h-48 md:h-full object-cover"
-                      />
-                    </div>
-                    <div className="md:w-2/3 p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <Link
-                            to={`/colleges/${college.id}`}
-                            className="text-xl font-semibold text-gray-900 hover:text-primary transition-colors"
-                          >
-                            {college.name}
-                          </Link>
-                          <div className="flex items-center text-gray-600 mt-1">
-                            <MapPin size={16} className="mr-1" />
-                            <span>{college.location}</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center space-x-1 mb-1">
-                            <Star className="text-yellow-400 fill-current" size={16} />
-                            <span className="font-medium">{college.rating}</span>
-                          </div>
-                          <div className="text-primary font-semibold">{college.fees}</div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4 mb-4 text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <Award size={16} className="mr-1" />
-                          <span>Est. {college.established}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Users size={16} className="mr-1" />
-                          <span>{college.students.toLocaleString()} Students</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span>{college.courses} Courses</span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {college.highlights.map((highlight, index) => (
-                          <span
-                            key={index}
-                            className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
-                          >
-                            {highlight}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="flex space-x-4">
-                        <Link
-                          to={`/colleges/${college.id}`}
-                          className="btn-primary"
-                        >
-                          View Details
-                        </Link>
-                        <button className="btn-secondary">
-                          Compare
-                        </button>
-                        <button className="btn-secondary">
-                          Download Brochure
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <CollegeList 
+              category={filters.category} 
+              location={filters.location} 
+              limit={12} 
+            />
 
             {/* Pagination */}
             <div className="flex justify-center mt-12">
