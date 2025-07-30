@@ -1,75 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { adminAPI } from '../services/api';
-import { Users, BookOpen, Award, TrendingUp, Eye, Edit, Trash2 } from 'lucide-react';
+import { Link, useNavigate, Outlet } from 'react-router-dom';
+import { 
+  FaTachometerAlt, 
+  FaGraduationCap, 
+  FaUsers, 
+  FaChartBar, 
+  FaCog, 
+  FaSignOutAlt,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaEye,
+  FaSearch,
+  FaFilter
+} from 'react-icons/fa';
 
 const AdminDashboard = () => {
-  const { user, isAdmin } = useAuth();
-  const [dashboardData, setDashboardData] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [colleges, setColleges] = useState([]);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [loading, setLoading] = useState(true);
+  const [adminUser, setAdminUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [stats, setStats] = useState({
+    totalColleges: 1250,
+    totalStudents: 50000,
+    totalCourses: 150,
+    totalExams: 75
+  });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAdmin) {
-      loadDashboardData();
+    const adminToken = localStorage.getItem('adminToken');
+    const adminUserData = localStorage.getItem('adminUser');
+    
+    if (!adminToken || !adminUserData) {
+      navigate('/admin/login');
+      return;
     }
-  }, [isAdmin]);
 
-  const loadDashboardData = async () => {
-    try {
-      const response = await adminAPI.getDashboard();
-      setDashboardData(response.data.data);
-    } catch (error) {
-      console.error('Load dashboard error:', error);
-    } finally {
-      setLoading(false);
-    }
+    setAdminUser(JSON.parse(adminUserData));
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    navigate('/admin/login');
   };
 
-  const loadUsers = async () => {
-    try {
-      const response = await adminAPI.getUsers();
-      setUsers(response.data.data);
-    } catch (error) {
-      console.error('Load users error:', error);
-    }
-  };
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: FaTachometerAlt, path: '/admin/dashboard' },
+    { id: 'colleges', label: 'Colleges', icon: FaGraduationCap, path: '/admin/colleges' },
+    { id: 'users', label: 'Users', icon: FaUsers, path: '/admin/users' },
+    { id: 'analytics', label: 'Analytics', icon: FaChartBar, path: '/admin/analytics' },
+    { id: 'settings', label: 'Settings', icon: FaCog, path: '/admin/settings' }
+  ];
 
-  const loadColleges = async () => {
-    try {
-      const response = await adminAPI.getColleges();
-      setColleges(response.data.data);
-    } catch (error) {
-      console.error('Load colleges error:', error);
-    }
-  };
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    if (tab === 'users' && users.length === 0) {
-      loadUsers();
-    } else if (tab === 'colleges' && colleges.length === 0) {
-      loadColleges();
-    }
-  };
-
-  if (!isAdmin) {
+  if (!adminUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-          <p className="text-gray-600">You don't have permission to access this page.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -77,272 +63,164 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {user?.firstName}!</p>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4">
-          <div className="flex space-x-8">
-            {[
-              { id: 'dashboard', name: 'Dashboard', icon: TrendingUp },
-              { id: 'users', name: 'Users', icon: Users },
-              { id: 'colleges', name: 'Colleges', icon: BookOpen },
-              { id: 'courses', name: 'Courses', icon: Award }
-            ].map((tab) => (
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">
+                Welcome, {adminUser.name}
+              </span>
               <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={`flex items-center space-x-2 py-4 px-2 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                onClick={handleLogout}
+                className="flex items-center space-x-2 text-sm text-red-600 hover:text-red-700"
               >
-                <tab.icon size={16} />
-                <span>{tab.name}</span>
+                <FaSignOutAlt />
+                <span>Logout</span>
               </button>
-            ))}
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Dashboard Tab */}
-        {activeTab === 'dashboard' && dashboardData && (
-          <div>
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-                    <Users size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Users</p>
-                    <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.totalUsers}</p>
-                  </div>
-                </div>
-              </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex gap-8">
+          {/* Sidebar */}
+          <div className="w-64 bg-white rounded-lg shadow-sm p-6">
+            <nav className="space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                      activeTab === item.id
+                        ? 'bg-teal-50 text-teal-700 border border-teal-200'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                    onClick={() => setActiveTab(item.id)}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
 
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-green-100 text-green-600">
-                    <BookOpen size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Colleges</p>
-                    <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.totalColleges}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                    <Award size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Courses</p>
-                    <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.totalCourses}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-                    <TrendingUp size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Exams</p>
-                    <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.totalExams}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold mb-4">Recent Users</h3>
-                <div className="space-y-4">
-                  {dashboardData.recentUsers.map((user) => (
-                    <div key={user._id} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">{user.firstName} {user.lastName}</p>
-                        <p className="text-sm text-gray-600">{user.email}</p>
+          {/* Main Content */}
+          <div className="flex-1">
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <div className="flex items-center">
+                      <div className="p-3 bg-blue-100 rounded-lg">
+                        <FaGraduationCap className="h-6 w-6 text-blue-600" />
                       </div>
-                      <p className="text-sm text-gray-500">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold mb-4">Recent Colleges</h3>
-                <div className="space-y-4">
-                  {dashboardData.recentColleges.map((college) => (
-                    <div key={college._id} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">{college.name}</p>
-                        <p className="text-sm text-gray-600">{college.location.city}</p>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Total Colleges</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.totalColleges.toLocaleString()}</p>
                       </div>
-                      <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs">
-                        {college.category}
-                      </span>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <div className="flex items-center">
+                      <div className="p-3 bg-green-100 rounded-lg">
+                        <FaUsers className="h-6 w-6 text-green-600" />
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Total Students</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.totalStudents.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <div className="flex items-center">
+                      <div className="p-3 bg-purple-100 rounded-lg">
+                        <FaTachometerAlt className="h-6 w-6 text-purple-600" />
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Total Courses</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.totalCourses}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <div className="flex items-center">
+                      <div className="p-3 bg-orange-100 rounded-lg">
+                        <FaChartBar className="h-6 w-6 text-orange-600" />
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Total Exams</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.totalExams}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Link
+                      to="/admin/colleges/add"
+                      className="flex items-center justify-center space-x-2 px-4 py-3 border border-teal-300 text-teal-700 rounded-lg hover:bg-teal-50 transition-colors duration-200"
+                    >
+                      <FaPlus className="h-4 w-4" />
+                      <span>Add College</span>
+                    </Link>
+                    <Link
+                      to="/admin/colleges"
+                      className="flex items-center justify-center space-x-2 px-4 py-3 border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                    >
+                      <FaEye className="h-4 w-4" />
+                      <span>View Colleges</span>
+                    </Link>
+                    <Link
+                      to="/admin/analytics"
+                      className="flex items-center justify-center space-x-2 px-4 py-3 border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 transition-colors duration-200"
+                    >
+                      <FaChartBar className="h-4 w-4" />
+                      <span>View Analytics</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">New college "ABC University" added</span>
+                      <span className="text-xs text-gray-400 ml-auto">2 hours ago</span>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">Updated course information for MBA</span>
+                      <span className="text-xs text-gray-400 ml-auto">4 hours ago</span>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">New user registration: john@example.com</span>
+                      <span className="text-xs text-gray-400 ml-auto">6 hours ago</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* Users Tab */}
-        {activeTab === 'users' && (
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold">User Management</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Interest
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Joined
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => (
-                    <tr key={user._id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {user.firstName} {user.lastName}
-                          </p>
-                          <p className="text-sm text-gray-600">{user.city}</p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs">
-                          {user.interestedIn}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
-                            <Eye size={16} />
-                          </button>
-                          <button className="text-green-600 hover:text-green-900">
-                            <Edit size={16} />
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {activeTab !== 'overview' && <Outlet />}
           </div>
-        )}
-
-        {/* Colleges Tab */}
-        {activeTab === 'colleges' && (
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="p-6 border-b flex justify-between items-center">
-              <h3 className="text-lg font-semibold">College Management</h3>
-              <button className="btn-primary">Add New College</button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      College
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Category
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Rating
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {colleges.map((college) => (
-                    <tr key={college._id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <p className="font-medium text-gray-900">{college.name}</p>
-                          <p className="text-sm text-gray-600">Est. {college.established}</p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {college.location.city}, {college.location.state}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs capitalize">
-                          {college.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {college.ratings.overall}/5
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
-                            <Eye size={16} />
-                          </button>
-                          <button className="text-green-600 hover:text-green-900">
-                            <Edit size={16} />
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

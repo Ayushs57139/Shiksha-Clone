@@ -88,6 +88,7 @@ const Navbar = () => {
               <Link to="/register" className="hover:underline">Sign Up</Link>
             </>
           )}
+          <Link to="/admin/login" className="text-orange-300 hover:text-orange-200">Admin</Link>
         </div>
 
         {/* Mobile menu button */}
