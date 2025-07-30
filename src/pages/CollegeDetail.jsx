@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { MapPin, Star, Users, Award, Phone, Mail, Globe, Calendar, DollarSign, BookOpen } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { MapPin, Star, Award, Phone, Mail, Globe, Users, Calendar, DollarSign } from 'lucide-react';
 
 const CollegeDetail = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [college, setCollege] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Mock data - in real app, this would come from API
   useEffect(() => {
+    // Mock data - replace with API call
     const mockCollege = {
-      id: parseInt(id),
       name: 'Indian Institute of Technology Delhi',
       location: 'New Delhi',
       rating: 4.8,
@@ -51,7 +50,7 @@ const CollegeDetail = () => {
         'Medical Center',
         'Cafeteria'
       ],
-      courses: [
+      courseList: [
         { name: 'B.Tech Computer Science', duration: '4 years', fees: '₹2.5 Lakhs' },
         { name: 'B.Tech Mechanical', duration: '4 years', fees: '₹2.5 Lakhs' },
         { name: 'M.Tech', duration: '2 years', fees: '₹2 Lakhs' },
@@ -59,7 +58,7 @@ const CollegeDetail = () => {
       ]
     };
     setCollege(mockCollege);
-  }, [id]);
+  }, [slug]);
 
   if (!college) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -162,223 +161,172 @@ const CollegeDetail = () => {
 
               {/* Actions */}
               <div className="space-y-3">
-                <button className="w-full btn-primary">Apply Now</button>
-                <button className="w-full btn-secondary">Download Brochure</button>
-                <button className="w-full btn-secondary">Compare College</button>
+                <button className="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                  Apply Now
+                </button>
+                <button className="w-full border border-primary text-primary py-3 px-4 rounded-lg font-medium hover:bg-primary hover:text-white transition-colors">
+                  Download Brochure
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4">
-          <div className="flex space-x-8 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {tab.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Content */}
+      {/* Tab Navigation */}
       <div className="container mx-auto px-4 py-8">
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-xl font-semibold mb-4">About the College</h3>
-              <p className="text-gray-700 leading-relaxed mb-6">
-                {college.description} The institute offers undergraduate, postgraduate, and doctoral programs in various engineering disciplines. With state-of-the-art facilities and world-class faculty, IIT Delhi continues to be at the forefront of technological innovation and research.
-              </p>
-              
-              <h4 className="font-semibold mb-3">Key Statistics</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-100 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-primary">{college.students.toLocaleString()}</div>
-                  <div className="text-sm text-gray-600">Students</div>
-                </div>
-                <div className="bg-gray-100 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-primary">{college.courses}</div>
-                  <div className="text-sm text-gray-600">Courses</div>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Photo Gallery</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {college.gallery.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`Gallery ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'courses' && (
-          <div>
-            <h3 className="text-xl font-semibold mb-6">Available Courses</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {college.courses.map((course, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-md p-6">
-                  <h4 className="font-semibold text-lg mb-2">{course.name}</h4>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Duration:</span>
-                      <span>{course.duration}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Fees:</span>
-                      <span className="text-primary font-medium">{course.fees}</span>
-                    </div>
-                  </div>
-                  <button className="mt-4 btn-primary w-full">View Details</button>
-                </div>
+        <div className="bg-white rounded-lg shadow-md">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab.id
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {tab.name}
+                </button>
               ))}
-            </div>
+            </nav>
           </div>
-        )}
 
-        {activeTab === 'admissions' && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-semibold mb-6">Admission Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Tab Content */}
+          <div className="p-6">
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">About {college.name}</h3>
+                  <p className="text-gray-700 leading-relaxed">{college.description}</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <Users className="text-primary mr-2" size={20} />
+                      <span className="font-medium">Students</span>
+                    </div>
+                    <p className="text-2xl font-bold">{college.students.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <Calendar className="text-primary mr-2" size={20} />
+                      <span className="font-medium">Established</span>
+                    </div>
+                    <p className="text-2xl font-bold">{college.established}</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <DollarSign className="text-primary mr-2" size={20} />
+                      <span className="font-medium">Annual Fees</span>
+                    </div>
+                    <p className="text-2xl font-bold">{college.fees}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'courses' && (
               <div>
-                <h4 className="font-semibold mb-3">Admission Process</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <Calendar size={16} className="mr-3 text-gray-400" />
-                    <div>
-                      <div className="font-medium">Entrance Exam</div>
-                      <div className="text-sm text-gray-600">{college.admissions.process}</div>
+                <h3 className="text-xl font-semibold mb-4">Available Courses</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {college.courseList.map((course, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <h4 className="font-semibold mb-2">{course.name}</h4>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        <p>Duration: {course.duration}</p>
+                        <p>Fees: {course.fees}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar size={16} className="mr-3 text-gray-400" />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'admissions' && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Admission Information</h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <div className="font-medium">Application Deadline</div>
-                      <div className="text-sm text-gray-600">{college.admissions.deadline}</div>
+                      <h4 className="font-medium mb-2">Admission Process</h4>
+                      <p className="text-gray-700">{college.admissions.process}</p>
                     </div>
-                  </div>
-                  <div className="flex items-center">
-                    <Users size={16} className="mr-3 text-gray-400" />
                     <div>
-                      <div className="font-medium">Total Seats</div>
-                      <div className="text-sm text-gray-600">{college.admissions.seats}</div>
+                      <h4 className="font-medium mb-2">Application Deadline</h4>
+                      <p className="text-gray-700">{college.admissions.deadline}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Total Seats</h4>
+                      <p className="text-gray-700">{college.admissions.seats.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Eligibility</h4>
+                      <p className="text-gray-700">{college.admissions.eligibility}</p>
                     </div>
                   </div>
                 </div>
               </div>
+            )}
+
+            {activeTab === 'placements' && (
               <div>
-                <h4 className="font-semibold mb-3">Eligibility Criteria</h4>
-                <p className="text-gray-700">{college.admissions.eligibility}</p>
-                <button className="mt-4 btn-primary">Apply Now</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'placements' && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-semibold mb-6">Placement Statistics</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{college.placements.averagePackage}</div>
-                <div className="text-gray-600">Average Package</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{college.placements.highestPackage}</div>
-                <div className="text-gray-600">Highest Package</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{college.placements.placementRate}</div>
-                <div className="text-gray-600">Placement Rate</div>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-3">Top Recruiters</h4>
-              <div className="flex flex-wrap gap-3">
-                {college.placements.topRecruiters.map((recruiter, index) => (
-                  <span
-                    key={index}
-                    className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
-                  >
-                    {recruiter}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'facilities' && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-semibold mb-6">Campus Facilities</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {college.facilities.map((facility, index) => (
-                <div key={index} className="flex items-center p-4 bg-gray-50 rounded-lg">
-                  <BookOpen size={20} className="mr-3 text-primary" />
-                  <span>{facility}</span>
+                <h3 className="text-xl font-semibold mb-4">Placement Statistics</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="bg-gray-50 p-4 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-primary">{college.placements.averagePackage}</p>
+                    <p className="text-sm text-gray-600">Average Package</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-primary">{college.placements.highestPackage}</p>
+                    <p className="text-sm text-gray-600">Highest Package</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-primary">{college.placements.placementRate}</p>
+                    <p className="text-sm text-gray-600">Placement Rate</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'reviews' && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-semibold mb-6">Student Reviews</h3>
-            <div className="space-y-6">
-              <div className="border-b pb-6">
-                <div className="flex items-center mb-3">
-                  <div className="flex items-center space-x-1 mr-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} className="text-yellow-400 fill-current" size={16} />
+                
+                <div>
+                  <h4 className="font-medium mb-2">Top Recruiters</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {college.placements.topRecruiters.map((recruiter, index) => (
+                      <span
+                        key={index}
+                        className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
+                      >
+                        {recruiter}
+                      </span>
                     ))}
                   </div>
-                  <span className="font-medium">Excellent College</span>
                 </div>
-                <p className="text-gray-700 mb-2">
-                  Great faculty, excellent infrastructure, and amazing placement opportunities. 
-                  The research facilities are world-class.
-                </p>
-                <div className="text-sm text-gray-500">- Rahul Sharma, B.Tech CSE 2023</div>
               </div>
-              <div className="border-b pb-6">
-                <div className="flex items-center mb-3">
-                  <div className="flex items-center space-x-1 mr-4">
-                    {[1, 2, 3, 4].map((star) => (
-                      <Star key={star} className="text-yellow-400 fill-current" size={16} />
-                    ))}
-                    <Star className="text-gray-300" size={16} />
-                  </div>
-                  <span className="font-medium">Good Experience</span>
+            )}
+
+            {activeTab === 'facilities' && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Campus Facilities</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {college.facilities.map((facility, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <h4 className="font-medium">{facility}</h4>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-gray-700 mb-2">
-                  The academic environment is very competitive and challenging. 
-                  Hostel facilities could be better.
-                </p>
-                <div className="text-sm text-gray-500">- Priya Patel, M.Tech 2022</div>
               </div>
-            </div>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Student Reviews</h3>
+                <p className="text-gray-600">Reviews will be displayed here.</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

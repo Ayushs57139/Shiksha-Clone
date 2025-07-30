@@ -343,7 +343,7 @@ const mockData = [
       submenus: [
         {
           title: "Top Ranked Colleges",
-          key: "medical-top",
+          key: "medical-ranked",
           links: [
             { label: "Top Medical Colleges in India", to: "/top-medical-colleges-india" },
             { label: "Top Medical Colleges in Karnataka", to: "/top-medical-colleges-karnataka" },
@@ -358,7 +358,7 @@ const mockData = [
         },
         {
           title: "Popular Courses",
-          key: "medical-top",
+          key: "medical-courses",
           links: [
             { label: "MBBS", to: "/mbbs" },
             { label: "MD", to: "/md" },
@@ -369,7 +369,7 @@ const mockData = [
         },
         {
           title: "Popular Specializations",
-          key: "medical-top",
+          key: "medical-specializations",
           links: [
             { label: "Alternative Medicine", to: "/alternative-medicine" },
             { label: "Dental", to: "/dental" },
@@ -385,7 +385,7 @@ const mockData = [
         },
         {
           title: "Exams",
-          key: "medical-top",
+          key: "medical-exams",
           links: [
             { label: "NEET UG", to: "/neet-ug" },
             { label: "NEET PG", to: "/neet-pg" },
@@ -398,7 +398,7 @@ const mockData = [
         },
         {
           title: "Colleges By Location",
-          key: "medical-top",
+          key: "medical-location",
           links: [
             { label: "Medical Colleges in India", to: "/medical-colleges-india" },
             { label: "Medical Colleges in Delhi", to: "/medical-colleges-delhi" },
@@ -412,7 +412,7 @@ const mockData = [
         },
         {
           title: "College Predictors",
-          key: "medical-top",
+          key: "medical-predictors",
           links: [
             { label: "NEET 2022 College Predictor", to: "/neet-2022-college-predictor" },
             { label: "NEET PG College Predictor", to: "/neet-pg-college-predictor" }
@@ -420,7 +420,7 @@ const mockData = [
         },
         {
           title: "Resources",
-          key: "medical-top",
+          key: "medical-resources",
           links: [
             { label: "Ask a Question", to: "/ask-a-question" },
             { label: "Discussions", to: "/discussions" },
@@ -437,7 +437,7 @@ const mockData = [
       submenus: [
         {
           title: "Top Ranked Colleges",
-          key: "design-courses",
+          key: "design-ranked",
           links: [
             { label: "Top Fashion Designing Colleges in India", to: "/top-fashion-designing-colleges-india" },
             { label: "Top Fashion Designing Colleges in Bangalore", to: "/top-fashion-designing-colleges-bangalore" },
@@ -446,7 +446,7 @@ const mockData = [
         },
         {
           title: "Popular Specializations",
-          key: "design-courses",
+          key: "design-specializations",
           links: [
             { label: "Fashion Designing", to: "/fashion-designing" },
             { label: "Interior Design", to: "/interior-design" },
@@ -488,7 +488,7 @@ const mockData = [
         },
         {
           title: "Exams",
-          key: "design-courses",
+          key: "design-exams",
           links: [
             { label: "WUD Aptitude Test", to: "/wud-aptitude-test" },
             { label: "Pearl Academy Entrance Exam", to: "/pearl-academy-entrance-exam" },
@@ -572,7 +572,7 @@ const mockData = [
         },
         {
           title: "Exams",
-          key: "abroad-country",
+          key: "abroad-exams",
           links: [
             { label: "IELTS", to: "/ielts" },
             { label: "TOEFL", to: "/toefl" },
@@ -591,7 +591,7 @@ const mockData = [
         },
         {
           title: "Popular Programs",
-          key: "abroad-country",
+          key: "abroad-programs",
           links: [
             // MS Colleges
             { label: "MS in USA", to: "/ms-usa" },
@@ -645,7 +645,7 @@ const mockData = [
         },
         {
           title: "Popular Specialization",
-          key: "abroad-country",
+          key: "abroad-specializations",
           links: [
             // Masters
             { label: "MS in Computer Science", to: "/ms-computer-science" },
@@ -679,7 +679,7 @@ const mockData = [
         },
         {
           title: "Student Visas",
-          key: "abroad-country",
+          key: "abroad-visas",
           links: [
             { label: "Student Visa Canada", to: "/student-visa-canada" },
             { label: "Student Visa USA", to: "/student-visa-usa" },
@@ -697,7 +697,7 @@ const mockData = [
         },
         {
           title: "SOP/LOR",
-          key: "abroad-country",
+          key: "abroad-sop-lor",
           links: [
             { label: "What is SOP?", to: "/what-is-sop" },
             { label: "Common Mistakes in SOP", to: "/common-mistakes-in-sop" },
@@ -719,7 +719,7 @@ const mockData = [
         },
         {
           title: "Scholarships",
-          key: "abroad-country",
+          key: "abroad-scholarships",
           links: [
             { label: "Scholarships for Bachelors", to: "/scholarships-bachelors" },
             { label: "Scholarships for Masters", to: "/scholarships-masters" },
@@ -744,7 +744,7 @@ const mockData = [
         },
         {
           title: "Services",
-          key: "abroad-country",
+          key: "abroad-services",
           links: [
             { label: "Consultants in Delhi", to: "/consultants-delhi" },
             { label: "Consultants in Mumbai", to: "/consultants-mumbai" },
@@ -774,7 +774,7 @@ const mockData = [
         },
         {
           title: "Careers After 12th",
-          key: "counsel-guidance",
+          key: "counsel-careers",
           links: [
             { label: "Science", to: "/careers-science" },
             { label: "Commerce", to: "/careers-commerce" },
@@ -789,7 +789,7 @@ const mockData = [
         },
         {
           title: "Courses After 12th",
-          key: "counsel-guidance",
+          key: "counsel-courses",
           links: [
             { label: "Science Stream", to: "/science-stream" },
             { label: "Commerce Stream", to: "/commerce-stream" },
@@ -798,7 +798,7 @@ const mockData = [
         },
         {
           title: "Free Prep Material",
-          key: "counsel-guidance",
+          key: "counsel-prep-material",
           links: [
             { label: "NC behulp: NCERT Solutions", to: "/ncert-solutions" },
             { label: "NCERT Solutions for Class 12 Maths", to: "/ncert-solutions-class-12-maths" },
@@ -826,7 +826,7 @@ const mockData = [
         },
         {
           title: "National Boards",
-          key: "counsel-guidance",
+          key: "counsel-national-boards",
           links: [
             { label: "CBSE", to: "/cbse" },
             { label: "ICSE", to: "/icse" },
@@ -835,7 +835,7 @@ const mockData = [
         },
         {
           title: "State Boards",
-          key: "counsel-guidance",
+          key: "counsel-state-boards",
           links: [
             { label: "UPMSP", to: "/upmsp" },
             { label: "GSEB", to: "/gseb" },
@@ -853,7 +853,7 @@ const mockData = [
         },
         {
           title: "Abroad Counseling Service",
-          key: "counsel-guidance",
+          key: "counsel-abroad",
           links: [
             { label: "Career Counseling", to: "/career-counsel" },
             { label: "Admission Help", to: "/admission-help" },
@@ -861,7 +861,7 @@ const mockData = [
         },
         {
           title: "Get Free Counselling",
-          key: "counsel-guidance",
+          key: "counsel-free",
           links: []
         },
       ],

@@ -47,11 +47,28 @@ export const authAPI = {
 
 // Colleges API
 export const collegesAPI = {
-  getAll: (params) => api.get('/colleges', { params }),
-  getById: (id) => api.get(`/colleges/${id}`),
-  getByCategory: (category, params) => api.get(`/colleges/category/${category}`, { params }),
-  getByLocation: (city, params) => api.get(`/colleges/location/${city}`, { params }),
-  triggerScrape: () => api.get('/scrape'),
+  // Get all colleges with filters and pagination
+  getAll: (params = {}) => api.get('/colleges', { params }),
+  
+  // Get college by slug
+  getBySlug: (slug) => api.get(`/colleges/${slug}`),
+  
+  // Get colleges by category
+  getByCategory: (category, params = {}) => api.get(`/colleges/category/${category}`, { params }),
+  
+  // Get colleges by location
+  getByLocation: (location, params = {}) => api.get(`/colleges/location/${location}`, { params }),
+  
+  // Search colleges
+  search: (query, params = {}) => api.get(`/colleges/search/${query}`, { params }),
+  
+  // Get college statistics
+  getStats: () => api.get('/colleges/stats/overview'),
+  
+  // Trigger scraper
+  triggerScrape: () => api.get('/colleges/scrape/trigger'),
+  
+  // CRUD operations
   create: (data) => api.post('/colleges', data),
   update: (id, data) => api.put(`/colleges/${id}`, data),
   delete: (id) => api.delete(`/colleges/${id}`),

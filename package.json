@@ -10,11 +10,17 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start:all": "node start-servers.js",
-    "scrape": "cd shiksha-scraper && npm run scrape"
+    "scrape": "node run-scraper.js",
+    "scrape:colleges": "cd shiksha-scraper && node scraper.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
+    "dotenv": "^17.2.1",
     "lucide-react": "^0.263.1",
+    "mongoose": "^8.16.5",
+    "puppeteer": "^24.15.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
