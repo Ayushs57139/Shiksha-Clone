@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, Outlet } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   FaTachometerAlt, 
   FaGraduationCap, 
@@ -25,6 +25,7 @@ const AdminDashboard = () => {
     totalExams: 75
   });
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const adminToken = localStorage.getItem('adminToken');
@@ -37,6 +38,16 @@ const AdminDashboard = () => {
 
     setAdminUser(JSON.parse(adminUserData));
   }, [navigate]);
+
+  useEffect(() => {
+    // Set active tab based on current route
+    const path = location.pathname;
+    if (path.includes('/admin/colleges')) setActiveTab('colleges');
+    else if (path.includes('/admin/users')) setActiveTab('users');
+    else if (path.includes('/admin/analytics')) setActiveTab('analytics');
+    else if (path.includes('/admin/settings')) setActiveTab('settings');
+    else setActiveTab('overview');
+  }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -171,18 +182,18 @@ const AdminDashboard = () => {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Link
-                      to="/admin/colleges/add"
+                      to="/admin/colleges"
                       className="flex items-center justify-center space-x-2 px-4 py-3 border border-teal-300 text-teal-700 rounded-lg hover:bg-teal-50 transition-colors duration-200"
                     >
                       <FaPlus className="h-4 w-4" />
-                      <span>Add College</span>
+                      <span>Manage Colleges</span>
                     </Link>
                     <Link
-                      to="/admin/colleges"
+                      to="/admin/users"
                       className="flex items-center justify-center space-x-2 px-4 py-3 border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-200"
                     >
                       <FaEye className="h-4 w-4" />
-                      <span>View Colleges</span>
+                      <span>Manage Users</span>
                     </Link>
                     <Link
                       to="/admin/analytics"
@@ -217,8 +228,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
-
-            {activeTab !== 'overview' && <Outlet />}
           </div>
         </div>
       </div>

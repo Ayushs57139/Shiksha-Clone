@@ -1,87 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaSearch, FaFilter, FaStar, FaMapMarkerAlt, FaUsers, FaGraduationCap, FaEye, FaHeart } from 'react-icons/fa';
+import { Link, useSearchParams } from 'react-router-dom';
+import {
+  FaSearch,
+  FaFilter,
+  FaStar,
+  FaMapMarkerAlt,
+  FaUsers,
+  FaGraduationCap,
+  FaEye,
+  FaHeart,
+  FaTrophy,
+  FaAward
+} from 'react-icons/fa';
 
-const CollegeList = ({ category, title, locationFilter }) => {
+const CollegeList = () => {
   const [colleges, setColleges] = useState([]);
-  const [filteredColleges, setFilteredColleges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(category || 'all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const categories = ['Engineering', 'MBA', 'Medical', 'Design', 'Arts', 'Law', 'Science', 'Commerce'];
-  const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Ahmedabad', 'Pune', 'Hyderabad'];
+  // Get URL parameters
+  const categoryParam = searchParams.get('category');
+  const filterParam = searchParams.get('filter');
+
+  useEffect(() => {
+    // Set initial filters from URL parameters
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [categoryParam]);
 
   useEffect(() => {
     fetchColleges();
   }, []);
 
-  useEffect(() => {
-    filterColleges();
-  }, [searchQuery, selectedCategory, selectedLocation, colleges]);
-
   const fetchColleges = async () => {
     try {
       setLoading(true);
-      // Request all colleges by setting a high limit
-      const response = await fetch('http://localhost:5000/api/colleges?limit=1000');
-      const data = await response.json();
-      
-      if (data.success) {
-        setColleges(data.data);
-        setFilteredColleges(data.data);
+      const response = await fetch('http://localhost:5000/api/colleges');
+      if (response.ok) {
+        const data = await response.json();
+        setColleges(data.data || []);
       } else {
         setError('Failed to fetch colleges');
       }
     } catch (error) {
       console.error('Error fetching colleges:', error);
-      setError('Failed to fetch colleges');
+      setError('Failed to load colleges');
     } finally {
       setLoading(false);
     }
-  };
-
-  const filterColleges = () => {
-    let filtered = colleges;
-
-    if (searchQuery) {
-      filtered = filtered.filter(college =>
-        college.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        college.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        college.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Handle specific category filtering
-    if (category === 'IIT') {
-      filtered = filtered.filter(college => 
-        college.name.toLowerCase().includes('indian institute of technology') ||
-        college.name.toLowerCase().includes('iit')
-      );
-    } else if (category === 'NIT') {
-      filtered = filtered.filter(college => 
-        college.name.toLowerCase().includes('national institute of technology') ||
-        college.name.toLowerCase().includes('nit')
-      );
-    } else if (category === 'Private') {
-      filtered = filtered.filter(college => 
-        !college.name.toLowerCase().includes('indian institute of technology') &&
-        !college.name.toLowerCase().includes('national institute of technology') &&
-        !college.name.toLowerCase().includes('iit') &&
-        !college.name.toLowerCase().includes('nit')
-      );
-    } else if (selectedCategory !== 'all') {
-      filtered = filtered.filter(college => college.category === selectedCategory);
-    }
-
-    if (selectedLocation !== 'all') {
-      filtered = filtered.filter(college => college.location === selectedLocation);
-    }
-
-    setFilteredColleges(filtered);
   };
 
   const renderStars = (rating) => {
@@ -103,16 +75,50 @@ const CollegeList = ({ category, title, locationFilter }) => {
   const getCategoryColor = (category) => {
     const colors = {
       'Engineering': 'bg-blue-100 text-blue-800',
-      'MBA': 'bg-green-100 text-green-800',
+      'Management': 'bg-green-100 text-green-800',
       'Medical': 'bg-red-100 text-red-800',
-      'Design': 'bg-purple-100 text-purple-800',
-      'Arts': 'bg-pink-100 text-pink-800',
       'Law': 'bg-indigo-100 text-indigo-800',
+      'Pharmacy': 'bg-purple-100 text-purple-800',
+      'Arts': 'bg-pink-100 text-pink-800',
       'Science': 'bg-cyan-100 text-cyan-800',
       'Commerce': 'bg-orange-100 text-orange-800'
     };
     return colors[category] || 'bg-gray-100 text-gray-800';
   };
+
+  // Filter colleges based on search, category, and location
+  const filteredColleges = colleges.filter(college => {
+    const matchesSearch = college.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         college.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         college.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'all' || college.category === selectedCategory;
+    
+    const matchesLocation = selectedLocation === 'all' || college.location === selectedLocation;
+
+    // Apply additional filters from URL
+    let matchesFilter = true;
+    if (filterParam) {
+      const collegeName = college.name.toLowerCase();
+      if (filterParam === 'iit') {
+        matchesFilter = collegeName.includes('iit') || collegeName.includes('indian institute of technology');
+      } else if (filterParam === 'iim') {
+        matchesFilter = collegeName.includes('iim') || collegeName.includes('indian institute of management');
+      } else if (filterParam === 'aiims') {
+        matchesFilter = collegeName.includes('aiims') || collegeName.includes('all india institute of medical sciences');
+      } else if (filterParam === 'nls') {
+        matchesFilter = collegeName.includes('nls') || collegeName.includes('national law school');
+      } else if (filterParam === 'private') {
+        matchesFilter = !collegeName.includes('iit') && !collegeName.includes('iim') && !collegeName.includes('aiims') && !collegeName.includes('government');
+      }
+    }
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesFilter;
+  });
+
+  // Get unique categories and locations
+  const categories = [...new Set(colleges.map(college => college.category))];
+  const locations = [...new Set(colleges.map(college => college.location))];
 
   if (loading) {
     return (
@@ -150,15 +156,12 @@ const CollegeList = ({ category, title, locationFilter }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              {title || 'Discover Your Perfect College'}
+              Discover Your Perfect College
             </h1>
             <p className="text-xl text-teal-100 mb-8">
-              {category === 'IIT' ? 'Explore the prestigious Indian Institutes of Technology' :
-               category === 'NIT' ? 'Discover National Institutes of Technology across India' :
-               category === 'Private' ? 'Find top private engineering colleges' :
-               'Find the best colleges across India with detailed information and ratings'}
+              Find the best colleges across India with detailed information and ratings
             </p>
-            
+
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
@@ -192,7 +195,7 @@ const CollegeList = ({ category, title, locationFilter }) => {
                 {filteredColleges.length} colleges found
               </span>
             </div>
-            
+
             {showFilters && (
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                 <select
@@ -205,7 +208,7 @@ const CollegeList = ({ category, title, locationFilter }) => {
                     <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
-                
+
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
@@ -226,7 +229,7 @@ const CollegeList = ({ category, title, locationFilter }) => {
           {filteredColleges.map((college) => (
             <div key={college._id} className="group">
               <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 overflow-hidden">
-                {/* College Image */}
+                {/* College Header */}
                 <div className="relative h-48 bg-gradient-to-br from-teal-400 to-blue-500 overflow-hidden">
                   {college.image ? (
                     <img
@@ -239,14 +242,24 @@ const CollegeList = ({ category, title, locationFilter }) => {
                       <FaGraduationCap className="text-white text-6xl opacity-80" />
                     </div>
                   )}
-                  
+
                   {/* Category Badge */}
                   <div className="absolute top-4 left-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(college.category)}`}>
                       {college.category}
                     </span>
                   </div>
-                  
+
+                  {/* NIRF Ranking Badge */}
+                  {college.nirf_ranking && (
+                    <div className="absolute top-4 right-4">
+                      <span className="px-3 py-1 bg-yellow-500 text-yellow-900 rounded-full text-xs font-semibold flex items-center gap-1">
+                        <FaTrophy className="text-xs" />
+                        #{college.nirf_ranking}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all">
@@ -263,16 +276,16 @@ const CollegeList = ({ category, title, locationFilter }) => {
                   <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2 hover:text-teal-600 transition-colors">
                     {college.name}
                   </h3>
-                  
+
                   <div className="flex items-center text-gray-600 mb-3">
                     <FaMapMarkerAlt className="text-red-500 mr-2" />
                     <span className="text-sm">{college.location}</span>
                   </div>
-                  
+
                   <div className="mb-4">
                     {renderStars(college.rating)}
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
                     <div className="flex items-center">
                       <FaUsers className="mr-1" />
@@ -283,7 +296,7 @@ const CollegeList = ({ category, title, locationFilter }) => {
                       <span>{college.courses || 'N/A'} courses</span>
                     </div>
                   </div>
-                  
+
                   {college.fees && (
                     <div className="mb-4">
                       <span className="text-lg font-bold text-teal-600">
@@ -292,7 +305,7 @@ const CollegeList = ({ category, title, locationFilter }) => {
                       <span className="text-sm text-gray-500 ml-1">per year</span>
                     </div>
                   )}
-                  
+
                   <Link
                     to={`/college/${college.slug}`}
                     className="block w-full text-center py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl hover:from-teal-600 hover:to-teal-700 transform hover:scale-105 transition-all duration-200 font-medium"
@@ -328,4 +341,4 @@ const CollegeList = ({ category, title, locationFilter }) => {
   );
 };
 
-export default CollegeList;
+export default CollegeList; 

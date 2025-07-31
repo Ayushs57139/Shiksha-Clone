@@ -3,80 +3,78 @@ import College from '../models/College.js';
 
 const router = express.Router();
 
-// Get all colleges with pagination and filtering
+// Get all colleges with pagination, search, and filters
 router.get('/', async (req, res) => {
   try {
     const { 
       page = 1, 
       limit = 20, 
-      category, 
-      location, 
-      search,
-      rating,
-      fees,
-      sortBy = 'name',
-      sortOrder = 'asc'
+      search = '', 
+      category = '', 
+      location = '',
+      sort = 'name'
     } = req.query;
-
-    // Build filter object
-    const filter = {};
     
-    if (category) {
-      filter.category = { $regex: category, $options: 'i' };
-    }
+    let query = { status: 'active' };
     
-    if (location) {
-      filter.location = { $regex: location, $options: 'i' };
-    }
-    
-    if (rating) {
-      filter.rating = { $gte: parseFloat(rating) };
-    }
-    
+    // Search functionality
     if (search) {
-      filter.$or = [
+      query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { location: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } }
+        { category: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
-
-    // Build sort object
-    const sort = {};
-    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
-
-    // Calculate pagination
-    const skip = (parseInt(page) - 1) * parseInt(limit);
     
-    // Get colleges with pagination
-    const colleges = await College.find(filter)
-      .sort(sort)
+    // Category filter
+    if (category && category !== 'all') {
+      query.category = category;
+    }
+    
+    // Location filter
+    if (location && location !== 'all') {
+      query.location = location;
+    }
+
+    const skip = (page - 1) * limit;
+    
+    // Build sort object
+    let sortObj = {};
+    switch (sort) {
+      case 'rating':
+        sortObj = { rating: -1 };
+        break;
+      case 'students':
+        sortObj = { students: -1 };
+        break;
+      case 'established':
+        sortObj = { established: -1 };
+        break;
+      default:
+        sortObj = { name: 1 };
+    }
+    
+    const colleges = await College.find(query)
+      .sort(sortObj)
       .skip(skip)
-      .limit(parseInt(limit))
-      .lean();
-
-    // Get total count for pagination
-    const total = await College.countDocuments(filter);
-    const totalPages = Math.ceil(total / parseInt(limit));
-
+      .limit(parseInt(limit));
+    
+    const total = await College.countDocuments(query);
+    
     res.json({
       success: true,
       data: colleges,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages
+        current: parseInt(page),
+        total: Math.ceil(total / limit),
+        totalRecords: total,
+        limit: parseInt(limit)
       }
     });
-
   } catch (error) {
     console.error('Error fetching colleges:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching colleges',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch colleges' });
   }
 });
 
@@ -85,12 +83,12 @@ router.get('/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
     
-    const college = await College.findOne({ slug }).lean();
+    const college = await College.findOne({ slug, status: 'active' });
     
     if (!college) {
-      return res.status(404).json({
-        success: false,
-        message: 'College not found'
+      return res.status(404).json({ 
+        success: false, 
+        message: 'College not found' 
       });
     }
 
@@ -98,14 +96,9 @@ router.get('/:slug', async (req, res) => {
       success: true,
       data: college
     });
-
   } catch (error) {
     console.error('Error fetching college:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching college',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch college' });
   }
 });
 
@@ -113,50 +106,32 @@ router.get('/:slug', async (req, res) => {
 router.get('/category/:category', async (req, res) => {
   try {
     const { category } = req.params;
-    const { page = 1, limit = 20, location, search } = req.query;
-
-    const filter = { category: { $regex: category, $options: 'i' } };
+    const { page = 1, limit = 20 } = req.query;
     
-    if (location) {
-      filter.location = { $regex: location, $options: 'i' };
-    }
+    const skip = (page - 1) * limit;
     
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { location: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const colleges = await College.find({ 
+      category, 
+      status: 'active' 
+    })
+    .sort({ rating: -1, name: 1 })
+    .skip(skip)
+    .limit(parseInt(limit));
     
-    const colleges = await College.find(filter)
-      .sort({ name: 1 })
-      .skip(skip)
-      .limit(parseInt(limit))
-      .lean();
-
-    const total = await College.countDocuments(filter);
-    const totalPages = Math.ceil(total / parseInt(limit));
-
+    const total = await College.countDocuments({ category, status: 'active' });
+    
     res.json({
       success: true,
       data: colleges,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages
+        current: parseInt(page),
+        total: Math.ceil(total / limit),
+        totalRecords: total
       }
     });
-
   } catch (error) {
     console.error('Error fetching colleges by category:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching colleges by category',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch colleges' });
   }
 });
 
@@ -164,121 +139,32 @@ router.get('/category/:category', async (req, res) => {
 router.get('/location/:location', async (req, res) => {
   try {
     const { location } = req.params;
-    const { page = 1, limit = 20, category, search } = req.query;
-
-    const filter = { location: { $regex: location, $options: 'i' } };
+    const { page = 1, limit = 20 } = req.query;
     
-    if (category) {
-      filter.category = { $regex: category, $options: 'i' };
-    }
+    const skip = (page - 1) * limit;
     
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const colleges = await College.find({ 
+      location, 
+      status: 'active' 
+    })
+    .sort({ rating: -1, name: 1 })
+    .skip(skip)
+    .limit(parseInt(limit));
     
-    const colleges = await College.find(filter)
-      .sort({ name: 1 })
-      .skip(skip)
-      .limit(parseInt(limit))
-      .lean();
-
-    const total = await College.countDocuments(filter);
-    const totalPages = Math.ceil(total / parseInt(limit));
-
+    const total = await College.countDocuments({ location, status: 'active' });
+    
     res.json({
       success: true,
       data: colleges,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages
+        current: parseInt(page),
+        total: Math.ceil(total / limit),
+        totalRecords: total
       }
     });
-
   } catch (error) {
     console.error('Error fetching colleges by location:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching colleges by location',
-      error: error.message
-    });
-  }
-});
-
-// Get college statistics
-router.get('/stats/overview', async (req, res) => {
-  try {
-    const stats = await College.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalColleges: { $sum: 1 },
-          totalStudents: { $sum: '$students' },
-          averageRating: { $avg: '$rating' },
-          categories: { $addToSet: '$category' },
-          locations: { $addToSet: '$location' }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalColleges: 1,
-          totalStudents: 1,
-          averageRating: { $round: ['$averageRating', 1] },
-          categories: 1,
-          locations: 1
-        }
-      }
-    ]);
-
-    // Get category distribution
-    const categoryStats = await College.aggregate([
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: { count: -1 }
-      }
-    ]);
-
-    // Get location distribution
-    const locationStats = await College.aggregate([
-      {
-        $group: {
-          _id: '$location',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: { count: -1 }
-      }
-    ]);
-
-    res.json({
-      success: true,
-      data: {
-        ...stats[0],
-        categoryDistribution: categoryStats,
-        locationDistribution: locationStats
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching college stats:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching college stats',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch colleges' });
   }
 });
 
@@ -287,64 +173,139 @@ router.get('/search/:query', async (req, res) => {
   try {
     const { query } = req.params;
     const { page = 1, limit = 20 } = req.query;
-
-    const filter = {
-      $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { location: { $regex: query, $options: 'i' } },
-        { category: { $regex: query, $options: 'i' } },
-        { highlights: { $regex: query, $options: 'i' } }
-      ]
-    };
-
-    const skip = (parseInt(page) - 1) * parseInt(limit);
     
-    const colleges = await College.find(filter)
-      .sort({ name: 1 })
-      .skip(skip)
-      .limit(parseInt(limit))
-      .lean();
-
-    const total = await College.countDocuments(filter);
-    const totalPages = Math.ceil(total / parseInt(limit));
-
+    const skip = (page - 1) * limit;
+    
+    const colleges = await College.find({
+      $and: [
+        { status: 'active' },
+        {
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { location: { $regex: query, $options: 'i' } },
+            { category: { $regex: query, $options: 'i' } },
+            { description: { $regex: query, $options: 'i' } }
+          ]
+        }
+      ]
+    })
+    .sort({ rating: -1, name: 1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+    
+    const total = await College.countDocuments({
+      $and: [
+        { status: 'active' },
+        {
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { location: { $regex: query, $options: 'i' } },
+            { category: { $regex: query, $options: 'i' } },
+            { description: { $regex: query, $options: 'i' } }
+          ]
+        }
+      ]
+    });
+    
     res.json({
       success: true,
       data: colleges,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages
+        current: parseInt(page),
+        total: Math.ceil(total / limit),
+        totalRecords: total
       }
     });
-
   } catch (error) {
     console.error('Error searching colleges:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error searching colleges',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to search colleges' });
   }
 });
 
-// Trigger scraper
-router.get('/scrape/trigger', async (req, res) => {
+// Get college statistics
+router.get('/stats/overview', async (req, res) => {
   try {
-    // This would trigger the scraper process
-    // For now, just return success
+    const totalColleges = await College.countDocuments({ status: 'active' });
+    const avgRating = await College.aggregate([
+      { $match: { status: 'active' } },
+      { $group: { _id: null, avgRating: { $avg: '$rating' } } }
+    ]);
+
+    const categoryStats = await College.aggregate([
+      { $match: { status: 'active' } },
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    const locationStats = await College.aggregate([
+      { $match: { status: 'active' } },
+      { $group: { _id: '$location', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    const totalStudents = await College.aggregate([
+      { $match: { status: 'active' } },
+      { $group: { _id: null, totalStudents: { $sum: '$students' } } }
+    ]);
+
+    const totalCourses = await College.aggregate([
+      { $match: { status: 'active' } },
+      { $group: { _id: null, totalCourses: { $sum: '$courses' } } }
+    ]);
+
     res.json({
       success: true,
-      message: 'Scraper triggered successfully'
+      data: {
+        totalColleges,
+        avgRating: avgRating[0]?.avgRating || 0,
+        categoryStats,
+        locationStats,
+        totalStudents: totalStudents[0]?.totalStudents || 0,
+        totalCourses: totalCourses[0]?.totalCourses || 0
+      }
     });
   } catch (error) {
-    console.error('Error triggering scraper:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error triggering scraper',
-      error: error.message
+    console.error('Error fetching college stats:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch statistics' });
+  }
+});
+
+// Get featured colleges
+router.get('/featured/list', async (req, res) => {
+  try {
+    const featuredColleges = await College.find({ 
+      featured: true, 
+      status: 'active' 
+    })
+    .sort({ rating: -1 })
+    .limit(10);
+    
+    res.json({
+      success: true,
+      data: featuredColleges
     });
+  } catch (error) {
+    console.error('Error fetching featured colleges:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch featured colleges' });
+  }
+});
+
+// Get top rated colleges
+router.get('/top-rated/list', async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    
+    const topRatedColleges = await College.find({ status: 'active' })
+      .sort({ rating: -1, students: -1 })
+      .limit(parseInt(limit));
+    
+    res.json({
+      success: true,
+      data: topRatedColleges
+    });
+  } catch (error) {
+    console.error('Error fetching top rated colleges:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch top rated colleges' });
   }
 });
 

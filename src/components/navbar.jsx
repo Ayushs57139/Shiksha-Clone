@@ -1,342 +1,399 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FaChevronDown, FaChevronRight, FaBars, FaTimes } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { FaSearch, FaChevronDown, FaGraduationCap, FaBuilding, FaUsers, FaChartLine, FaMapMarkerAlt, FaStar, FaBook, FaFlask, FaBalanceScale, FaPills, FaPalette, FaCalculator, FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCog, FaBars, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
-import mockData from './mockData';
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout } = useAuth();
-  const [openMainMenu, setOpenMainMenu] = useState(null);
-  const [openSubMenu, setOpenSubMenu] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [hoveredSubMenu, setHoveredSubMenu] = useState(null);
+  const { user, logout } = useAuth();
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const menuRef = useRef(null);
-  const navigate = useNavigate();
-
-  const toggleMainMenu = (key) => {
-    setOpenMainMenu(openMainMenu === key ? null : key);
-    setOpenSubMenu(null);
-    setHoveredSubMenu(null);
-  };
-
-  const toggleSubMenu = (key) => {
-    setOpenSubMenu(openSubMenu === key ? null : key);
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpenMainMenu(null);
-        setOpenSubMenu(null);
-        setHoveredSubMenu(null);
-        setMobileMenuOpen(false);
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdown(null);
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const collegeCategories = [
+    {
+      name: 'Engineering Colleges',
+      icon: <FaGraduationCap />,
+      items: [
+        { name: 'Top Engineering Colleges', link: '/colleges/top-engineering' },
+        { name: 'IITs', link: '/colleges/iits' },
+        { name: 'NITs', link: '/colleges/nits' },
+        { name: 'Private Engineering Colleges', link: '/colleges/private' },
+        { name: 'Engineering by Location', link: '/colleges' }
+      ]
+    },
+    {
+      name: 'Medical Colleges',
+      icon: <FaFlask />,
+      items: [
+        { name: 'Top Medical Colleges', link: '/colleges?category=Medical' },
+        { name: 'AIIMS', link: '/colleges?category=Medical&filter=aiims' },
+        { name: 'Medical Colleges by Location', link: '/colleges?category=Medical' },
+        { name: 'Dental Colleges', link: '/colleges?category=Medical&filter=dental' },
+        { name: 'Pharmacy Colleges', link: '/colleges?category=Pharmacy' }
+      ]
+    },
+    {
+      name: 'Management Colleges',
+      icon: <FaChartLine />,
+      items: [
+        { name: 'Top MBA Colleges', link: '/colleges?category=Management' },
+        { name: 'IIMs', link: '/colleges?category=Management&filter=iim' },
+        { name: 'Private MBA Colleges', link: '/colleges?category=Management&filter=private' },
+        { name: 'MBA by Location', link: '/colleges?category=Management' },
+        { name: 'Executive MBA', link: '/colleges?category=Management&filter=executive' }
+      ]
+    },
+    {
+      name: 'Law Colleges',
+      icon: <FaBalanceScale />,
+      items: [
+        { name: 'Top Law Colleges', link: '/colleges?category=Law' },
+        { name: 'National Law Schools', link: '/colleges?category=Law&filter=nls' },
+        { name: 'Law Colleges by Location', link: '/colleges?category=Law' },
+        { name: 'Corporate Law', link: '/colleges?category=Law&filter=corporate' },
+        { name: 'Criminal Law', link: '/colleges?category=Law&filter=criminal' }
+      ]
+    },
+    {
+      name: 'Other Categories',
+      icon: <FaBuilding />,
+      items: [
+        { name: 'Pharmacy Colleges', link: '/colleges?category=Pharmacy' },
+        { name: 'Arts & Design', link: '/colleges?category=Arts' },
+        { name: 'Science Colleges', link: '/colleges?category=Science' },
+        { name: 'Commerce Colleges', link: '/colleges?category=Commerce' },
+        { name: 'Architecture Colleges', link: '/colleges?category=Architecture' }
+      ]
+    }
+  ];
+
+  const toolsAndResources = [
+    {
+      name: 'College Tools',
+      icon: <FaCalculator />,
+      items: [
+        { name: 'College Predictor', link: '/predictor' },
+        { name: 'Compare Colleges', link: '/compare' },
+        { name: 'College Reviews', link: '/reviews' },
+        { name: 'Admission Guide', link: '/admission-guide' },
+        { name: 'Scholarship Info', link: '/scholarships' }
+      ]
+    },
+    {
+      name: 'Exams & Admissions',
+      icon: <FaBook />,
+      items: [
+        { name: 'JEE Main', link: '/exams/jee-main' },
+        { name: 'JEE Advanced', link: '/exams/jee-advanced' },
+        { name: 'NEET', link: '/exams/neet' },
+        { name: 'CAT', link: '/exams/cat' },
+        { name: 'CLAT', link: '/exams/clat' }
+      ]
+    }
+  ];
+
+  const handleDropdownClick = (dropdownName) => {
+    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+  };
+
   return (
-    <header className="bg-[#007075] text-white fixed top-0 left-0 right-0 z-[1003] shadow" ref={menuRef}>
-      <div className="flex items-center justify-center px-6 py-2 max-w-7xl mx-auto">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          {/* <img src="/shiksha-logo.svg" alt="Shiksha" className="h-8" /> */}
-          <span className="text-xl md:text-2xl font-semibold">shiksha</span>
-        </Link>
-
-        {/* Search */}
-        <form
-          onSubmit={handleSearch}
-          className="flex-1 max-w-3xl mx-6 hidden lg:flex"
-        >
-          <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Search Colleges, Courses, Exams, QnA, & Articles"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-[4px] text-black px-4 py-2 pr-20"
-            />
-            <button
-              type="submit"
-              className="absolute right-0 top-0 h-full px-5 bg-orange-500 text-white font-semibold rounded-r"
-            >
-              Search
-            </button>
-          </div>
-        </form>
-
-        {/* Login/Signup */}
-        <div className="space-x-4 text-sm font-medium hidden md:flex">
-          {isAuthenticated ? (
-            <>
-              <span>{user?.firstName}</span>
-              <button onClick={() => { logout(); navigate('/'); }} className="hover:underline">Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="hover:underline">Login</Link>
-              <Link to="/register" className="hover:underline">Sign Up</Link>
-            </>
-          )}
-          <Link to="/admin/login" className="text-orange-300 hover:text-orange-200">Admin</Link>
-        </div>
-
-        {/* Mobile menu button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2"
-        >
-          {mobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
-        </button>
-      </div>
-
-      {/* Desktop Navigation Bar */}
-      <div className="hidden md:flex justify-center items-center px-6 py-2 space-x-4 text-xs font-semibold relative max-w-7xl mx-auto">
-        {mockData.map((menu, index) => (
-          <div key={menu.key} className="relative group">
-            <button
-              onClick={() => toggleMainMenu(menu.key)}
-              onMouseEnter={() => {
-                setOpenMainMenu(menu.key);
-                setHoveredSubMenu(null);
-              }}
-              className="flex items-center gap-1 px-2 py-1 hover:underline transition-colors duration-200"
-            >
-              {menu.title}
-              <FaChevronDown
-                className={`transition-transform duration-200 ${openMainMenu === menu.key ? 'rotate-180' : ''
-                  }`}
-                size={10}
-              />
-            </button>
-
-            {openMainMenu === menu.key && (
-              <>
-                {/* Semi-transparent overlay */}
-                <div 
-                  className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"
-                  onClick={() => {
-                    setOpenMainMenu(null);
-                    setHoveredSubMenu(null);
-                  }}
-                  style={{ top: '120px' }}
-                />
-                
-                {/* Dropdown menu */}
-                <div 
-                  className="fixed bg-white text-black border rounded shadow-xl z-[1002] flex"
-                  onMouseLeave={() => {
-                    setOpenMainMenu(null);
-                    setHoveredSubMenu(null);
-                  }}
-                  style={{
-                    width: '900px',
-                    height: '500px',
-                    top: '60%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    position: 'fixed'
-                  }}
-                >
-                  {/* Left side - Categories */}
-                  <div className="w-1/3 border-r bg-gray-50 overflow-y-auto" style={{ height: '500px' }}>
-                    {menu.submenus.map((submenu) => (
-                      <div
-                        key={submenu.key}
-                        onMouseEnter={() => setHoveredSubMenu(submenu.key)}
-                        className={`cursor-pointer p-3 text-sm border-b hover:bg-teal-50 transition-colors duration-200 ${
-                          hoveredSubMenu === submenu.key ? 'bg-teal-50 text-teal-600' : ''
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          {submenu.title}
-                          <FaChevronRight className="text-xs text-gray-400" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Right side - Links */}
-                  <div className="w-2/3 p-4 overflow-y-auto" style={{ height: '500px' }}>
-                    {hoveredSubMenu && (
-                      <div>
-                        {(() => {
-                          const activeSubmenu = menu.submenus.find(sub => sub.key === hoveredSubMenu);
-                          return (
-                            <div>
-                              <h3 className="font-semibold text-teal-600 mb-3">
-                                {activeSubmenu?.title}
-                              </h3>
-                              <div className="space-y-1">
-                                {activeSubmenu?.links.map((link, index) => (
-                                  <a
-                                    key={index}
-                                    href={link.to}
-                                    className="block px-2 py-1 text-sm text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded transition-colors duration-200"
-                                    onClick={() => {
-                                      setOpenMainMenu(null);
-                                      setHoveredSubMenu(null);
-                                    }}
-                                  >
-                                    {link.label}
-                                  </a>
-                                ))}
-                                {activeSubmenu?.links.length === 0 && (
-                                  <p className="text-gray-500 text-sm">No links available</p>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
-                    {!hoveredSubMenu && (
-                      <div className="text-gray-500 text-sm">
-                        Hover over a category to see links
-                      </div>
-                    )}
-                    
-                    {/* Featured Colleges section for first submenu */}
-                    {menu.key === 'mba' && hoveredSubMenu === 'mba-ranked' && (
-                      <div className="mt-6 pt-4 border-t">
-                        <h4 className="font-semibold text-gray-700 mb-2">Featured Colleges</h4>
-                        <p className="text-sm text-gray-600">
-                          International Institute of Management Studies (IIMS Pune)
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Mobile Navigation */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-[#007075] border-t">
-          <div className="px-4 py-2">
-            {/* Mobile Search */}
-            <form onSubmit={handleSearch} className="mb-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded text-black px-4 py-2 pr-20"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-0 top-0 h-full px-5 bg-orange-500 text-white font-semibold rounded-r"
-                >
-                  Search
-                </button>
+    <nav className="bg-white shadow-sm border-b border-gray-100 fixed top-0 left-0 right-0 z-[1003]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Left Side - Logo */}
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="bg-teal-600 text-white p-2 rounded-lg">
+                <FaGraduationCap className="h-5 w-5" />
               </div>
-            </form>
+              <span className="text-xl font-bold text-gray-900">CollegeInfo</span>
+            </Link>
+          </div>
 
-            {/* Mobile Menu Items */}
-            <div className="space-y-2">
-              {mockData.map((menu) => (
-                <div key={menu.key} className="border-b border-gray-600">
-                  <button
-                    onClick={() => toggleMainMenu(menu.key)}
-                    className="flex items-center justify-between w-full p-3 text-left hover:bg-[#005a5f] transition-colors duration-200"
-                  >
-                    {menu.title}
-                    <FaChevronDown
-                      className={`transition-transform duration-200 ${openMainMenu === menu.key ? 'rotate-180' : ''}`}
-                      size={12}
-                    />
-                  </button>
+          {/* Center - Navigation Links */}
+          <div className="hidden md:flex items-center space-x-6">
+            {/* Colleges Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => handleDropdownClick('colleges')}
+                className="flex items-center space-x-1 text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                <FaBuilding className="h-4 w-4" />
+                <span>Colleges</span>
+                <FaChevronDown className={`h-3 w-3 transition-transform ${activeDropdown === 'colleges' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'colleges' && (
+                <>
+                  {/* Overlay */}
+                  <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]" onClick={() => setActiveDropdown(null)} />
                   
-                  {openMainMenu === menu.key && (
-                    <div className="bg-[#005a5f] pl-4">
-                      {menu.submenus.map((submenu) => (
-                        <div key={submenu.key} className="border-b border-gray-600">
-                          <button
-                            onClick={() => toggleSubMenu(submenu.key)}
-                            className="flex items-center justify-between w-full p-3 text-left hover:bg-[#004a4f] transition-colors duration-200"
-                          >
-                            {submenu.title}
-                            <FaChevronRight
-                              className={`transition-transform duration-200 ${openSubMenu === submenu.key ? 'rotate-90' : ''}`}
-                              size={10}
-                            />
-                          </button>
-                          
-                          {openSubMenu === submenu.key && (
-                            <div className="bg-[#004a4f] pl-4">
-                              {submenu.links.map((link, index) => (
-                                <a
-                                  key={index}
-                                  href={link.to}
-                                  className="block p-2 text-sm hover:bg-[#003a3f] transition-colors duration-200"
-                                  onClick={() => {
-                                    setOpenMainMenu(null);
-                                    setOpenSubMenu(null);
-                                    setMobileMenuOpen(false);
-                                  }}
-                                >
-                                  {link.label}
-                                </a>
-                              ))}
+                  {/* Dropdown */}
+                  <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-screen max-w-4xl bg-white border border-gray-200 rounded-lg shadow-xl z-[1002]">
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {collegeCategories.map((section, index) => (
+                          <div key={index} className="space-y-3">
+                            <div className="flex items-center space-x-2 text-teal-600 font-semibold">
+                              {section.icon}
+                              <span>{section.name}</span>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            <ul className="space-y-2">
+                              {section.items.map((item, itemIndex) => (
+                                <li key={itemIndex}>
+                                  <Link
+                                    to={item.link}
+                                    className="block text-gray-600 hover:text-teal-600 hover:bg-gray-50 px-2 py-1 rounded text-sm transition-colors"
+                                    onClick={() => setActiveDropdown(null)}
+                                  >
+                                    {item.name}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* Mobile Login/Signup */}
-            <div className="mt-4 pt-4 border-t border-gray-600">
-              {isAuthenticated ? (
-                <div className="space-y-2">
-                  <span className="block p-2">{user?.firstName}</span>
-                  <button 
-                    onClick={() => { logout(); navigate('/'); setMobileMenuOpen(false); }} 
-                    className="block w-full text-left p-2 hover:bg-[#005a5f] transition-colors duration-200"
+            {/* Tools & Resources Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => handleDropdownClick('tools')}
+                className="flex items-center space-x-1 text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                <FaCalculator className="h-4 w-4" />
+                <span>Tools</span>
+                <FaChevronDown className={`h-3 w-3 transition-transform ${activeDropdown === 'tools' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'tools' && (
+                <>
+                  {/* Overlay */}
+                  <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]" onClick={() => setActiveDropdown(null)} />
+                  
+                  {/* Dropdown */}
+                  <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-screen max-w-4xl bg-white border border-gray-200 rounded-lg shadow-xl z-[1002]">
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {toolsAndResources.map((section, index) => (
+                          <div key={index} className="space-y-3">
+                            <div className="flex items-center space-x-2 text-teal-600 font-semibold">
+                              {section.icon}
+                              <span>{section.name}</span>
+                            </div>
+                            <ul className="space-y-2">
+                              {section.items.map((item, itemIndex) => (
+                                <li key={itemIndex}>
+                                  <Link
+                                    to={item.link}
+                                    className="block text-gray-600 hover:text-teal-600 hover:bg-gray-50 px-2 py-1 rounded text-sm transition-colors"
+                                    onClick={() => setActiveDropdown(null)}
+                                  >
+                                    {item.name}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Direct Links */}
+            <Link to="/colleges" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              Browse All Colleges
+            </Link>
+            <Link to="/about" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              About
+            </Link>
+            <Link to="/contact" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              Contact
+            </Link>
+          </div>
+
+          {/* Right Side */}
+          <div className="flex items-center space-x-3">
+            {/* Search */}
+            <div className="relative hidden sm:block">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Search colleges..."
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm w-48"
+              />
+            </div>
+
+            {/* Conditional rendering based on authentication */}
+            {user ? (
+              // Logged in user
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 text-gray-700">
+                  <FaUser className="h-4 w-4" />
+                  <span className="text-sm font-medium hidden sm:block">{user.firstName || user.email}</span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="flex items-center space-x-1 text-gray-600 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  <FaSignOutAlt className="h-4 w-4" />
+                  <span className="hidden sm:block">Logout</span>
+                </button>
+              </div>
+            ) : (
+              // Not logged in
+              <div className="flex items-center space-x-2">
+                <Link
+                  to="/login"
+                  className="flex items-center space-x-1 bg-teal-600 text-white px-3 py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
+                >
+                  <FaSignInAlt className="h-4 w-4" />
+                  <span className="hidden sm:block">Login</span>
+                </Link>
+                <Link
+                  to="/register"
+                  className="flex items-center space-x-1 bg-teal-600 text-white px-3 py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
+                >
+                  <FaUserPlus className="h-4 w-4" />
+                  <span className="hidden sm:block">Sign Up</span>
+                </Link>
+              </div>
+            )}
+
+            {/* Admin Link */}
+            <Link
+              to="/admin/login"
+              className="flex items-center space-x-1 bg-teal-600 text-white px-3 py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
+            >
+              <FaCog className="h-4 w-4" />
+              <span className="hidden sm:block">Admin</span>
+            </Link>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden flex items-center p-2 rounded-md text-gray-700 hover:text-teal-600 hover:bg-gray-100 transition-colors"
+            >
+              {mobileMenuOpen ? (
+                <FaTimes className="h-5 w-5" />
+              ) : (
+                <FaBars className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+              {/* Mobile Search */}
+              <div className="relative mb-4">
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search colleges..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm"
+                />
+              </div>
+
+              {/* Mobile Navigation Links */}
+              <Link
+                to="/colleges"
+                className="block px-3 py-2 text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded-md text-sm font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Browse All Colleges
+              </Link>
+              <Link
+                to="/about"
+                className="block px-3 py-2 text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded-md text-sm font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link
+                to="/contact"
+                className="block px-3 py-2 text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded-md text-sm font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </Link>
+
+              {/* Mobile Auth Links */}
+              {user ? (
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center px-3 py-2 text-gray-700">
+                    <FaUser className="h-4 w-4 mr-2" />
+                    <span className="text-sm font-medium">{user.firstName || user.email}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-md text-sm font-medium"
                   >
+                    <FaSignOutAlt className="h-4 w-4 mr-2" />
                     Logout
                   </button>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <Link 
-                    to="/login" 
-                    className="block p-2 hover:bg-[#005a5f] transition-colors duration-200"
+                <div className="pt-4 border-t border-gray-200 space-y-2">
+                  <Link
+                    to="/login"
+                    className="flex items-center px-3 py-2 bg-teal-600 text-white rounded-md text-sm font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
+                    <FaSignInAlt className="h-4 w-4 mr-2" />
                     Login
                   </Link>
-                  <Link 
-                    to="/register" 
-                    className="block p-2 hover:bg-[#005a5f] transition-colors duration-200"
+                  <Link
+                    to="/register"
+                    className="flex items-center px-3 py-2 bg-teal-600 text-white rounded-md text-sm font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
+                    <FaUserPlus className="h-4 w-4 mr-2" />
                     Sign Up
                   </Link>
                 </div>
               )}
+
+              {/* Mobile Admin Link */}
+              <div className="pt-4 border-t border-gray-200">
+                <Link
+                  to="/admin/login"
+                  className="flex items-center px-3 py-2 bg-teal-600 text-white rounded-md text-sm font-medium"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FaCog className="h-4 w-4 mr-2" />
+                  Admin
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </header>
+        )}
+      </div>
+    </nav>
   );
 };
 

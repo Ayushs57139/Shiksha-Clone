@@ -1,328 +1,418 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { MapPin, Star, Award, Phone, Mail, Globe, Users, Calendar, DollarSign } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import {
+  FaArrowLeft,
+  FaStar,
+  FaMapMarkerAlt,
+  FaUsers,
+  FaGraduationCap,
+  FaCalendarAlt,
+  FaPhone,
+  FaEnvelope,
+  FaGlobe,
+  FaBuilding,
+  FaCheckCircle,
+  FaHeart,
+  FaShare,
+  FaDownload,
+  FaTrophy,
+  FaAward,
+  FaChartLine,
+  FaBook,
+  FaFlask,
+  FaBalanceScale,
+  FaPills
+} from 'react-icons/fa';
 
 const CollegeDetail = () => {
   const { slug } = useParams();
   const [college, setCollege] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    // Mock data - replace with API call
-    const mockCollege = {
-      name: 'Indian Institute of Technology Delhi',
-      location: 'New Delhi',
-      rating: 4.8,
-      fees: '₹2.5 Lakhs',
-      established: 1961,
-      students: 8000,
-      courses: 45,
-      image: 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=800',
-      gallery: [
-        'https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg?auto=compress&cs=tinysrgb&w=400',
-        'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400',
-        'https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg?auto=compress&cs=tinysrgb&w=400'
-      ],
-      highlights: ['NIRF Ranking #2', 'Top Placements', 'Research Excellence'],
-      description: 'Indian Institute of Technology Delhi is one of the premier engineering institutions in India. Established in 1961, IIT Delhi has been a leader in engineering education and research.',
-      contact: {
-        phone: '+91-11-2659-1000',
-        email: 'info@iitd.ac.in',
-        website: 'https://home.iitd.ac.in'
-      },
-      admissions: {
-        process: 'JEE Advanced',
-        deadline: 'June 30, 2024',
-        seats: 1200,
-        eligibility: '75% in 12th or top 20 percentile'
-      },
-      placements: {
-        averagePackage: '₹18 LPA',
-        highestPackage: '₹1.2 Crore',
-        placementRate: '95%',
-        topRecruiters: ['Google', 'Microsoft', 'Amazon', 'Goldman Sachs']
-      },
-      facilities: [
-        'Central Library',
-        'Research Labs',
-        'Sports Complex',
-        'Hostels',
-        'Medical Center',
-        'Cafeteria'
-      ],
-      courseList: [
-        { name: 'B.Tech Computer Science', duration: '4 years', fees: '₹2.5 Lakhs' },
-        { name: 'B.Tech Mechanical', duration: '4 years', fees: '₹2.5 Lakhs' },
-        { name: 'M.Tech', duration: '2 years', fees: '₹2 Lakhs' },
-        { name: 'PhD', duration: '3-5 years', fees: '₹1 Lakh' }
-      ]
+    const fetchCollege = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/colleges/${slug}`);
+        if (response.ok) {
+          const data = await response.json();
+          setCollege(data.data);
+        } else {
+          setError('College not found');
+        }
+      } catch (error) {
+        console.error('Error fetching college:', error);
+        setError('Failed to load college details');
+      } finally {
+        setLoading(false);
+      }
     };
-    setCollege(mockCollege);
+
+    fetchCollege();
   }, [slug]);
 
-  if (!college) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  const renderStars = (rating) => {
+    return (
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <FaStar
+            key={i}
+            className={`h-4 w-4 ${
+              i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'
+            }`}
+          />
+        ))}
+        <span className="ml-2 text-sm text-gray-600 font-medium">({rating})</span>
+      </div>
+    );
+  };
+
+  const getCategoryColor = (category) => {
+    const colors = {
+      'Engineering': 'bg-blue-100 text-blue-800',
+      'Management': 'bg-green-100 text-green-800',
+      'Medical': 'bg-red-100 text-red-800',
+      'Law': 'bg-indigo-100 text-indigo-800',
+      'Pharmacy': 'bg-purple-100 text-purple-800',
+      'Arts': 'bg-pink-100 text-pink-800',
+      'Science': 'bg-cyan-100 text-cyan-800',
+      'Commerce': 'bg-orange-100 text-orange-800'
+    };
+    return colors[category] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getCategoryIcon = (category) => {
+    const icons = {
+      'Engineering': <FaGraduationCap />,
+      'Management': <FaChartLine />,
+      'Medical': <FaFlask />,
+      'Law': <FaBalanceScale />,
+      'Pharmacy': <FaPills />,
+      'Arts': <FaBook />,
+      'Science': <FaFlask />,
+      'Commerce': <FaChartLine />
+    };
+    return icons[category] || <FaBuilding />;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-teal-600 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg font-medium">Loading college details...</p>
+        </div>
+      </div>
+    );
   }
 
-  const tabs = [
-    { id: 'overview', name: 'Overview' },
-    { id: 'courses', name: 'Courses' },
-    { id: 'admissions', name: 'Admissions' },
-    { id: 'placements', name: 'Placements' },
-    { id: 'facilities', name: 'Facilities' },
-    { id: 'reviews', name: 'Reviews' }
-  ];
+  if (error || !college) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">College Not Found</h3>
+          <p className="text-gray-600 mb-6">{error || 'The college you are looking for does not exist.'}</p>
+          <Link
+            to="/colleges"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl hover:from-teal-600 hover:to-teal-700 transform hover:scale-105 transition-all duration-200 font-medium shadow-lg"
+          >
+            <FaArrowLeft className="mr-2" />
+            Back to Colleges
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Hero Section */}
-      <div className="bg-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <img
-                src={college.image}
-                alt={college.name}
-                className="w-full h-64 object-cover rounded-lg mb-6"
-              />
-              
-              <h1 className="text-3xl font-bold mb-4">{college.name}</h1>
-              
-              <div className="flex flex-wrap items-center gap-4 mb-6">
-                <div className="flex items-center text-gray-600">
-                  <MapPin size={20} className="mr-2" />
-                  <span>{college.location}</span>
-                </div>
-                <div className="flex items-center">
-                  <Star className="text-yellow-400 fill-current mr-1" size={20} />
-                  <span className="font-medium">{college.rating}</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <Award size={20} className="mr-2" />
-                  <span>Est. {college.established}</span>
-                </div>
-              </div>
+      <div className="relative h-96 bg-gradient-to-r from-teal-600 to-blue-600 overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}></div>
+        </div>
 
-              <div className="flex flex-wrap gap-2 mb-6">
-                {college.highlights.map((highlight, index) => (
-                  <span
-                    key={index}
-                    className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
-                  >
-                    {highlight}
-                  </span>
-                ))}
-              </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="text-white">
+            <Link
+              to="/colleges"
+              className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors"
+            >
+              <FaArrowLeft className="mr-2" />
+              Back to Colleges
+            </Link>
 
-              <p className="text-gray-700 leading-relaxed">{college.description}</p>
+            <div className="flex items-center gap-4 mb-4">
+              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getCategoryColor(college.category)}`}>
+                {getCategoryIcon(college.category)}
+                <span className="ml-2">{college.category}</span>
+              </span>
+              {college.nirf_ranking && (
+                <span className="px-4 py-2 bg-yellow-500 text-yellow-900 rounded-full text-sm font-semibold">
+                  <FaTrophy className="inline mr-1" />
+                  NIRF Rank {college.nirf_ranking}
+                </span>
+              )}
             </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Quick Info */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="font-semibold text-lg mb-4">Quick Info</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Annual Fees</span>
-                    <span className="font-medium text-primary">{college.fees}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Students</span>
-                    <span className="font-medium">{college.students.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Courses</span>
-                    <span className="font-medium">{college.courses}</span>
-                  </div>
-                </div>
-              </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{college.name}</h1>
 
-              {/* Contact Info */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="font-semibold text-lg mb-4">Contact Information</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <Phone size={16} className="mr-3 text-gray-400" />
-                    <span className="text-sm">{college.contact.phone}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Mail size={16} className="mr-3 text-gray-400" />
-                    <span className="text-sm">{college.contact.email}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Globe size={16} className="mr-3 text-gray-400" />
-                    <a href={college.contact.website} className="text-sm text-primary hover:underline">
-                      Official Website
-                    </a>
-                  </div>
-                </div>
+            <div className="flex items-center gap-6 text-white/90">
+              <div className="flex items-center">
+                <FaMapMarkerAlt className="mr-2 text-red-300" />
+                <span>{college.location}</span>
               </div>
-
-              {/* Actions */}
-              <div className="space-y-3">
-                <button className="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-primary/90 transition-colors">
-                  Apply Now
-                </button>
-                <button className="w-full border border-primary text-primary py-3 px-4 rounded-lg font-medium hover:bg-primary hover:text-white transition-colors">
-                  Download Brochure
-                </button>
+              <div className="flex items-center">
+                <FaCalendarAlt className="mr-2 text-blue-300" />
+                <span>Est. {college.established}</span>
               </div>
+              {renderStars(college.rating)}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  {tab.name}
-                </button>
-              ))}
-            </nav>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Action Buttons */}
+            <div className="flex items-center gap-4 mb-8">
+              <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl hover:from-teal-600 hover:to-teal-700 transform hover:scale-105 transition-all duration-200 font-medium shadow-lg">
+                <FaDownload className="text-lg" />
+                Download Brochure
+              </button>
+              <button className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 border border-gray-200 transition-all duration-200 font-medium">
+                <FaHeart className="text-red-500 text-lg" />
+                Save
+              </button>
+              <button className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 border border-gray-200 transition-all duration-200 font-medium">
+                <FaShare className="text-blue-500 text-lg" />
+                Share
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+              <div className="border-b border-gray-200">
+                <nav className="flex">
+                  {['overview', 'courses', 'facilities', 'admissions', 'reviews'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-6 py-4 text-sm font-medium transition-colors ${
+                        activeTab === tab
+                          ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="p-8">
+                {activeTab === 'overview' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-800 mb-4">About {college.name}</h3>
+                      <p className="text-gray-600 leading-relaxed">
+                        {college.description || 'No description available for this college.'}
+                      </p>
+                    </div>
+
+                    {college.highlights && college.highlights.length > 0 && (
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-800 mb-4">Highlights</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {college.highlights.map((highlight, index) => (
+                            <div key={index} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                              <FaCheckCircle className="text-green-500 text-lg" />
+                              <span className="text-gray-700">{highlight}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {college.facilities && college.facilities.length > 0 && (
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-800 mb-4">Facilities</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {college.facilities.map((facility, index) => (
+                            <div key={index} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                              <FaBuilding className="text-blue-500 text-lg" />
+                              <span className="text-gray-700">{facility}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'courses' && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Available Courses</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {college.courses ? (
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3 mb-2">
+                            <FaGraduationCap className="text-teal-500 text-xl" />
+                            <span className="font-semibold text-gray-800">Total Courses</span>
+                          </div>
+                          <p className="text-3xl font-bold text-teal-600">{college.courses}</p>
+                        </div>
+                      ) : (
+                        <p className="text-gray-500">Course information not available.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'facilities' && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Campus Facilities</h3>
+                    {college.facilities && college.facilities.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {college.facilities.map((facility, index) => (
+                          <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <FaBuilding className="text-teal-500 text-lg" />
+                              <span className="font-medium text-gray-800">{facility}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">Facility information not available.</p>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'admissions' && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Admission Information</h3>
+                    <div className="space-y-4">
+                      {college.admissionProcess && (
+                        <div className="p-4 bg-blue-50 rounded-lg">
+                          <h4 className="font-semibold text-gray-800 mb-2">Admission Process</h4>
+                          <p className="text-gray-600">{college.admissionProcess}</p>
+                        </div>
+                      )}
+
+                      {college.examsAccepted && college.examsAccepted.length > 0 && (
+                        <div className="p-4 bg-green-50 rounded-lg">
+                          <h4 className="font-semibold text-gray-800 mb-2">Exams Accepted</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {college.examsAccepted.map((exam, index) => (
+                              <span key={index} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                                {exam}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'reviews' && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Student Reviews</h3>
+                    <p className="text-gray-500">Reviews feature coming soon...</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">About {college.name}</h3>
-                  <p className="text-gray-700 leading-relaxed">{college.description}</p>
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Stats */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Stats</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Students</span>
+                  <span className="font-semibold text-gray-800">{college.students?.toLocaleString() || 'N/A'}</span>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <Users className="text-primary mr-2" size={20} />
-                      <span className="font-medium">Students</span>
-                    </div>
-                    <p className="text-2xl font-bold">{college.students.toLocaleString()}</p>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <Calendar className="text-primary mr-2" size={20} />
-                      <span className="font-medium">Established</span>
-                    </div>
-                    <p className="text-2xl font-bold">{college.established}</p>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <DollarSign className="text-primary mr-2" size={20} />
-                      <span className="font-medium">Annual Fees</span>
-                    </div>
-                    <p className="text-2xl font-bold">{college.fees}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Courses</span>
+                  <span className="font-semibold text-gray-800">{college.courses || 'N/A'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Established</span>
+                  <span className="font-semibold text-gray-800">{college.established || 'N/A'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Rating</span>
+                  <div className="flex items-center">
+                    {renderStars(college.rating)}
                   </div>
                 </div>
+                {college.nirf_ranking && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">NIRF Rank</span>
+                    <span className="font-semibold text-yellow-600">#{college.nirf_ranking}</span>
+                  </div>
+                )}
+                {college.nirf_score && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">NIRF Score</span>
+                    <span className="font-semibold text-blue-600">{college.nirf_score}</span>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
-            {activeTab === 'courses' && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Available Courses</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {college.courseList.map((course, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <h4 className="font-semibold mb-2">{course.name}</h4>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <p>Duration: {course.duration}</p>
-                        <p>Fees: {course.fees}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {/* Contact Information */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Contact Information</h3>
+              <div className="space-y-4">
+                {college.website && (
+                  <div className="flex items-center gap-3">
+                    <FaGlobe className="text-teal-500 text-lg" />
+                    <a href={college.website} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">
+                      Visit Website
+                    </a>
+                  </div>
+                )}
+                {college.phone && (
+                  <div className="flex items-center gap-3">
+                    <FaPhone className="text-teal-500 text-lg" />
+                    <a href={`tel:${college.phone}`} className="text-gray-700 hover:text-teal-600">
+                      {college.phone}
+                    </a>
+                  </div>
+                )}
+                {college.email && (
+                  <div className="flex items-center gap-3">
+                    <FaEnvelope className="text-teal-500 text-lg" />
+                    <a href={`mailto:${college.email}`} className="text-gray-700 hover:text-teal-600">
+                      {college.email}
+                    </a>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
-            {activeTab === 'admissions' && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Admission Information</h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-medium mb-2">Admission Process</h4>
-                      <p className="text-gray-700">{college.admissions.process}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Application Deadline</h4>
-                      <p className="text-gray-700">{college.admissions.deadline}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Total Seats</h4>
-                      <p className="text-gray-700">{college.admissions.seats.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Eligibility</h4>
-                      <p className="text-gray-700">{college.admissions.eligibility}</p>
-                    </div>
+            {/* Fees Information */}
+            {college.fees && (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Fee Structure</h3>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-teal-600 mb-2">
+                    ₹{college.fees.toLocaleString()}
                   </div>
+                  <p className="text-gray-600">per year</p>
                 </div>
-              </div>
-            )}
-
-            {activeTab === 'placements' && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Placement Statistics</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="bg-gray-50 p-4 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-primary">{college.placements.averagePackage}</p>
-                    <p className="text-sm text-gray-600">Average Package</p>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-primary">{college.placements.highestPackage}</p>
-                    <p className="text-sm text-gray-600">Highest Package</p>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-primary">{college.placements.placementRate}</p>
-                    <p className="text-sm text-gray-600">Placement Rate</p>
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium mb-2">Top Recruiters</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {college.placements.topRecruiters.map((recruiter, index) => (
-                      <span
-                        key={index}
-                        className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
-                      >
-                        {recruiter}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'facilities' && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Campus Facilities</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {college.facilities.map((facility, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <h4 className="font-medium">{facility}</h4>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'reviews' && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Student Reviews</h3>
-                <p className="text-gray-600">Reviews will be displayed here.</p>
               </div>
             )}
           </div>
