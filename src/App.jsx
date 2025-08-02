@@ -10,6 +10,7 @@ import CollegeDetail from './pages/CollegeDetail';
 import CourseDetail from './pages/CourseDetail';
 import ExamDetail from './pages/ExamDetail';
 import TestPage from './pages/TestPage';
+import CollegesByLocation from './components/CollegesByLocation';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminColleges from './pages/AdminColleges';
@@ -29,11 +30,16 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/colleges" element={<CollegeList />} />
-              <Route path="/colleges/top-engineering" element={<CollegeList category="Engineering" title="Top Engineering Colleges" />} />
-              <Route path="/colleges/iits" element={<CollegeList category="IIT" title="Indian Institutes of Technology (IITs)" />} />
-              <Route path="/colleges/nits" element={<CollegeList category="NIT" title="National Institutes of Technology (NITs)" />} />
-              <Route path="/colleges/private" element={<CollegeList category="Private" title="Private Engineering Colleges" />} />
-              <Route path="/colleges/location/:location" element={<CollegeList locationFilter={true} />} />
+              <Route path="/colleges/engineering-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/medical-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/mba-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/law-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/dental-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/pharmacy-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/university-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/college-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/research-by-location" element={<CollegesByLocation />} />
+              <Route path="/colleges/:category-by-location" element={<CollegesByLocation />} />
               <Route path="/college/:slug" element={<CollegeDetail />} />
               <Route path="/course/:slug" element={<CourseDetail />} />
               <Route path="/exam/:slug" element={<ExamDetail />} />

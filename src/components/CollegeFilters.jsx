@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Filter, X, MapPin, Star, DollarSign, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const CollegeFilters = ({ filters, onFilterChange, onClearFilters }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,6 +8,10 @@ const CollegeFilters = ({ filters, onFilterChange, onClearFilters }) => {
   const categories = [
     { value: 'mba', label: 'MBA', icon: '🎓' },
     { value: 'engineering', label: 'Engineering', icon: '⚙️' },
+    { value: 'engineering-by-location', label: 'Engineering by Location', icon: '📍' },
+    { value: 'medical-by-location', label: 'Medical by Location', icon: '🏥' },
+    { value: 'law-by-location', label: 'Law by Location', icon: '⚖️' },
+    { value: 'mba-by-location', label: 'MBA by Location', icon: '🎓' },
     { value: 'medical', label: 'Medical', icon: '🏥' },
     { value: 'law', label: 'Law', icon: '⚖️' },
     { value: 'arts', label: 'Arts & Humanities', icon: '🎨' },
@@ -78,19 +83,36 @@ const CollegeFilters = ({ filters, onFilterChange, onClearFilters }) => {
               Category
             </h3>
             <div className="grid grid-cols-2 gap-2">
-              {categories.map((category) => (
-                <label key={category.value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="category"
-                    value={category.value}
-                    checked={filters.category === category.value}
-                    onChange={(e) => handleFilterChange('category', e.target.value)}
-                    className="text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm">{category.icon} {category.label}</span>
-                </label>
-              ))}
+              {categories.map((category) => {
+                const locationCategories = ['engineering-by-location', 'medical-by-location', 'law-by-location', 'mba-by-location'];
+                
+                if (locationCategories.includes(category.value)) {
+                  const route = `/colleges/${category.value}`;
+                  return (
+                    <Link
+                      key={category.value}
+                      to={route}
+                      className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="text-sm">{category.icon} {category.label}</span>
+                    </Link>
+                  );
+                } else {
+                  return (
+                    <label key={category.value} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="category"
+                        value={category.value}
+                        checked={filters.category === category.value}
+                        onChange={(e) => handleFilterChange('category', e.target.value)}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm">{category.icon} {category.label}</span>
+                    </label>
+                  );
+                }
+              })}
             </div>
           </div>
 

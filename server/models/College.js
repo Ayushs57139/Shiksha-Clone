@@ -15,7 +15,7 @@ const CollegeSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Engineering', 'MBA', 'Medical', 'Design', 'Arts', 'Law', 'Science', 'Commerce']
+    enum: ['Engineering', 'MBA', 'Medical', 'Dental', 'Pharmacy', 'Design', 'Arts', 'Law', 'Science', 'Commerce', 'University', 'College']
   },
   location: {
     type: String,
@@ -162,6 +162,14 @@ const CollegeSchema = new mongoose.Schema({
   verified: {
     type: Boolean,
     default: false
+  },
+  nirf_ranking: {
+    type: Number,
+    default: null
+  },
+  nirf_score: {
+    type: Number,
+    default: null
   }
 }, {
   timestamps: true

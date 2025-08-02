@@ -114,6 +114,17 @@ const CollegeManagement = () => {
   const filteredColleges = colleges.filter(college => {
     const matchesSearch = college.name.toLowerCase().includes(filters.search.toLowerCase()) ||
                          college.location.toLowerCase().includes(filters.search.toLowerCase());
+    
+    // Handle engineering-by-location filter
+    if (filters.category === 'engineering-by-location') {
+      const matchesEngineeringByLocation = college.category === 'Engineering' && 
+                                         filters.location && 
+                                         college.location === filters.location;
+      const matchesRating = !filters.rating || college.rating >= parseFloat(filters.rating);
+      return matchesSearch && matchesEngineeringByLocation && matchesRating;
+    }
+    
+    // Handle regular filters
     const matchesCategory = !filters.category || college.category === filters.category;
     const matchesLocation = !filters.location || college.location === filters.location;
     const matchesRating = !filters.rating || college.rating >= parseFloat(filters.rating);

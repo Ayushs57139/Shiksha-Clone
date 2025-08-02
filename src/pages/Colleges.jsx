@@ -101,13 +101,20 @@ const Colleges = () => {
     // Filter colleges based on current filters
     let filteredColleges = mockColleges;
 
-    if (filters.category) {
+    // Handle engineering-by-location filter
+    if (filters.category === 'engineering-by-location') {
+      filteredColleges = filteredColleges.filter(college => 
+        college.category === 'engineering' && 
+        filters.location && 
+        college.location.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    } else if (filters.category) {
       filteredColleges = filteredColleges.filter(college => 
         college.category === filters.category
       );
     }
 
-    if (filters.location) {
+    if (filters.location && filters.category !== 'engineering-by-location') {
       filteredColleges = filteredColleges.filter(college => 
         college.location.toLowerCase().includes(filters.location.toLowerCase())
       );
@@ -183,6 +190,7 @@ const Colleges = () => {
                 >
                   <option value="">All Categories</option>
                   <option value="engineering">Engineering</option>
+                  <option value="engineering-by-location">Engineering by Location</option>
                   <option value="mba">MBA</option>
                   <option value="medical">Medical</option>
                   <option value="law">Law</option>

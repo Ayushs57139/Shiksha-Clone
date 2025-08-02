@@ -120,7 +120,7 @@ const CollegeDetail = () => {
           >
             <FaArrowLeft className="mr-2" />
             Back to Colleges
-          </Link>
+          </Link>x
         </div>
       </div>
     );
