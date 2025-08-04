@@ -1,5 +1,6 @@
 import express from 'express';
 import College from '../models/College.js';
+import Review from '../models/Review.js';
 
 const router = express.Router();
 
@@ -92,13 +93,39 @@ router.get('/:slug', async (req, res) => {
       });
     }
 
+    // Get review statistics
+    const reviews = await Review.find({ collegeId: college._id });
+    const totalReviews = reviews.length;
+    const averageRating = totalReviews > 0 
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
+      : 0;
+
+    // Create response with review statistics
+    const collegeWithStats = {
+      ...college.toObject(),
+      reviewStats: {
+        averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
+        totalReviews,
+        ratingDistribution: {
+          5: reviews.filter(r => r.rating === 5).length,
+          4: reviews.filter(r => r.rating === 4).length,
+          3: reviews.filter(r => r.rating === 3).length,
+          2: reviews.filter(r => r.rating === 2).length,
+          1: reviews.filter(r => r.rating === 1).length
+        }
+      }
+    };
+
     res.json({
       success: true,
-      data: college
+      data: collegeWithStats
     });
   } catch (error) {
     console.error('Error fetching college:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch college' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch college details' 
+    });
   }
 });
 

@@ -98,10 +98,16 @@ export const newsAPI = {
 // Admin API
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
-  getUsers: (params) => api.get('/admin/users', { params }),
-  updateUser: (id, data) => api.put(`/admin/users/${id}`, data),
-  deleteUser: (id) => api.delete(`/admin/users/${id}`),
-  getColleges: (params) => api.get('/admin/colleges', { params }),
+  getDashboardStats: () => api.get('/admin/dashboard/stats'),
+  getRecentActivity: () => api.get('/admin/dashboard/activity'),
+  getColleges: (params = {}) => api.get('/admin/colleges', { params }),
+  getCollege: (id) => api.get(`/admin/colleges/${id}`),
+  createCollege: (data) => api.post('/admin/colleges', data),
+  updateCollege: (id, data) => api.put(`/admin/colleges/${id}`, data),
+  deleteCollege: (id) => api.delete(`/admin/colleges/${id}`),
+  getUsers: (params = {}) => api.get('/admin/users', { params }),
+  getAnalytics: (params = {}) => api.get('/admin/analytics', { params }),
+  getCollegeStats: () => api.get('/admin/colleges/stats/overview'),
 };
 
 export default api;

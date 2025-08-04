@@ -12,18 +12,27 @@ import {
   FaTrash,
   FaEye,
   FaSearch,
-  FaFilter
+  FaFilter,
+  FaFileAlt,
+  FaClock,
+  FaMapMarkerAlt,
+  FaComments
 } from 'react-icons/fa';
+import { adminAPI } from '../services/api';
 
 const AdminDashboard = () => {
   const [adminUser, setAdminUser] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
-    totalColleges: 1250,
-    totalStudents: 50000,
-    totalCourses: 150,
-    totalExams: 75
+    totalColleges: 0,
+    totalUsers: 0,
+    totalResumes: 0,
+    totalCourses: 0,
+    totalExams: 0
   });
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,6 +46,7 @@ const AdminDashboard = () => {
     }
 
     setAdminUser(JSON.parse(adminUserData));
+    fetchDashboardData();
   }, [navigate]);
 
   useEffect(() => {
@@ -44,10 +54,37 @@ const AdminDashboard = () => {
     const path = location.pathname;
     if (path.includes('/admin/colleges')) setActiveTab('colleges');
     else if (path.includes('/admin/users')) setActiveTab('users');
+    else if (path.includes('/admin/resumes')) setActiveTab('resumes');
+    else if (path.includes('/admin/tools')) setActiveTab('tools');
     else if (path.includes('/admin/analytics')) setActiveTab('analytics');
     else if (path.includes('/admin/settings')) setActiveTab('settings');
     else setActiveTab('overview');
   }, [location]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [statsResponse, activityResponse] = await Promise.all([
+        adminAPI.getDashboardStats(),
+        adminAPI.getRecentActivity()
+      ]);
+
+      if (statsResponse.data.success) {
+        setStats(statsResponse.data.data.overview);
+      }
+
+      if (activityResponse.data.success) {
+        setRecentActivity(activityResponse.data.data);
+      }
+    } catch (error) {
+      console.error('Dashboard data fetch error:', error);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -55,10 +92,51 @@ const AdminDashboard = () => {
     navigate('/admin/login');
   };
 
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    return date.toLocaleDateString();
+  };
+
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case 'college':
+        return <FaGraduationCap className="h-4 w-4 text-blue-600" />;
+      case 'user':
+        return <FaUsers className="h-4 w-4 text-green-600" />;
+      case 'resume':
+        return <FaFileAlt className="h-4 w-4 text-purple-600" />;
+      default:
+        return <FaClock className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const getActivityColor = (type) => {
+    switch (type) {
+      case 'college':
+        return 'bg-blue-500';
+      case 'user':
+        return 'bg-green-500';
+      case 'resume':
+        return 'bg-purple-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
   const navItems = [
     { id: 'overview', label: 'Overview', icon: FaTachometerAlt, path: '/admin/dashboard' },
     { id: 'colleges', label: 'Colleges', icon: FaGraduationCap, path: '/admin/colleges' },
     { id: 'users', label: 'Users', icon: FaUsers, path: '/admin/users' },
+    { id: 'resumes', label: 'Resumes', icon: FaFileAlt, path: '/admin/resumes' },
+    { id: 'reviews', label: 'Reviews', icon: FaComments, path: '/admin/reviews' },
+    { id: 'tools', label: 'Tools', icon: FaCog, path: '/admin/tools' },
     { id: 'analytics', label: 'Analytics', icon: FaChartBar, path: '/admin/analytics' },
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/admin/settings' }
   ];
@@ -82,7 +160,7 @@ const AdminDashboard = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                Welcome, {adminUser.name}
+                Welcome, {adminUser.name || 'Admin User'}
               </span>
               <button
                 onClick={handleLogout}
@@ -126,6 +204,12 @@ const AdminDashboard = () => {
           <div className="flex-1">
             {activeTab === 'overview' && (
               <div className="space-y-6">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+                    {error}
+                  </div>
+                )}
+
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="bg-white rounded-lg shadow-sm p-6">
@@ -135,7 +219,9 @@ const AdminDashboard = () => {
                       </div>
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-600">Total Colleges</p>
-                        <p className="text-2xl font-bold text-gray-900">{stats.totalColleges.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {loading ? '...' : stats.totalColleges.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -146,8 +232,10 @@ const AdminDashboard = () => {
                         <FaUsers className="h-6 w-6 text-green-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total Students</p>
-                        <p className="text-2xl font-bold text-gray-900">{stats.totalStudents.toLocaleString()}</p>
+                        <p className="text-sm font-medium text-gray-600">Total Users</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {loading ? '...' : stats.totalUsers.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -155,11 +243,13 @@ const AdminDashboard = () => {
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center">
                       <div className="p-3 bg-purple-100 rounded-lg">
-                        <FaTachometerAlt className="h-6 w-6 text-purple-600" />
+                        <FaFileAlt className="h-6 w-6 text-purple-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total Courses</p>
-                        <p className="text-2xl font-bold text-gray-900">{stats.totalCourses}</p>
+                        <p className="text-sm font-medium text-gray-600">Total Resumes</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {loading ? '...' : stats.totalResumes.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -170,8 +260,10 @@ const AdminDashboard = () => {
                         <FaChartBar className="h-6 w-6 text-orange-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total Exams</p>
-                        <p className="text-2xl font-bold text-gray-900">{stats.totalExams}</p>
+                        <p className="text-sm font-medium text-gray-600">Total Courses</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {loading ? '...' : stats.totalCourses.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -207,24 +299,49 @@ const AdminDashboard = () => {
 
                 {/* Recent Activity */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">New college "ABC University" added</span>
-                      <span className="text-xs text-gray-400 ml-auto">2 hours ago</span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">Updated course information for MBA</span>
-                      <span className="text-xs text-gray-400 ml-auto">4 hours ago</span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">New user registration: john@example.com</span>
-                      <span className="text-xs text-gray-400 ml-auto">6 hours ago</span>
-                    </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                    <button
+                      onClick={fetchDashboardData}
+                      className="text-sm text-teal-600 hover:text-teal-700"
+                    >
+                      Refresh
+                    </button>
                   </div>
+                  
+                  {loading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="animate-pulse">
+                          <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                            <div className="flex-1 h-4 bg-gray-300 rounded"></div>
+                            <div className="w-16 h-3 bg-gray-300 rounded"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : recentActivity.length > 0 ? (
+                    <div className="space-y-4">
+                      {recentActivity.slice(0, 10).map((activity, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                          <div className={`w-2 h-2 rounded-full ${getActivityColor(activity.type)}`}></div>
+                          <div className="flex items-center space-x-2 flex-1">
+                            {getActivityIcon(activity.type)}
+                            <span className="text-sm text-gray-600">{activity.title}</span>
+                          </div>
+                          <span className="text-xs text-gray-400">
+                            {formatTimeAgo(activity.time)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <FaClock className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p>No recent activity</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

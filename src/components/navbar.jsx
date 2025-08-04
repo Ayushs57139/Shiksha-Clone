@@ -1,13 +1,45 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaSearch, FaChevronDown, FaGraduationCap, FaBuilding, FaUsers, FaChartLine, FaMapMarkerAlt, FaStar, FaBook, FaFlask, FaBalanceScale, FaPills, FaPalette, FaCalculator, FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCog, FaBars, FaTimes, FaUniversity, FaMicroscope } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { 
+  FaSearch, 
+  FaChevronDown, 
+  FaGraduationCap, 
+  FaBuilding, 
+  FaUsers, 
+  FaChartLine, 
+  FaMapMarkerAlt, 
+  FaStar, 
+  FaBook, 
+  FaFlask, 
+  FaBalanceScale, 
+  FaPills, 
+  FaPalette, 
+  FaCalculator, 
+  FaUser, 
+  FaSignOutAlt, 
+  FaSignInAlt, 
+  FaUserPlus, 
+  FaCog, 
+  FaBars, 
+  FaTimes, 
+  FaUniversity, 
+  FaMicroscope, 
+  FaFileAlt,
+  FaHome,
+  FaInfoCircle,
+  FaEnvelope,
+  FaGlobe
+} from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -21,112 +53,211 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleSearch = (query, isMobile = false) => {
+    if (query.trim()) {
+      // Navigate to college list with search query
+      navigate(`/colleges?search=${encodeURIComponent(query.trim())}`);
+      // Clear search after navigation
+      if (isMobile) {
+        setMobileSearchQuery('');
+      } else {
+        setSearchQuery('');
+      }
+    }
+  };
+
+  const handleSearchKeyPress = (e, isMobile = false) => {
+    if (e.key === 'Enter') {
+      const query = isMobile ? mobileSearchQuery : searchQuery;
+      handleSearch(query, isMobile);
+    }
+  };
+
   const collegeCategories = [
     {
       name: 'Universities',
-      icon: <FaUniversity />,
+      icon: <FaUniversity className="text-blue-600" />,
       items: [
-        { name: 'All Universities', link: '/colleges?category=University' },
-        { name: 'State Universities', link: '/colleges?category=University&filter=state' },
-        { name: 'Private Universities', link: '/colleges?category=University&filter=private' },
-        { name: 'Universities by Location', link: '/colleges/university-by-location' }
+        { name: 'All Universities', link: '/colleges?category=University', icon: <FaUniversity /> },
+        { name: 'State Universities', link: '/colleges?category=University&filter=state', icon: <FaBuilding /> },
+        { name: 'Private Universities', link: '/colleges?category=University&filter=private', icon: <FaGraduationCap /> },
+        { name: 'Universities by Location', link: '/colleges/university-by-location', icon: <FaMapMarkerAlt /> }
       ]
     },
     {
       name: 'Colleges',
-      icon: <FaGraduationCap />,
+      icon: <FaGraduationCap className="text-green-600" />,
       items: [
-        { name: 'All Colleges', link: '/colleges?category=College' },
-        { name: 'Government Colleges', link: '/colleges?category=College&filter=government' },
-        { name: 'Private Colleges', link: '/colleges?category=College&filter=private' },
-        { name: 'Colleges by Location', link: '/colleges/college-by-location' }
+        { name: 'All Colleges', link: '/colleges?category=College', icon: <FaGraduationCap /> },
+        { name: 'Government Colleges', link: '/colleges?category=College&filter=government', icon: <FaBuilding /> },
+        { name: 'State Colleges', link: '/colleges?category=College&filter=state-college', icon: <FaUniversity /> },
+        { name: 'Private Colleges', link: '/colleges?category=College&filter=private', icon: <FaGraduationCap /> },
+        { name: 'Colleges by Location', link: '/colleges/college-by-location', icon: <FaMapMarkerAlt /> }
       ]
     },
     {
       name: 'Engineering Colleges',
-      icon: <FaGraduationCap />,
+      icon: <FaGraduationCap className="text-orange-600" />,
       items: [
-        { name: 'Top Engineering Colleges', link: '/colleges?category=Engineering' },
-        { name: 'IITs', link: '/colleges?category=IIT' },
-        { name: 'NITs', link: '/colleges?category=NIT' },
-        { name: 'Private Engineering Colleges', link: '/colleges?category=Private' },
-        { name: 'Engineering by Location', link: '/colleges/engineering-by-location' }
+        { name: 'All Engineering Colleges', link: '/colleges?category=Engineering', icon: <FaGraduationCap /> },
+        { name: 'IITs', link: '/colleges?category=Engineering&filter=iit', icon: <FaUniversity /> },
+        { name: 'NITs', link: '/colleges?category=Engineering&filter=nit', icon: <FaBuilding /> },
+        { name: 'Private Engineering Colleges', link: '/colleges?category=Engineering&filter=private', icon: <FaGraduationCap /> },
+        { name: 'Engineering by Location', link: '/colleges/engineering-by-location', icon: <FaMapMarkerAlt /> }
       ]
     },
     {
       name: 'Medical Colleges',
-      icon: <FaFlask />,
+      icon: <FaPills className="text-red-600" />,
       items: [
-        { name: 'Top Medical Colleges', link: '/colleges?category=Medical' },
-        { name: 'AIIMS', link: '/colleges?category=Medical&filter=aiims' },
-        { name: 'Medical Colleges by Location', link: '/colleges/medical-by-location' },
-        { name: 'Dental Colleges', link: '/colleges?category=Dental' },
-        { name: 'Pharmacy Colleges', link: '/colleges?category=Pharmacy' }
-      ]
-    },
-    {
-      name: 'Law Colleges',
-      icon: <FaBalanceScale />,
-      items: [
-        { name: 'Top Law Colleges', link: '/colleges?category=Law' },
-        { name: 'National Law Schools', link: '/colleges?category=Law&filter=nls' },
-        { name: 'Law Colleges by Location', link: '/colleges/law-by-location' },
-        { name: 'Corporate Law', link: '/colleges?category=Law&filter=corporate' },
-        { name: 'Criminal Law', link: '/colleges?category=Law&filter=criminal' }
+        { name: 'All Medical Colleges', link: '/colleges?category=Medical', icon: <FaPills /> },
+        { name: 'AIIMS', link: '/colleges?category=Medical&filter=aiims', icon: <FaUniversity /> },
+        { name: 'Government Medical Colleges', link: '/colleges?category=Medical&filter=government', icon: <FaBuilding /> },
+        { name: 'Private Medical Colleges', link: '/colleges?category=Medical&filter=private', icon: <FaPills /> },
+        { name: 'Medical by Location', link: '/colleges/medical-by-location', icon: <FaMapMarkerAlt /> }
       ]
     },
     {
       name: 'Management Colleges',
-      icon: <FaChartLine />,
+      icon: <FaUsers className="text-purple-600" />,
       items: [
-        { name: 'Top MBA Colleges', link: '/colleges?category=MBA' },
-        { name: 'IIMs', link: '/colleges?category=MBA&filter=iim' },
-        { name: 'Private MBA Colleges', link: '/colleges?category=MBA&filter=private' },
-        { name: 'MBA by Location', link: '/colleges/mba-by-location' }
+        { name: 'All Management Colleges', link: '/colleges?category=Management', icon: <FaUsers /> },
+        { name: 'IIMs', link: '/colleges?category=Management&filter=iim', icon: <FaUniversity /> },
+        { name: 'Government B-Schools', link: '/colleges?category=Management&filter=government', icon: <FaBuilding /> },
+        { name: 'Private B-Schools', link: '/colleges?category=Management&filter=private', icon: <FaUsers /> },
+        { name: 'Management by Location', link: '/colleges/management-by-location', icon: <FaMapMarkerAlt /> }
       ]
     },
     {
-      name: 'Research Institutions',
-      icon: <FaMicroscope />,
+      name: 'Law Colleges',
+      icon: <FaBalanceScale className="text-indigo-600" />,
       items: [
-        { name: 'All Research Institutions', link: '/colleges?category=Research' },
-        { name: 'IITs & NITs', link: '/colleges?category=Research&filter=iit-nit' },
-        { name: 'Research Institutions by Location', link: '/colleges/research-by-location' }
+        { name: 'All Law Colleges', link: '/colleges?category=Law', icon: <FaBalanceScale /> },
+        { name: 'NLUs', link: '/colleges?category=Law&filter=nlu', icon: <FaUniversity /> },
+        { name: 'Government Law Colleges', link: '/colleges?category=Law&filter=government', icon: <FaBuilding /> },
+        { name: 'Private Law Colleges', link: '/colleges?category=Law&filter=private', icon: <FaBalanceScale /> },
+        { name: 'Law by Location', link: '/colleges/law-by-location', icon: <FaMapMarkerAlt /> }
       ]
     },
     {
-      name: 'Other Categories',
-      icon: <FaBuilding />,
+      name: 'Arts & Design',
+      icon: <FaPalette className="text-pink-600" />,
       items: [
-        { name: 'Arts & Design', link: '/colleges?category=Arts' },
-        { name: 'Science Colleges', link: '/colleges?category=Science' },
-        { name: 'Commerce Colleges', link: '/colleges?category=Commerce' },
-        { name: 'Architecture Colleges', link: '/colleges?category=Architecture' }
+        { name: 'All Arts Colleges', link: '/colleges?category=Arts', icon: <FaPalette /> },
+        { name: 'Design Institutes', link: '/colleges?category=Arts&filter=design', icon: <FaPalette /> },
+        { name: 'Fine Arts Colleges', link: '/colleges?category=Arts&filter=fine-arts', icon: <FaPalette /> },
+        { name: 'Arts by Location', link: '/colleges/arts-by-location', icon: <FaMapMarkerAlt /> }
+      ]
+    },
+    {
+      name: 'Research Institutes',
+      icon: <FaMicroscope className="text-teal-600" />,
+      items: [
+        { name: 'All Research Institutes', link: '/colleges?category=Research', icon: <FaMicroscope /> },
+        { name: 'CSIR Labs', link: '/colleges?category=Research&filter=csir', icon: <FaUniversity /> },
+        { name: 'DRDO Labs', link: '/colleges?category=Research&filter=drdo', icon: <FaBuilding /> },
+        { name: 'Research by Location', link: '/colleges/research-by-location', icon: <FaMapMarkerAlt /> }
+      ]
+    },
+    {
+      name: 'Agriculture & Planning',
+      icon: <FaFlask className="text-green-600" />,
+      items: [
+        { name: 'All Agriculture Colleges', link: '/colleges?category=Agriculture', icon: <FaFlask /> },
+        { name: 'Agricultural Universities', link: '/colleges?category=Agriculture&filter=university', icon: <FaUniversity /> },
+        { name: 'Planning Institutes', link: '/colleges?category=Planning', icon: <FaBuilding /> },
+        { name: 'Agriculture by Location', link: '/colleges/agriculture-by-location', icon: <FaMapMarkerAlt /> }
+      ]
+    },
+    {
+      name: 'Innovation',
+      icon: <FaStar className="text-yellow-600" />,
+      items: [
+        { name: 'All Innovation Institutes', link: '/colleges?category=Innovation', icon: <FaStar /> },
+        { name: 'Innovation Universities', link: '/colleges?category=Innovation&filter=university', icon: <FaUniversity /> },
+        { name: 'Innovation by Location', link: '/colleges/innovation-by-location', icon: <FaMapMarkerAlt /> }
+      ]
+    },
+    {
+      name: 'Open University',
+      icon: <FaBook className="text-blue-600" />,
+      items: [
+        { name: 'All Open Universities', link: '/colleges?category=OpenUniversity', icon: <FaBook /> },
+        { name: 'Open Universities by State', link: '/colleges?category=OpenUniversity&filter=state', icon: <FaUniversity /> },
+        { name: 'Open University by Location', link: '/colleges/open-university-by-location', icon: <FaMapMarkerAlt /> }
+      ]
+    },
+    {
+      name: 'Skill University',
+      icon: <FaGraduationCap className="text-orange-600" />,
+      items: [
+        { name: 'All Skill Universities', link: '/colleges?category=SkillUniversity', icon: <FaGraduationCap /> },
+        { name: 'Skill Universities by State', link: '/colleges?category=SkillUniversity&filter=state', icon: <FaUniversity /> },
+        { name: 'Skill University by Location', link: '/colleges/skill-university-by-location', icon: <FaMapMarkerAlt /> }
+      ]
+    },
+    {
+      name: 'State Public University',
+      icon: <FaUniversity className="text-purple-600" />,
+      items: [
+        { name: 'All State Public Universities', link: '/colleges?category=StatePublicUniversity', icon: <FaUniversity /> },
+        { name: 'State Public Universities by State', link: '/colleges?category=StatePublicUniversity&filter=state', icon: <FaBuilding /> },
+        { name: 'State Public University by Location', link: '/colleges/state-public-university-by-location', icon: <FaMapMarkerAlt /> }
       ]
     }
   ];
 
+  // Add new tools section
+  const toolsSection = {
+    name: 'Tools & Resources',
+    icon: <FaCalculator className="text-indigo-600" />,
+    items: [
+      { name: 'College Tools', link: '/college-tools', icon: <FaCalculator /> },
+      { name: 'Exam Preparation', link: '/exam-preparation', icon: <FaBook /> },
+      { name: 'Career Resources', link: '/career-resources', icon: <FaUsers /> },
+      { name: 'Study Abroad', link: '/study-abroad', icon: <FaGlobe /> }
+    ]
+  };
+
   const toolsAndResources = [
     {
       name: 'College Tools',
-      icon: <FaCalculator />,
+      icon: <FaCalculator className="text-blue-600" />,
       items: [
-        { name: 'College Predictor', link: '/predictor' },
-        { name: 'Compare Colleges', link: '/compare' },
-        { name: 'College Reviews', link: '/reviews' },
-        { name: 'Admission Guide', link: '/admission-guide' },
-        { name: 'Scholarship Info', link: '/scholarships' }
+        { name: 'College Predictor', link: '/college-tools', icon: <FaChartLine /> },
+        { name: 'Fee Calculator', link: '/college-tools', icon: <FaCalculator /> },
+        { name: 'Ranking Compare', link: '/college-tools', icon: <FaStar /> },
+        { name: 'Admission Guide', link: '/college-tools', icon: <FaBook /> }
       ]
     },
     {
-      name: 'Exams & Admissions',
-      icon: <FaBook />,
+      name: 'Career Resources',
+      icon: <FaUsers className="text-green-600" />,
       items: [
-        { name: 'JEE Main', link: '/exams/jee-main' },
-        { name: 'JEE Advanced', link: '/exams/jee-advanced' },
-        { name: 'NEET', link: '/exams/neet' },
-        { name: 'CAT', link: '/exams/cat' },
-        { name: 'CLAT', link: '/exams/clat' }
+        { name: 'Career Counseling', link: '/career-resources', icon: <FaUsers /> },
+        { name: 'Job Prospects', link: '/career-resources', icon: <FaChartLine /> },
+        { name: 'Industry Trends', link: '/career-resources', icon: <FaChartLine /> },
+        { name: 'Skill Development', link: '/career-resources', icon: <FaBook /> }
+      ]
+    },
+    {
+      name: 'Exam Preparation',
+      icon: <FaBook className="text-purple-600" />,
+      items: [
+        { name: 'JEE Main', link: '/exam-preparation', icon: <FaBook /> },
+        { name: 'NEET', link: '/exam-preparation', icon: <FaBook /> },
+        { name: 'CAT', link: '/exam-preparation', icon: <FaBook /> },
+        { name: 'GATE', link: '/exam-preparation', icon: <FaBook /> }
+      ]
+    },
+    {
+      name: 'Study Abroad',
+      icon: <FaMapMarkerAlt className="text-orange-600" />,
+      items: [
+        { name: 'US Universities', link: '/study-abroad', icon: <FaUniversity /> },
+        { name: 'UK Universities', link: '/study-abroad', icon: <FaUniversity /> },
+        { name: 'Australia', link: '/study-abroad', icon: <FaUniversity /> },
+        { name: 'Canada', link: '/study-abroad', icon: <FaUniversity /> }
       ]
     }
   ];
@@ -186,8 +317,13 @@ const Navbar = () => {
                                 <li key={itemIndex}>
                                   <Link
                                     to={item.link}
-                                    className="block text-gray-600 hover:text-teal-600 hover:bg-gray-50 px-2 py-1 rounded text-sm transition-colors"
-                                    onClick={() => setActiveDropdown(null)}
+                                    className="block text-gray-600 hover:text-teal-600 hover:bg-gray-50 px-2 py-1 rounded text-sm transition-colors cursor-pointer"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setActiveDropdown(null);
+                                      console.log('Navigating to:', item.link);
+                                      navigate(item.link);
+                                    }}
                                   >
                                     {item.name}
                                   </Link>
@@ -204,7 +340,7 @@ const Navbar = () => {
             </div>
 
             {/* Tools & Resources Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => handleDropdownClick('tools')}
                 className="flex items-center space-x-1 text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -220,9 +356,18 @@ const Navbar = () => {
                   <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]" onClick={() => setActiveDropdown(null)} />
                   
                   {/* Dropdown */}
-                  <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-screen max-w-4xl bg-white border border-gray-200 rounded-lg shadow-xl z-[1002]">
+                  <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-screen max-w-6xl bg-white border border-gray-200 rounded-lg shadow-xl z-[1002]">
                     <div className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Tools & Resources</h3>
+                        <button
+                          onClick={() => setActiveDropdown(null)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <FaTimes className="h-5 w-5" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-4 gap-8">
                         {toolsAndResources.map((section, index) => (
                           <div key={index} className="space-y-3">
                             <div className="flex items-center space-x-2 text-teal-600 font-semibold">
@@ -255,11 +400,9 @@ const Navbar = () => {
             <Link to="/colleges" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
               Browse All Colleges
             </Link>
-            <Link to="/about" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-              About
-            </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-              Contact
+            <Link to="/resume-builder" className="flex items-center space-x-1 bg-orange-500 text-white px-3 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium">
+              <FaFileAlt className="h-4 w-4" />
+              <span className="hidden sm:block">Resume Builder</span>
             </Link>
           </div>
 
@@ -271,8 +414,17 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search colleges..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm w-48"
+                className="pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm w-48"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => handleSearchKeyPress(e)}
               />
+              <button
+                onClick={() => handleSearch(searchQuery)}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-teal-600 hover:text-teal-700"
+              >
+                <FaSearch className="h-4 w-4" />
+              </button>
             </div>
 
             {/* Conditional rendering based on authentication */}
@@ -345,7 +497,16 @@ const Navbar = () => {
                   type="text"
                   placeholder="Search colleges..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm"
+                  value={mobileSearchQuery}
+                  onChange={(e) => setMobileSearchQuery(e.target.value)}
+                  onKeyPress={(e) => handleSearchKeyPress(e, true)}
                 />
+                <button
+                  onClick={() => handleSearch(mobileSearchQuery, true)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-teal-600 hover:text-teal-700"
+                >
+                  <FaSearch className="h-4 w-4" />
+                </button>
               </div>
 
               {/* Mobile Colleges Dropdown */}
@@ -371,17 +532,18 @@ const Navbar = () => {
                         </div>
                         <div className="ml-4 space-y-1">
                           {section.items.map((item, itemIndex) => (
-                            <Link
+                            <button
                               key={itemIndex}
-                              to={item.link}
-                              className="block text-gray-600 hover:text-teal-600 px-2 py-1 rounded text-sm"
+                              className="block w-full text-left text-gray-600 hover:text-teal-600 px-2 py-1 rounded text-sm cursor-pointer"
                               onClick={() => {
                                 setMobileMenuOpen(false);
                                 setMobileDropdownOpen(null);
+                                console.log('Mobile navigating to:', item.link);
+                                navigate(item.link);
                               }}
                             >
                               {item.name}
-                            </Link>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -439,20 +601,6 @@ const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Browse All Colleges
-              </Link>
-              <Link
-                to="/about"
-                className="block px-3 py-2 text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded-md text-sm font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link
-                to="/contact"
-                className="block px-3 py-2 text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded-md text-sm font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Contact
               </Link>
 
               {/* Mobile Auth Links */}

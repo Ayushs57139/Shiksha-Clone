@@ -4,6 +4,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import collegesRoutes from './routes/colleges.js';
 import adminRoutes from './routes/admin.js';
+import resumeRoutes from './routes/resumes.js';
+import authRoutes from './routes/auth.js';
+import reviewRoutes from './routes/reviews.js';
 
 dotenv.config();
 
@@ -23,8 +26,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://ayushs81740:6JplFZPJ3
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/colleges', collegesRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/resumes', resumeRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

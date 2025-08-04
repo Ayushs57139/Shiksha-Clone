@@ -1,8 +1,8 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const { body, validationResult } = require('express-validator');
-const User = require('../models/User');
-const { auth } = require('../middleware/auth');
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import { body, validationResult } from 'express-validator';
+import User from '../models/User.js';
+import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -10,8 +10,8 @@ const router = express.Router();
 const generateToken = (user) => {
   return jwt.sign(
     { userId: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
+    process.env.JWT_SECRET || 'your-secret-key',
+    { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
 };
 
@@ -64,7 +64,7 @@ router.post('/register', [
       success: true,
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email
@@ -82,31 +82,52 @@ router.post('/login', [
   body('password').exists()
 ], async (req, res) => {
   try {
+    console.log('🔐 Login attempt:', req.body.email);
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ Validation errors:', errors.array());
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select('+password');
-    if (!user || !(await user.comparePassword(password))) {
+    
+    console.log('👤 User found:', !!user);
+    if (user) {
+      console.log('🔑 User role:', user.role);
+      console.log('🔐 Has password:', !!user.password);
+    }
+    
+    if (!user) {
+      console.log('❌ User not found');
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const isPasswordValid = await user.comparePassword(password);
+    console.log('🔐 Password valid:', isPasswordValid);
+    
+    if (!isPasswordValid) {
+      console.log('❌ Invalid password');
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     const token = generateToken(user);
+    console.log('✅ Login successful for:', user.email);
 
     res.json({
       success: true,
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     res.status(500).json({ success: false, message: 'Server error during login' });
   }
 });
@@ -114,7 +135,7 @@ router.post('/login', [
 // ✅ GET CURRENT USER - /api/auth/me
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -122,7 +143,7 @@ router.get('/me', auth, async (req, res) => {
     res.json({
       success: true,
       user: {
-        id: user._id,
+        _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -154,7 +175,7 @@ router.put('/profile', auth, [
     }
 
     const user = await User.findByIdAndUpdate(
-      req.user.userId,
+      req.user.id,
       { $set: req.body },
       { new: true, runValidators: true }
     );
@@ -163,7 +184,7 @@ router.put('/profile', auth, [
       success: true,
       message: 'Profile updated successfully',
       user: {
-        id: user._id,
+        _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -178,4 +199,4 @@ router.put('/profile', auth, [
   }
 });
 
-module.exports = router;
+export default router;

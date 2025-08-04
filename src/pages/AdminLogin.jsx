@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUserShield, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -25,23 +27,19 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      // For demo purposes, using hardcoded admin credentials
-      // In production, this should be a proper API call
-      if (formData.email === 'admin@shiksha.com' && formData.password === 'admin123') {
-        // Store admin session
-        localStorage.setItem('adminToken', 'demo-admin-token');
-        localStorage.setItem('adminUser', JSON.stringify({
-          id: 1,
-          name: 'Admin User',
-          email: formData.email,
-          role: 'admin'
-        }));
-        
-        navigate('/admin/dashboard');
+      const result = await login(formData);
+      
+      if (result.success) {
+        if (result.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          setError('Access denied. Admin privileges required.');
+        }
       } else {
-        setError('Invalid credentials. Please try again.');
+        setError(result.message || 'Login failed. Please try again.');
       }
     } catch (err) {
+      console.error('Admin login error:', err);
       setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
@@ -143,10 +141,9 @@ const AdminLogin = () => {
           </div>
 
           <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials:</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-2">Admin Login:</h3>
             <p className="text-xs text-gray-600">
-              Email: <span className="font-mono">admin@shiksha.com</span><br />
-              Password: <span className="font-mono">admin123</span>
+              Use any registered admin account or create one through registration.
             </p>
           </div>
         </form>

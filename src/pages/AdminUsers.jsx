@@ -8,8 +8,16 @@ import {
   FaEye,
   FaUserPlus,
   FaDownload,
-  FaUpload
+  FaUpload,
+  FaSpinner,
+  FaCheckCircle,
+  FaTimes,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaEnvelope,
+  FaPhone
 } from 'react-icons/fa';
+import { adminAPI } from '../services/api';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -19,94 +27,135 @@ const AdminUsers = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-
-  // Mock data for demonstration
-  const mockUsers = [
-    {
-      id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      phone: '+91 98765 43210',
-      city: 'Mumbai',
-      interestedIn: 'Engineering',
-      status: 'active',
-      joinedDate: '2024-01-15',
-      lastLogin: '2024-07-30'
-    },
-    {
-      id: 2,
-      firstName: 'Jane',
-      lastName: 'Smith',
-      email: 'jane.smith@example.com',
-      phone: '+91 98765 43211',
-      city: 'Delhi',
-      interestedIn: 'MBA',
-      status: 'active',
-      joinedDate: '2024-02-20',
-      lastLogin: '2024-07-29'
-    },
-    {
-      id: 3,
-      firstName: 'Mike',
-      lastName: 'Johnson',
-      email: 'mike.johnson@example.com',
-      phone: '+91 98765 43212',
-      city: 'Bangalore',
-      interestedIn: 'Medical',
-      status: 'inactive',
-      joinedDate: '2024-03-10',
-      lastLogin: '2024-07-25'
-    },
-    {
-      id: 4,
-      firstName: 'Sarah',
-      lastName: 'Wilson',
-      email: 'sarah.wilson@example.com',
-      phone: '+91 98765 43213',
-      city: 'Chennai',
-      interestedIn: 'Design',
-      status: 'active',
-      joinedDate: '2024-04-05',
-      lastLogin: '2024-07-30'
-    }
-  ];
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    newUsers: 0
+  });
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setUsers(mockUsers);
-      setFilteredUsers(mockUsers);
-      setLoading(false);
-    }, 1000);
+    fetchUsers();
+    fetchUserStats();
   }, []);
 
   useEffect(() => {
     filterUsers();
   }, [searchQuery, selectedStatus, users]);
 
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const response = await adminAPI.getUsers({
+        limit: 1000,
+        search: searchQuery,
+        status: selectedStatus !== 'all' ? selectedStatus : ''
+      });
+      
+      if (response.data.success) {
+        setUsers(response.data.data);
+        setFilteredUsers(response.data.data);
+      } else {
+        setError('Failed to fetch users');
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError('Failed to fetch users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserStats = async () => {
+    try {
+      const response = await adminAPI.getUsers({ limit: 1000 });
+      if (response.data.success) {
+        const allUsers = response.data.data;
+        const activeUsers = allUsers.filter(user => user.isVerified).length;
+        const newUsers = allUsers.filter(user => {
+          const userDate = new Date(user.createdAt);
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          return userDate >= thirtyDaysAgo;
+        }).length;
+
+        setStats({
+          totalUsers: allUsers.length,
+          activeUsers,
+          newUsers
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
+  };
+
   const filterUsers = () => {
     let filtered = users;
 
     if (searchQuery) {
       filtered = filtered.filter(user =>
-        user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.city.toLowerCase().includes(searchQuery.toLowerCase())
+        user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.phone?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (selectedStatus !== 'all') {
-      filtered = filtered.filter(user => user.status === selectedStatus);
+      filtered = filtered.filter(user => user.role === selectedStatus);
     }
 
     setFilteredUsers(filtered);
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== id));
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) {
+      return;
+    }
+
+    try {
+      setError('');
+      // Note: We don't have a delete user endpoint yet, so we'll just show a message
+      setSuccess('User deletion is not implemented yet');
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setError('Failed to delete user');
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'admin':
+        return 'bg-purple-100 text-purple-800';
+      case 'user':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'admin':
+        return <FaCheckCircle className="h-4 w-4 text-purple-600" />;
+      case 'user':
+        return <FaCheckCircle className="h-4 w-4 text-green-600" />;
+      default:
+        return <FaTimes className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -173,8 +222,8 @@ const AdminUsers = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
             >
               <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
             </select>
           </div>
           
@@ -201,7 +250,7 @@ const AdminUsers = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">{users.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
             </div>
           </div>
         </div>
@@ -213,7 +262,7 @@ const AdminUsers = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Active Users</p>
-              <p className="text-2xl font-bold text-gray-900">{users.filter(u => u.status === 'active').length}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.activeUsers}</p>
             </div>
           </div>
         </div>
@@ -225,7 +274,7 @@ const AdminUsers = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">New This Month</p>
-              <p className="text-2xl font-bold text-gray-900">12</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.newUsers}</p>
             </div>
           </div>
         </div>
@@ -284,7 +333,7 @@ const AdminUsers = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <p className="font-medium text-gray-900">{user.firstName} {user.lastName}</p>
-                      <p className="text-sm text-gray-600">Joined {new Date(user.joinedDate).toLocaleDateString()}</p>
+                      <p className="text-sm text-gray-600">Joined {formatDate(user.createdAt)}</p>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -303,15 +352,15 @@ const AdminUsers = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      user.status === 'active' 
+                      user.isVerified 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-red-100 text-red-800'
                     }`}>
-                      {user.status}
+                      {user.isVerified ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(user.lastLogin).toLocaleDateString()}
+                    {formatDate(user.lastLogin)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">

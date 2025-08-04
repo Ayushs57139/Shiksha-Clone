@@ -17,6 +17,15 @@ import AdminColleges from './pages/AdminColleges';
 import AdminUsers from './pages/AdminUsers';
 import AdminAnalytics from './pages/AdminAnalytics';
 import AdminSettings from './pages/AdminSettings';
+import ResumeBuilder from './pages/ResumeBuilder';
+import AdminResumes from './pages/AdminResumes';
+import AdminTools from './pages/AdminTools';
+import AdminReviews from './pages/AdminReviews';
+import TemplateSelection from './pages/TemplateSelection';
+import CollegeTools from './pages/CollegeTools';
+import ExamPreparation from './pages/ExamPreparation';
+import CareerResources from './pages/CareerResources';
+import StudyAbroad from './pages/StudyAbroad';
 
 function App() {
   return (
@@ -44,6 +53,12 @@ function App() {
               <Route path="/course/:slug" element={<CourseDetail />} />
               <Route path="/exam/:slug" element={<ExamDetail />} />
               <Route path="/test" element={<TestPage />} />
+              <Route path="/resume-builder" element={<ResumeBuilder />} />
+              <Route path="/templates" element={<TemplateSelection />} />
+              <Route path="/college-tools" element={<CollegeTools />} />
+              <Route path="/exam-preparation" element={<ExamPreparation />} />
+              <Route path="/career-resources" element={<CareerResources />} />
+              <Route path="/study-abroad" element={<StudyAbroad />} />
               
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
@@ -52,6 +67,9 @@ function App() {
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/resumes" element={<AdminResumes />} />
+              <Route path="/admin/tools" element={<AdminTools />} />
+              <Route path="/admin/reviews" element={<AdminReviews />} />
             </Routes>
           </main>
         </div>

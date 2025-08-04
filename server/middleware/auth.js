@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 // Regular auth middleware
 const auth = async (req, res, next) => {
@@ -10,14 +10,14 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'No token provided, authorization denied' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     const user = await User.findById(decoded.userId);
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid token' });
     }
 
-    req.user = { userId: user._id, role: user.role };
+    req.user = { id: user._id, role: user.role };
     next();
 
   } catch (error) {
@@ -34,4 +34,4 @@ const adminAuth = async (req, res, next) => {
   next();
 };
 
-module.exports = { auth, adminAuth };
+export { auth, adminAuth };

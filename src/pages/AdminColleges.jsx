@@ -19,8 +19,10 @@ import {
   FaMapMarkerAlt,
   FaCalendarAlt,
   FaCheckCircle,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaSpinner
 } from 'react-icons/fa';
+import { adminAPI } from '../services/api';
 
 const AdminColleges = () => {
   const [colleges, setColleges] = useState([]);
@@ -34,6 +36,11 @@ const AdminColleges = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [stats, setStats] = useState({
+    totalColleges: 0,
+    totalCategories: 0,
+    totalLocations: 0
+  });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -52,11 +59,53 @@ const AdminColleges = () => {
     email: ''
   });
 
-  const categories = ['Engineering', 'MBA', 'Medical', 'Design', 'Arts', 'Law', 'Science', 'Commerce'];
-  const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Ahmedabad', 'Pune', 'Hyderabad'];
+  const categories = [
+    'Engineering', 'Medical', 'Management', 'Law', 'Arts', 'Science', 'Commerce',
+    'University', 'College', 'Research', 'Agriculture', 'Architecture', 'Innovation',
+    'OpenUniversity', 'SkillUniversity', 'StatePublicUniversity'
+  ];
+  
+  const locations = [
+    'Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Ahmedabad', 'Pune', 'Hyderabad',
+    'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam',
+    'Pimpri-Chinchwad', 'Patna', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik',
+    'Faridabad', 'Meerut', 'Rajkot', 'Kalyan-Dombivali', 'Vasai-Virar', 'Varanasi',
+    'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Allahabad', 'Ranchi', 'Howrah',
+    'Coimbatore', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur',
+    'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad', 'Bareilly', 'Moradabad',
+    'Mysore', 'Gurgaon', 'Aligarh', 'Jalandhar', 'Tiruchirappalli', 'Bhubaneswar',
+    'Salem', 'Warangal', 'Guntur', 'Bhiwandi', 'Amravati', 'Noida', 'Jamshedpur',
+    'Bhilai', 'Cuttack', 'Firozabad', 'Kochi', 'Nellore', 'Bhavnagar', 'Dehradun',
+    'Durgapur', 'Asansol', 'Rourkela', 'Nanded', 'Kolhapur', 'Ajmer', 'Akola',
+    'Gulbarga', 'Jamnagar', 'Ujjain', 'Loni', 'Siliguri', 'Jhansi', 'Ulhasnagar',
+    'Nellore', 'Jammu', 'Sangli-Miraj-Kupwad', 'Belgaum', 'Mangalore', 'Ambattur',
+    'Tirunelveli', 'Malegaon', 'Gaya', 'Jalgaon', 'Udaipur', 'Maheshtala', 'Tirupur',
+    'Davangere', 'Kozhikode', 'Akbarpur', 'Kurnool', 'Rajpur-Sonarpur', 'Bokaro',
+    'South-Dumdum', 'Bellary', 'Patiala', 'Gopalpur', 'Agartala', 'Bhagalpur',
+    'Muzaffarnagar', 'Bhatpara', 'Panihati', 'Latur', 'Dhule', 'Rohtak', 'Korba',
+    'Bhilwara', 'Berhampur', 'Muzaffarpur', 'Ahmednagar', 'Mathura', 'Kollam',
+    'Avadi', 'Kadapa', 'Kamarhati', 'Bilaspur', 'Shahjahanpur', 'Satara', 'Bijapur',
+    'Rampur', 'Shivamogga', 'Chandrapur', 'Junagadh', 'Thrissur', 'Alwar', 'Bardhaman',
+    'Kulti', 'Kakinada', 'Nizamabad', 'Parbhani', 'Tumkur', 'Hisar', 'Ozhukarai',
+    'Bihar-Sharif', 'Panipat', 'Darbhanga', 'Bally', 'Aizawl', 'Dewas', 'Ichalkaranji',
+    'Tirupati', 'Karnal', 'Bathinda', 'Rampur', 'Shivpuri', 'Ratlam', 'Sambalpur',
+    'Bidar', 'Guntakal', 'Cooch-Behar', 'Kottayam', 'Sindri', 'Karaikudi', 'Bhadravati',
+    'Kishanganj', 'Sasaram', 'Hazaribagh', 'Bhiwani', 'Baranagar', 'Tiruvottiyur',
+    'Port-Blair', 'Haldia', 'Etawah', 'Saharsa', 'Koraput', 'Bharatpur', 'Begusarai',
+    'New-Delhi', 'Chhapra', 'Kadapa', 'Kamarhati', 'Bilaspur', 'Shahjahanpur',
+    'Satara', 'Bijapur', 'Rampur', 'Shivamogga', 'Chandrapur', 'Junagadh', 'Thrissur',
+    'Alwar', 'Bardhaman', 'Kulti', 'Kakinada', 'Nizamabad', 'Parbhani', 'Tumkur',
+    'Hisar', 'Ozhukarai', 'Bihar-Sharif', 'Panipat', 'Darbhanga', 'Bally', 'Aizawl',
+    'Dewas', 'Ichalkaranji', 'Tirupati', 'Karnal', 'Bathinda', 'Rampur', 'Shivpuri',
+    'Ratlam', 'Sambalpur', 'Bidar', 'Guntakal', 'Cooch-Behar', 'Kottayam', 'Sindri',
+    'Karaikudi', 'Bhadravati', 'Kishanganj', 'Sasaram', 'Hazaribagh', 'Bhiwani',
+    'Baranagar', 'Tiruvottiyur', 'Port-Blair', 'Haldia', 'Etawah', 'Saharsa',
+    'Koraput', 'Bharatpur', 'Begusarai', 'New-Delhi', 'Chhapra'
+  ];
 
   useEffect(() => {
     fetchColleges();
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -66,12 +115,18 @@ const AdminColleges = () => {
   const fetchColleges = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/admin/colleges');
-      const data = await response.json();
+      setError('');
       
-      if (data.success) {
-        setColleges(data.data);
-        setFilteredColleges(data.data);
+      const response = await adminAPI.getColleges({
+        limit: 1000,
+        search: searchQuery,
+        category: selectedCategory !== 'all' ? selectedCategory : '',
+        location: selectedLocation !== 'all' ? selectedLocation : ''
+      });
+      
+      if (response.data.success) {
+        setColleges(response.data.data);
+        setFilteredColleges(response.data.data);
       } else {
         setError('Failed to fetch colleges');
       }
@@ -83,13 +138,26 @@ const AdminColleges = () => {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const response = await adminAPI.getCollegeStats();
+      if (response.data.success) {
+        setStats(response.data.data.overview);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   const filterColleges = () => {
     let filtered = colleges;
 
     if (searchQuery) {
       filtered = filtered.filter(college =>
-        college.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        college.location.toLowerCase().includes(searchQuery.toLowerCase())
+        college.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        college.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        college.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        college.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -129,53 +197,44 @@ const AdminColleges = () => {
       phone: '',
       email: ''
     });
-    setError('');
-    setSuccess('');
+    setEditingCollege(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSaving(true);
-    setError('');
-    setSuccess('');
-
+    
     try {
-      const url = editingCollege 
-        ? `http://localhost:5000/api/admin/colleges/${editingCollege._id}`
-        : 'http://localhost:5000/api/admin/colleges';
-      
-      const method = editingCollege ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          facilities: formData.facilities.split(',').map(f => f.trim()).filter(f => f),
-          highlights: formData.highlights.split(',').map(h => h.trim()).filter(h => h),
-          established: parseInt(formData.established),
-          rating: parseFloat(formData.rating),
-          students: parseInt(formData.students),
-          courses: parseInt(formData.courses)
-        })
-      });
+      setSaving(true);
+      setError('');
+      setSuccess('');
 
-      const data = await response.json();
+      const collegeData = {
+        ...formData,
+        established: formData.established ? parseInt(formData.established) : undefined,
+        rating: formData.rating ? parseFloat(formData.rating) : undefined,
+        students: formData.students ? parseInt(formData.students) : undefined,
+        courses: formData.courses ? parseInt(formData.courses) : undefined
+      };
 
-      if (data.success) {
+      let response;
+      if (editingCollege) {
+        response = await adminAPI.updateCollege(editingCollege._id, collegeData);
+      } else {
+        response = await adminAPI.createCollege(collegeData);
+      }
+
+      if (response.data.success) {
         setSuccess(editingCollege ? 'College updated successfully!' : 'College added successfully!');
         setShowAddModal(false);
-        setEditingCollege(null);
         resetForm();
-        fetchColleges(); // Refresh the list
+        fetchColleges();
+        fetchStats();
       } else {
-        setError(data.message || 'Failed to save college');
+        setError(response.data.message || 'Failed to save college');
       }
     } catch (error) {
       console.error('Error saving college:', error);
-      setError('Failed to save college');
+      setError(error.response?.data?.message || 'Failed to save college');
     } finally {
       setSaving(false);
     }
@@ -192,8 +251,8 @@ const AdminColleges = () => {
       students: college.students?.toString() || '',
       courses: college.courses?.toString() || '',
       description: college.description || '',
-      facilities: college.facilities?.join(', ') || '',
-      highlights: college.highlights?.join(', ') || '',
+      facilities: college.facilities || '',
+      highlights: college.highlights || '',
       image: college.image || '',
       website: college.website || '',
       phone: college.phone || '',
@@ -203,24 +262,24 @@ const AdminColleges = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this college?')) {
-      try {
-        const response = await fetch(`http://localhost:5000/api/admin/colleges/${id}`, {
-          method: 'DELETE',
-        });
+    if (!window.confirm('Are you sure you want to delete this college?')) {
+      return;
+    }
 
-        const data = await response.json();
-
-        if (data.success) {
-          setSuccess('College deleted successfully!');
-          fetchColleges(); // Refresh the list
-        } else {
-          setError('Failed to delete college');
-        }
-      } catch (error) {
-        console.error('Error deleting college:', error);
+    try {
+      setError('');
+      const response = await adminAPI.deleteCollege(id);
+      
+      if (response.data.success) {
+        setSuccess('College deleted successfully!');
+        fetchColleges();
+        fetchStats();
+      } else {
         setError('Failed to delete college');
       }
+    } catch (error) {
+      console.error('Error deleting college:', error);
+      setError('Failed to delete college');
     }
   };
 
@@ -243,13 +302,21 @@ const AdminColleges = () => {
   const getCategoryColor = (category) => {
     const colors = {
       'Engineering': 'bg-blue-100 text-blue-800',
-      'MBA': 'bg-green-100 text-green-800',
       'Medical': 'bg-red-100 text-red-800',
-      'Design': 'bg-purple-100 text-purple-800',
+      'Management': 'bg-green-100 text-green-800',
+      'Law': 'bg-purple-100 text-purple-800',
       'Arts': 'bg-pink-100 text-pink-800',
-      'Law': 'bg-indigo-100 text-indigo-800',
       'Science': 'bg-cyan-100 text-cyan-800',
-      'Commerce': 'bg-orange-100 text-orange-800'
+      'Commerce': 'bg-orange-100 text-orange-800',
+      'University': 'bg-indigo-100 text-indigo-800',
+      'College': 'bg-teal-100 text-teal-800',
+      'Research': 'bg-gray-100 text-gray-800',
+      'Agriculture': 'bg-lime-100 text-lime-800',
+      'Architecture': 'bg-fuchsia-100 text-fuchsia-800',
+      'Innovation': 'bg-rose-100 text-rose-800',
+      'OpenUniversity': 'bg-emerald-100 text-emerald-800',
+      'SkillUniversity': 'bg-sky-100 text-sky-800',
+      'StatePublicUniversity': 'bg-amber-100 text-amber-800'
     };
     return colors[category] || 'bg-gray-100 text-gray-800';
   };
@@ -310,7 +377,7 @@ const AdminColleges = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Colleges</p>
-                <p className="text-2xl font-bold text-gray-900">{colleges.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalColleges}</p>
               </div>
             </div>
           </div>

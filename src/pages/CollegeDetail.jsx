@@ -21,15 +21,25 @@ import {
   FaBook,
   FaFlask,
   FaBalanceScale,
-  FaPills
+  FaPills,
+  FaPen,
+  FaComments
 } from 'react-icons/fa';
+import ReviewForm from '../components/ReviewForm';
+import ReviewsList from '../components/ReviewsList';
+import { useAuth } from '../context/AuthContext';
 
 const CollegeDetail = () => {
   const { slug } = useParams();
+  const { user } = useAuth();
   const [college, setCollege] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
 
   useEffect(() => {
     const fetchCollege = async () => {
@@ -38,6 +48,8 @@ const CollegeDetail = () => {
         if (response.ok) {
           const data = await response.json();
           setCollege(data.data);
+          // Fetch review statistics
+          fetchReviewStats(data.data._id);
         } else {
           setError('College not found');
         }
@@ -51,6 +63,32 @@ const CollegeDetail = () => {
 
     fetchCollege();
   }, [slug]);
+
+  const fetchReviewStats = async (collegeId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/reviews/college/${collegeId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTotalReviews(data.total);
+        
+        // Calculate average rating
+        if (data.reviews.length > 0) {
+          const totalRating = data.reviews.reduce((sum, review) => sum + review.rating, 0);
+          setAverageRating(totalRating / data.reviews.length);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching review stats:', error);
+    }
+  };
+
+  const handleReviewSubmit = (newReview) => {
+    setShowReviewForm(false);
+    // Refresh review statistics
+    if (college) {
+      fetchReviewStats(college._id);
+    }
+  };
 
   const renderStars = (rating) => {
     return (
@@ -325,8 +363,59 @@ const CollegeDetail = () => {
 
                 {activeTab === 'reviews' && (
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Student Reviews</h3>
-                    <p className="text-gray-500">Reviews feature coming soon...</p>
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-2xl font-bold text-gray-800">Reviews & Ratings</h3>
+                      {user && (
+                        <button
+                          onClick={() => setShowReviewForm(true)}
+                          className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                        >
+                          <FaPen className="text-sm" />
+                          Write a Review
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Review Summary */}
+                    <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="text-center">
+                            <div className="text-3xl font-bold text-gray-900">{averageRating.toFixed(1)}</div>
+                            <div className="flex items-center justify-center">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <FaStar
+                                  key={star}
+                                  className={`h-4 w-4 ${
+                                    star <= Math.floor(averageRating) ? 'text-yellow-400' : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1">{totalReviews} reviews</div>
+                          </div>
+                          <div className="text-gray-600">
+                            <p>Based on {totalReviews} student reviews</p>
+                            <p className="text-sm">Share your experience to help others!</p>
+                          </div>
+                        </div>
+                        {!user && (
+                          <div className="text-center">
+                            <p className="text-gray-600 mb-2">Want to review this college?</p>
+                            <Link
+                              to="/login"
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                            >
+                              <FaComments className="text-sm" />
+                              Login to Review
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Reviews List */}
+                    <ReviewsList collegeId={college._id} />
                   </div>
                 )}
               </div>
@@ -418,6 +507,20 @@ const CollegeDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Review Form Modal */}
+      {showReviewForm && college && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <ReviewForm
+              collegeId={college._id}
+              collegeName={college.name}
+              onReviewSubmit={handleReviewSubmit}
+              onClose={() => setShowReviewForm(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

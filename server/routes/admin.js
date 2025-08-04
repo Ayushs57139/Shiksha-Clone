@@ -1,6 +1,9 @@
 import express from 'express';
-import College from '../models/College.js';
 import { body, validationResult } from 'express-validator';
+import College from '../models/College.js';
+import User from '../models/User.js';
+import Resume from '../models/Resume.js';
+import { auth, adminAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -11,123 +14,218 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
-// Get all colleges for admin
-router.get('/colleges', isAdmin, async (req, res) => {
+// ✅ GET DASHBOARD STATISTICS - /api/admin/dashboard/stats
+router.get('/dashboard/stats', auth, adminAuth, async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = '', category = '', location = '' } = req.query;
+    // Get real-time statistics
+    const [
+      totalColleges,
+      totalUsers,
+      totalResumes,
+      recentColleges,
+      recentUsers,
+      recentResumes
+    ] = await Promise.all([
+      College.countDocuments(),
+      User.countDocuments(),
+      Resume.countDocuments(),
+      College.find().sort({ createdAt: -1 }).limit(5).select('name category location createdAt'),
+      User.find().sort({ createdAt: -1 }).limit(5).select('firstName lastName email createdAt'),
+      Resume.find().sort({ createdAt: -1 }).limit(5).select('personalInfo createdAt')
+    ]);
+
+    // Get category-wise college counts
+    const categoryStats = await College.aggregate([
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // Get location-wise college counts
+    const locationStats = await College.aggregate([
+      { $group: { _id: '$location', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    // Get monthly registrations
+    const monthlyStats = await User.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.year': -1, '_id.month': -1 } },
+      { $limit: 12 }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        overview: {
+          totalColleges,
+          totalUsers,
+          totalResumes,
+          totalCourses: 150, // Static for now
+          totalExams: 75 // Static for now
+        },
+        recentActivity: {
+          colleges: recentColleges,
+          users: recentUsers,
+          resumes: recentResumes
+        },
+        analytics: {
+          categoryStats,
+          locationStats,
+          monthlyStats
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Dashboard stats error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch dashboard statistics' });
+  }
+});
+
+// ✅ GET RECENT ACTIVITY - /api/admin/dashboard/activity
+router.get('/dashboard/activity', auth, adminAuth, async (req, res) => {
+  try {
+    const recentColleges = await College.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select('name category location createdAt');
+
+    const recentUsers = await User.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select('firstName lastName email createdAt');
+
+    const recentResumes = await Resume.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select('personalInfo createdAt');
+
+    const activities = [
+      ...recentColleges.map(college => ({
+        type: 'college',
+        action: 'added',
+        title: `New college "${college.name}" added`,
+        time: college.createdAt,
+        data: college
+      })),
+      ...recentUsers.map(user => ({
+        type: 'user',
+        action: 'registered',
+        title: `New user registration: ${user.email}`,
+        time: user.createdAt,
+        data: user
+      })),
+      ...recentResumes.map(resume => ({
+        type: 'resume',
+        action: 'created',
+        title: `New resume created by ${resume.personalInfo?.firstName || 'User'}`,
+        time: resume.createdAt,
+        data: resume
+      }))
+    ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 20);
+
+    res.json({
+      success: true,
+      data: activities
+    });
+  } catch (error) {
+    console.error('Activity fetch error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch recent activity' });
+  }
+});
+
+// ✅ GET COLLEGES (ADMIN) - /api/admin/colleges
+router.get('/colleges', auth, adminAuth, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, search = '', category = '', location = '', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     
-    let query = {};
-    
+    const skip = (page - 1) * limit;
+    const query = {};
+
+    // Search filter
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { location: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } }
+        { category: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
-    
-    if (category && category !== 'all') {
+
+    // Category filter
+    if (category) {
       query.category = category;
     }
-    
-    if (location && location !== 'all') {
-      query.location = location;
+
+    // Location filter
+    if (location) {
+      query.location = { $regex: location, $options: 'i' };
     }
 
-    const skip = (page - 1) * limit;
-    
-    const colleges = await College.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-    
-    const total = await College.countDocuments(query);
-    
+    const [colleges, total] = await Promise.all([
+      College.find(query)
+        .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .select('-__v'),
+      College.countDocuments(query)
+    ]);
+
     res.json({
       success: true,
       data: colleges,
       pagination: {
-        current: parseInt(page),
-        total: Math.ceil(total / limit),
-        totalRecords: total
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
       }
     });
   } catch (error) {
-    console.error('Error fetching colleges:', error);
+    console.error('Get colleges error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch colleges' });
   }
 });
 
-// Add new college
-router.post('/colleges', isAdmin, [
-  body('name').notEmpty().withMessage('College name is required'),
-  body('category').notEmpty().withMessage('Category is required'),
-  body('location').notEmpty().withMessage('Location is required'),
-  body('established').isNumeric().withMessage('Established year must be a number'),
-  body('rating').isFloat({ min: 0, max: 5 }).withMessage('Rating must be between 0 and 5'),
-  body('students').isNumeric().withMessage('Students count must be a number'),
-  body('courses').isNumeric().withMessage('Courses count must be a number')
+// ✅ GET COLLEGE BY ID - /api/admin/colleges/:id
+router.get('/colleges/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const college = await College.findById(req.params.id);
+    if (!college) {
+      return res.status(404).json({ success: false, message: 'College not found' });
+    }
+    res.json({ success: true, data: college });
+  } catch (error) {
+    console.error('Get college error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch college' });
+  }
+});
+
+// ✅ CREATE COLLEGE - /api/admin/colleges
+router.post('/colleges', auth, adminAuth, [
+  body('name').trim().isLength({ min: 2 }).withMessage('College name is required'),
+  body('category').isIn(['Engineering', 'Medical', 'Management', 'Law', 'Arts', 'Science', 'Commerce', 'University', 'College', 'Research', 'Agriculture', 'Architecture', 'Innovation', 'OpenUniversity', 'SkillUniversity', 'StatePublicUniversity']).withMessage('Invalid category'),
+  body('location').trim().isLength({ min: 2 }).withMessage('Location is required'),
+  body('description').optional().trim(),
+  body('website').optional().isURL().withMessage('Invalid website URL'),
+  body('phone').optional().matches(/^\d{10}$/).withMessage('Invalid phone number'),
+  body('email').optional().isEmail().withMessage('Invalid email')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Validation failed',
-        errors: errors.array() 
-      });
+      return res.status(400).json({ success: false, errors: errors.array() });
     }
 
-    const {
-      name,
-      category,
-      location,
-      established,
-      rating,
-      students,
-      courses,
-      description = '',
-      facilities = [],
-      highlights = [],
-      image = '',
-      website = '',
-      phone = '',
-      email = ''
-    } = req.body;
-
-    // Create slug from name
-    const slug = name.toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-
-    // Check if college with same name already exists
-    const existingCollege = await College.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
-    if (existingCollege) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'College with this name already exists' 
-      });
-    }
-
-    const college = new College({
-      name,
-      slug,
-      category,
-      location,
-      established: parseInt(established),
-      rating: parseFloat(rating),
-      students: parseInt(students),
-      courses: parseInt(courses),
-      description,
-      facilities,
-      highlights,
-      image,
-      website,
-      phone,
-      email,
-      status: 'active'
-    });
-
+    const college = new College(req.body);
     await college.save();
 
     res.status(201).json({
@@ -136,52 +234,38 @@ router.post('/colleges', isAdmin, [
       data: college
     });
   } catch (error) {
-    console.error('Error adding college:', error);
+    console.error('Add college error:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'College with this name already exists' });
+    }
     res.status(500).json({ success: false, message: 'Failed to add college' });
   }
 });
 
-// Update college
-router.put('/colleges/:id', isAdmin, [
-  body('name').notEmpty().withMessage('College name is required'),
-  body('category').notEmpty().withMessage('Category is required'),
-  body('location').notEmpty().withMessage('Location is required'),
-  body('established').isNumeric().withMessage('Established year must be a number'),
-  body('rating').isFloat({ min: 0, max: 5 }).withMessage('Rating must be between 0 and 5'),
-  body('students').isNumeric().withMessage('Students count must be a number'),
-  body('courses').isNumeric().withMessage('Courses count must be a number')
+// ✅ UPDATE COLLEGE - /api/admin/colleges/:id
+router.put('/colleges/:id', auth, adminAuth, [
+  body('name').optional().trim().isLength({ min: 2 }),
+  body('category').optional().isIn(['Engineering', 'Medical', 'Management', 'Law', 'Arts', 'Science', 'Commerce', 'University', 'College', 'Research', 'Agriculture', 'Architecture', 'Innovation', 'OpenUniversity', 'SkillUniversity', 'StatePublicUniversity']),
+  body('location').optional().trim().isLength({ min: 2 }),
+  body('description').optional().trim(),
+  body('website').optional().isURL(),
+  body('phone').optional().matches(/^\d{10}$/),
+  body('email').optional().isEmail()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Validation failed',
-        errors: errors.array() 
-      });
-    }
-
-    const { id } = req.params;
-    const updateData = req.body;
-
-    // Create slug from name if name is being updated
-    if (updateData.name) {
-      updateData.slug = updateData.name.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
+      return res.status(400).json({ success: false, errors: errors.array() });
     }
 
     const college = await College.findByIdAndUpdate(
-      id,
-      updateData,
+      req.params.id,
+      req.body,
       { new: true, runValidators: true }
     );
 
     if (!college) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'College not found' 
-      });
+      return res.status(404).json({ success: false, message: 'College not found' });
     }
 
     res.json({
@@ -190,23 +274,17 @@ router.put('/colleges/:id', isAdmin, [
       data: college
     });
   } catch (error) {
-    console.error('Error updating college:', error);
+    console.error('Update college error:', error);
     res.status(500).json({ success: false, message: 'Failed to update college' });
   }
 });
 
-// Delete college
-router.delete('/colleges/:id', isAdmin, async (req, res) => {
+// ✅ DELETE COLLEGE - /api/admin/colleges/:id
+router.delete('/colleges/:id', auth, adminAuth, async (req, res) => {
   try {
-    const { id } = req.params;
-    
-    const college = await College.findByIdAndDelete(id);
-    
+    const college = await College.findByIdAndDelete(req.params.id);
     if (!college) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'College not found' 
-      });
+      return res.status(404).json({ success: false, message: 'College not found' });
     }
 
     res.json({
@@ -214,42 +292,165 @@ router.delete('/colleges/:id', isAdmin, async (req, res) => {
       message: 'College deleted successfully'
     });
   } catch (error) {
-    console.error('Error deleting college:', error);
+    console.error('Delete college error:', error);
     res.status(500).json({ success: false, message: 'Failed to delete college' });
   }
 });
 
-// Get college by ID
-router.get('/colleges/:id', isAdmin, async (req, res) => {
+// ✅ GET USERS - /api/admin/users
+router.get('/users', auth, adminAuth, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { page = 1, limit = 20, search = '', status = '', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     
-    const college = await College.findById(id);
-    
-    if (!college) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'College not found' 
-      });
+    const skip = (page - 1) * limit;
+    const query = {};
+
+    // Search filter
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ];
     }
+
+    // Status filter
+    if (status) {
+      query.role = status;
+    }
+
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .select('-password -__v'),
+      User.countDocuments(query)
+    ]);
 
     res.json({
       success: true,
-      data: college
+      data: users,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
     });
   } catch (error) {
-    console.error('Error fetching college:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch college' });
+    console.error('Get users error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch users' });
   }
 });
 
-// Get college statistics
-router.get('/colleges/stats/overview', isAdmin, async (req, res) => {
+// ✅ GET ANALYTICS - /api/admin/analytics
+router.get('/analytics', auth, adminAuth, async (req, res) => {
   try {
-    const totalColleges = await College.countDocuments();
-    const activeColleges = await College.countDocuments({ status: 'active' });
-    const avgRating = await College.aggregate([
-      { $group: { _id: null, avgRating: { $avg: '$rating' } } }
+    const { period = '30' } = req.query;
+    const days = parseInt(period);
+
+    // Get date range
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    // User registration trends
+    const userTrends = await User.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+            day: { $dayOfMonth: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
+    ]);
+
+    // College addition trends
+    const collegeTrends = await College.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+            day: { $dayOfMonth: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
+    ]);
+
+    // Category distribution
+    const categoryDistribution = await College.aggregate([
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // Location distribution
+    const locationDistribution = await College.aggregate([
+      { $group: { _id: '$location', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    // User role distribution
+    const roleDistribution = await User.aggregate([
+      { $group: { _id: '$role', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        userTrends,
+        collegeTrends,
+        categoryDistribution,
+        locationDistribution,
+        roleDistribution
+      }
+    });
+  } catch (error) {
+    console.error('Analytics error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch analytics' });
+  }
+});
+
+// ✅ GET COLLEGE STATISTICS - /api/admin/colleges/stats/overview
+router.get('/colleges/stats/overview', auth, adminAuth, async (req, res) => {
+  try {
+    const stats = await College.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalColleges: { $sum: 1 },
+          totalCategories: { $addToSet: '$category' },
+          totalLocations: { $addToSet: '$location' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalColleges: 1,
+          totalCategories: { $size: '$totalCategories' },
+          totalLocations: { $size: '$totalLocations' }
+        }
+      }
     ]);
 
     const categoryStats = await College.aggregate([
@@ -259,22 +460,21 @@ router.get('/colleges/stats/overview', isAdmin, async (req, res) => {
 
     const locationStats = await College.aggregate([
       { $group: { _id: '$location', count: { $sum: 1 } } },
-      { $sort: { count: -1 } }
+      { $sort: { count: -1 } },
+      { $limit: 10 }
     ]);
 
     res.json({
       success: true,
       data: {
-        totalColleges,
-        activeColleges,
-        avgRating: avgRating[0]?.avgRating || 0,
+        overview: stats[0] || { totalColleges: 0, totalCategories: 0, totalLocations: 0 },
         categoryStats,
         locationStats
       }
     });
   } catch (error) {
-    console.error('Error fetching college stats:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch statistics' });
+    console.error('College stats error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch college statistics' });
   }
 });
 
