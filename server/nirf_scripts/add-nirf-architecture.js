@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { nirfArchitectureData } from '../src/data/nirfArchitectureData.js';
+import { nirfArchitectureData } from '../src/data/college_data/nirfArchitectureData.js';
 
 async function addNirfArchitectureData() {
   try {

@@ -17,7 +17,7 @@ import {
   FaEnvelope,
   FaPhone
 } from 'react-icons/fa';
-import { adminAPI } from '../services/api';
+import { adminAPI } from '../../services/api';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);

@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { nirfStatePublicUniversityData } from '../src/data/nirfStatePublicUniversityData.js';
+import { nirfStatePublicUniversityData } from '../src/data/college_data/nirfStatePublicUniversityData.js';
 
 const uri = 'mongodb://localhost:27017';
 const dbName = 'shiksha';

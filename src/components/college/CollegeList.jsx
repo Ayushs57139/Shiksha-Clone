@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FaSearch, FaFilter, FaStar, FaMapMarkerAlt, FaUsers, FaGraduationCap, FaEye, FaHeart, FaTrophy } from 'react-icons/fa';
-import { nirfResearchData, getTop10Institutions, getIITs, getInstitutionsByState } from '../data/college_data/nirfResearchData';
-import { nirfAgricultureData, getTop10AgricultureInstitutions, getICARInstitutions, getStateAgricultureUniversities } from '../data/college_data/nirfAgricultureData';
-import { nirfArchitectureData, getTop10ArchitectureInstitutions, getIITArchitectureInstitutions, getNITArchitectureInstitutions } from '../data/college_data/nirfArchitectureData';
-import { nirfInnovationData, getTop10InnovationInstitutions, getIITInnovationInstitutions, getNITInnovationInstitutions } from '../data/college_data/nirfInnovationData';
-import { nirfOpenUniversityData, getTop10OpenUniversityInstitutions, getIGNOUInstitutions, getStateOpenUniversities } from '../data/college_data/nirfOpenUniversityData';
-import { nirfSkillUniversityData, getTop10SkillUniversities, getSkillUniversitiesByState, getSkillUniversitiesByCity } from '../data/college_data/nirfSkillUniversityData';
-import { nirfStatePublicUniversityData, getTop10StatePublicUniversities, getStatePublicUniversitiesByState, getStatePublicUniversitiesByCity } from '../data/college_data/nirfStatePublicUniversityData';
-import { getCollegeImage } from '../data/college_data/collegeImages';
+import { nirfResearchData, getTop10Institutions, getIITs, getInstitutionsByState } from '../../data/college_data/nirfResearchData';
+import { nirfAgricultureData, getTop10AgricultureInstitutions, getICARInstitutions, getStateAgricultureUniversities } from '../../data/college_data/nirfAgricultureData';
+import { nirfArchitectureData, getTop10ArchitectureInstitutions, getIITArchitectureInstitutions, getNITArchitectureInstitutions } from '../../data/college_data/nirfArchitectureData';
+import { nirfInnovationData, getTop10InnovationInstitutions, getIITInnovationInstitutions, getNITInnovationInstitutions } from '../../data/college_data/nirfInnovationData';
+import { nirfOpenUniversityData, getTop10OpenUniversityInstitutions, getIGNOUInstitutions, getStateOpenUniversities } from '../../data/college_data/nirfOpenUniversityData';
+import { nirfSkillUniversityData, getTop10SkillUniversities, getSkillUniversitiesByState, getSkillUniversitiesByCity } from '../../data/college_data/nirfSkillUniversityData';
+import { nirfStatePublicUniversityData, getTop10StatePublicUniversities, getStatePublicUniversitiesByState, getStatePublicUniversitiesByCity } from '../../data/college_data/nirfStatePublicUniversityData';
+import { getCollegeImage } from '../../data/college_data/collegeImages';
 
 const CollegeList = ({ category, title, locationFilter }) => {
   const navigate = useNavigate();

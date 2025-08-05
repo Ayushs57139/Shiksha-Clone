@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar, FaCheckCircle, FaTimes, FaTrash, FaSearch, FaFilter } from 'react-icons/fa';
-import api from '../services/api';
+import api from '../../services/api';
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Eye, Search, Filter, Download, Upload } from 'lucide-react';
-import CollegeCard from '../components/CollegeCard';
-import CollegeFilters from '../components/CollegeFilters';
-import CollegeStats from '../components/CollegeStats';
+import CollegeCard from '../components/college/CollegeCard';
+import CollegeFilters from '../components/college/CollegeFilters';
+import CollegeStats from '../components/college/CollegeStats';
 
 const CollegeManagement = () => {
   const [colleges, setColleges] = useState([]);

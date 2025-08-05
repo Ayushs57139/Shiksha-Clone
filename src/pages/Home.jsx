@@ -9,23 +9,12 @@ const Home = () => {
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
 
   const handleSearch = () => {
-    if (searchQuery.trim()) {
-      // Build the search URL with parameters
-      let searchUrl = '/colleges?';
-      const params = new URLSearchParams();
-      
-      if (searchQuery.trim()) {
-        params.append('search', searchQuery.trim());
-      }
-      if (selectedCategory !== 'All Categories') {
-        params.append('category', selectedCategory);
-      }
-      if (selectedLocation !== 'All Locations') {
-        params.append('location', selectedLocation);
-      }
-      
-      navigate(`/colleges?${params.toString()}`);
-    }
+    const params = new URLSearchParams();
+    if (searchQuery) params.append('search', searchQuery);
+    if (selectedCategory !== 'All Categories') params.append('category', selectedCategory);
+    if (selectedLocation !== 'All Locations') params.append('location', selectedLocation);
+    
+    navigate(`/colleges?${params.toString()}`);
   };
 
   const handleKeyPress = (e) => {
@@ -35,52 +24,22 @@ const Home = () => {
   };
 
   const popularCategories = [
-    { name: 'Engineering', icon: '⚙️', count: '5000+', category: 'Engineering' },
-    { name: 'MBA', icon: '💼', count: '3000+', category: 'MBA' },
-    { name: 'Medical', icon: '🏥', count: '2000+', category: 'Medical' },
-    { name: 'Law', icon: '⚖️', count: '1500+', category: 'Law' },
-    { name: 'Arts', icon: '🎨', count: '2500+', category: 'Arts' },
-    { name: 'Science', icon: '🔬', count: '1800+', category: 'Science' },
-    { name: 'Research', icon: '🔬', count: '20+', category: 'Research' },
-    { name: 'Agriculture', icon: '🌾', count: '40+', category: 'Agriculture' },
-    { name: 'Architecture', icon: '🏛️', count: '20+', category: 'Architecture' },
-    { name: 'Innovation', icon: '💡', count: '20+', category: 'Innovation' },
-    { name: 'Open University', icon: '📚', count: '15+', category: 'OpenUniversity' },
-    { name: 'Skill University', icon: '🎯', count: '15+', category: 'SkillUniversity' }
-  ];
-
-  const topColleges = [
-    {
-      id: 1,
-      name: 'Indian Institute of Technology Delhi',
-      location: 'New Delhi',
-      rating: 4.8,
-      fees: '₹2.5 Lakhs',
-      image: 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: 2,
-      name: 'Indian Institute of Management Ahmedabad',
-      location: 'Ahmedabad',
-      rating: 4.9,
-      fees: '₹25 Lakhs',
-      image: 'https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: 3,
-      name: 'All India Institute of Medical Sciences',
-      location: 'New Delhi',
-      rating: 4.7,
-      fees: '₹1.5 Lakhs',
-      image: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400'
-    }
-  ];
-
-  const upcomingExams = [
-    { name: 'JEE Main 2024', date: 'Jan 24-31, 2024', registrations: '12L+' },
-    { name: 'NEET 2024', date: 'May 5, 2024', registrations: '18L+' },
-    { name: 'CAT 2024', date: 'Nov 26, 2024', registrations: '3L+' },
-    { name: 'GATE 2024', date: 'Feb 3-11, 2024', registrations: '9L+' }
+    { name: 'Engineering', icon: '⚙️', count: '500+', link: '/colleges?category=Engineering' },
+    { name: 'Medical', icon: '🏥', count: '200+', link: '/colleges?category=Medical' },
+    { name: 'MBA', icon: '💼', count: '300+', link: '/colleges?category=MBA' },
+    { name: 'Law', icon: '⚖️', count: '150+', link: '/colleges?category=Law' },
+    { name: 'Arts', icon: '🎨', count: '400+', link: '/colleges?category=Arts' },
+    { name: 'Science', icon: '🔬', count: '350+', link: '/colleges?category=Science' },
+    { name: 'Commerce', icon: '📊', count: '250+', link: '/colleges?category=Commerce' },
+    { name: 'University', icon: '🏛️', count: '100+', link: '/colleges?category=University' },
+    { name: 'College', icon: '🎓', count: '800+', link: '/colleges?category=College' },
+    { name: 'Research', icon: '🔬', count: '50+', link: '/colleges?category=Research' },
+    { name: 'Architecture', icon: '🏗️', count: '80+', link: '/colleges?category=Architecture' },
+    { name: 'Agriculture', icon: '🌾', count: '120+', link: '/colleges?category=Agriculture' },
+    { name: 'Innovation', icon: '💡', count: '30+', link: '/colleges?category=Innovation' },
+    { name: 'OpenUniversity', icon: '🌐', count: '15+', link: '/colleges?category=OpenUniversity' },
+    { name: 'SkillUniversity', icon: '🛠️', count: '15+', link: '/colleges?category=SkillUniversity' },
+    { name: 'StatePublicUniversity', icon: '🏛️', count: '50+', link: '/colleges?category=StatePublicUniversity' }
   ];
 
   return (
@@ -94,15 +53,15 @@ const Home = () => {
         <div className="relative container mx-auto px-4 text-center z-10"></div>
         
         {/* Dark overlay to enhance text visibility */}
-  <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
 
-  <div className="relative container mx-auto px-4 text-center z-10">
-    <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
-      Find Your Perfect College
-    </h1>
-    <p className="text-xl md:text-2xl mb-8 text-white drop-shadow-md">
-      Discover the best colleges, courses, and career opportunities
-    </p>
+        <div className="relative container mx-auto px-4 text-center z-10">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
+            Find Your Perfect College
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 text-white drop-shadow-md">
+            Discover the best colleges, courses, and career opportunities
+          </p>
           
           {/* Search Box */}
           <div className="max-w-4xl mx-auto bg-white rounded-lg p-2 shadow-lg">
@@ -247,119 +206,98 @@ const Home = () => {
       </section>
 
       {/* Popular Categories */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Popular Categories</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {popularCategories.map((category) => (
-              <button
-                key={category.name}
-                onClick={() => {
-                  setSelectedCategory(category.category);
-                  setSearchQuery('');
-                  navigate(`/colleges?category=${category.category}`);
-                }}
-                className="bg-gray-50 hover:bg-teal-50 p-4 rounded-xl text-center transition-all duration-300 hover:shadow-lg border border-gray-100 hover:border-teal-300 transform hover:scale-105 hover:-translate-y-1 cursor-pointer group"
-              >
-                <div className="text-2xl mb-2">{category.icon}</div>
-                <h3 className="font-semibold text-gray-800 mb-1 text-sm">{category.name}</h3>
-                <p className="text-xs text-gray-600">{category.count}</p>
-                <div className="text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-1">
-                  <svg className="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Top Colleges */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-12">
-            <h2 className="text-3xl font-bold">Top Colleges</h2>
-            <Link to="/colleges" className="btn-secondary">View All</Link>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Popular Categories
+            </h2>
+            <p className="text-gray-600 text-lg">
+              Explore colleges by category and find your perfect match
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {topColleges.map((college) => (
-              <Link key={college.id} to={`/colleges/${college.id}`} className="card overflow-hidden">
-                <img
-                  src={college.image}
-                  alt={college.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
-                  <h3 className="font-semibold text-lg mb-2">{college.name}</h3>
-                  <p className="text-gray-600 mb-2">{college.location}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-1">
-                      <Star className="text-yellow-400 fill-current" size={16} />
-                      <span className="font-medium">{college.rating}</span>
-                    </div>
-                    <span className="text-primary font-semibold">{college.fees}</span>
-                  </div>
-                </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {popularCategories.map((category, index) => (
+              <Link
+                key={index}
+                to={category.link}
+                className="group bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300"
+              >
+                <div className="text-4xl mb-3">{category.icon}</div>
+                <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-teal-600 transition-colors">
+                  {category.name}
+                </h3>
+                <p className="text-sm text-gray-600">{category.count}</p>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Upcoming Exams */}
-      <section className="py-16 bg-white">
+      {/* Features Section */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-12">
-            <h2 className="text-3xl font-bold">Upcoming Exams</h2>
-            <Link to="/exams" className="btn-secondary">View All</Link>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Why Choose CollegeInfo?
+            </h2>
+            <p className="text-gray-600 text-lg">
+              Your trusted partner in finding the perfect college
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {upcomingExams.map((exam) => (
-              <div key={exam.name} className="card p-6">
-                <h3 className="font-semibold text-lg mb-2">{exam.name}</h3>
-                <p className="text-gray-600 mb-2">{exam.date}</p>
-                <p className="text-primary font-medium">{exam.registrations} Registrations</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="text-teal-600 text-2xl" />
               </div>
-            ))}
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Smart Search</h3>
+              <p className="text-gray-600">Find colleges based on location, course, and preferences</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="text-blue-600 text-2xl" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Verified Data</h3>
+              <p className="text-gray-600">Accurate and up-to-date information from official sources</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="text-green-600 text-2xl" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Student Reviews</h3>
+              <p className="text-gray-600">Real experiences from current and former students</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="text-purple-600 text-2xl" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Course Details</h3>
+              <p className="text-gray-600">Comprehensive information about courses and curriculum</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-16 bg-secondary text-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Shiksha?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="bg-primary rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <BookOpen size={32} />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Comprehensive Database</h3>
-              <p className="opacity-90">Access to 50,000+ colleges and universities</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-primary rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Users size={32} />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Expert Guidance</h3>
-              <p className="opacity-90">Get advice from education counselors</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-primary rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Award size={32} />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Verified Reviews</h3>
-              <p className="opacity-90">Read authentic student reviews and ratings</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-primary rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Globe size={32} />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Study Abroad</h3>
-              <p className="opacity-90">Explore international education opportunities</p>
-            </div>
-          </div>
+      {/* CTA Section */}
+      <section className="py-16 bg-teal-600">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Ready to Find Your Perfect College?
+          </h2>
+          <p className="text-teal-100 text-lg mb-8">
+            Start your journey towards a successful career today
+          </p>
+          <Link
+            to="/colleges"
+            className="inline-block bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+          >
+            Browse All Colleges
+          </Link>
         </div>
       </section>
     </div>

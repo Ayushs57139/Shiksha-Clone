@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Filter, MapPin, Star, Users, Award, Search } from 'lucide-react';
-import CollegeList from '../components/CollegeList';
+import CollegeList from '../components/college/CollegeList';
 
 const Colleges = () => {
   const [searchParams] = useSearchParams();

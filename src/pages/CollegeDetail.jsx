@@ -25,8 +25,8 @@ import {
   FaPen,
   FaComments
 } from 'react-icons/fa';
-import ReviewForm from '../components/ReviewForm';
-import ReviewsList from '../components/ReviewsList';
+import ReviewForm from '../components/reviews/ReviewForm';
+import ReviewsList from '../components/reviews/ReviewsList';
 import { useAuth } from '../context/AuthContext';
 
 const CollegeDetail = () => {

@@ -30,7 +30,7 @@ import {
   FaEnvelope,
   FaGlobe
 } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -40,18 +40,26 @@ const Navbar = () => {
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSearchQuery, setMobileSearchQuery] = useState('');
-  const dropdownRef = useRef(null);
+  const collegesDropdownRef = useRef(null);
+  const toolsDropdownRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      // Check if click is outside both dropdowns
+      const isOutsideColleges = collegesDropdownRef.current && !collegesDropdownRef.current.contains(event.target);
+      const isOutsideTools = toolsDropdownRef.current && !toolsDropdownRef.current.contains(event.target);
+      
+      // Only close if click is outside the currently active dropdown
+      if (activeDropdown === 'colleges' && isOutsideColleges) {
+        setActiveDropdown(null);
+      } else if (activeDropdown === 'tools' && isOutsideTools) {
         setActiveDropdown(null);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [activeDropdown]);
 
   const handleSearch = (query, isMobile = false) => {
     if (query.trim()) {
@@ -287,7 +295,7 @@ const Navbar = () => {
           {/* Center - Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
             {/* Colleges Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={collegesDropdownRef}>
               <button
                 onClick={() => handleDropdownClick('colleges')}
                 className="flex items-center space-x-1 text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -317,12 +325,9 @@ const Navbar = () => {
                                 <li key={itemIndex}>
                                   <Link
                                     to={item.link}
-                                    className="block text-gray-600 hover:text-teal-600 hover:bg-gray-50 px-2 py-1 rounded text-sm transition-colors cursor-pointer"
-                                    onClick={(e) => {
-                                      e.preventDefault();
+                                    className="block text-gray-600 hover:text-teal-600 hover:bg-gray-50 px-2 py-1 rounded text-sm transition-colors"
+                                    onClick={() => {
                                       setActiveDropdown(null);
-                                      console.log('Navigating to:', item.link);
-                                      navigate(item.link);
                                     }}
                                   >
                                     {item.name}
@@ -340,7 +345,7 @@ const Navbar = () => {
             </div>
 
             {/* Tools & Resources Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={toolsDropdownRef}>
               <button
                 onClick={() => handleDropdownClick('tools')}
                 className="flex items-center space-x-1 text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -463,15 +468,6 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* Admin Link */}
-            <Link
-              to="/admin/login"
-              className="flex items-center space-x-1 bg-teal-600 text-white px-3 py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
-            >
-              <FaCog className="h-4 w-4" />
-              <span className="hidden sm:block">Admin</span>
-            </Link>
-
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -532,18 +528,17 @@ const Navbar = () => {
                         </div>
                         <div className="ml-4 space-y-1">
                           {section.items.map((item, itemIndex) => (
-                            <button
+                            <Link
                               key={itemIndex}
-                              className="block w-full text-left text-gray-600 hover:text-teal-600 px-2 py-1 rounded text-sm cursor-pointer"
+                              to={item.link}
+                              className="block text-gray-600 hover:text-teal-600 px-2 py-1 rounded text-sm"
                               onClick={() => {
                                 setMobileMenuOpen(false);
                                 setMobileDropdownOpen(null);
-                                console.log('Mobile navigating to:', item.link);
-                                navigate(item.link);
                               }}
                             >
                               {item.name}
-                            </button>
+                            </Link>
                           ))}
                         </div>
                       </div>
@@ -641,18 +636,6 @@ const Navbar = () => {
                   </Link>
                 </div>
               )}
-
-              {/* Mobile Admin Link */}
-              <div className="pt-4 border-t border-gray-200">
-                <Link
-                  to="/admin/login"
-                  className="flex items-center px-3 py-2 bg-teal-600 text-white rounded-md text-sm font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <FaCog className="h-4 w-4 mr-2" />
-                  Admin
-                </Link>
-              </div>
             </div>
           </div>
         )}

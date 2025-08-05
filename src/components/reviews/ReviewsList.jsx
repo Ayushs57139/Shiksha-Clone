@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar, FaThumbsUp, FaThumbsDown, FaCalendarAlt, FaUser, FaCheckCircle } from 'react-icons/fa';
-import api from '../services/api';
+import api from '../../services/api';
 
 const ReviewsList = ({ collegeId }) => {
   const [reviews, setReviews] = useState([]);

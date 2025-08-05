@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUserShield, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({

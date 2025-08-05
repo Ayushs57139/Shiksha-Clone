@@ -10,7 +10,7 @@ import {
   FaStar,
   FaSpinner
 } from 'react-icons/fa';
-import { adminAPI } from '../services/api';
+import { adminAPI } from '../../services/api';
 
 const AdminAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);

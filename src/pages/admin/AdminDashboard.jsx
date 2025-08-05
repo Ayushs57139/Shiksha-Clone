@@ -18,10 +18,11 @@ import {
   FaMapMarkerAlt,
   FaComments
 } from 'react-icons/fa';
-import { adminAPI } from '../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { adminAPI } from '../../services/api';
 
 const AdminDashboard = () => {
-  const [adminUser, setAdminUser] = useState(null);
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
     totalColleges: 0,
@@ -37,17 +38,19 @@ const AdminDashboard = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const adminToken = localStorage.getItem('adminToken');
-    const adminUserData = localStorage.getItem('adminUser');
+    // Check if user is logged in and is admin
+    if (!user) {
+      navigate('/admin/login');
+      return;
+    }
     
-    if (!adminToken || !adminUserData) {
+    if (user.role !== 'admin') {
       navigate('/admin/login');
       return;
     }
 
-    setAdminUser(JSON.parse(adminUserData));
     fetchDashboardData();
-  }, [navigate]);
+  }, [user, navigate]);
 
   useEffect(() => {
     // Set active tab based on current route
@@ -87,8 +90,7 @@ const AdminDashboard = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
+    logout();
     navigate('/admin/login');
   };
 
@@ -141,7 +143,7 @@ const AdminDashboard = () => {
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/admin/settings' }
   ];
 
-  if (!adminUser) {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
@@ -160,7 +162,7 @@ const AdminDashboard = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                Welcome, {adminUser.name || 'Admin User'}
+                Welcome, {user.name || 'Admin User'}
               </span>
               <button
                 onClick={handleLogout}

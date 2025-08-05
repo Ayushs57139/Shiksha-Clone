@@ -1,31 +1,32 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/navbar';
+import Navbar from './components/ui/navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import CollegeList from './components/CollegeList';
+import CollegeList from './components/college/CollegeList';
 import CollegeDetail from './pages/CollegeDetail';
 import CourseDetail from './pages/CourseDetail';
 import ExamDetail from './pages/ExamDetail';
 import TestPage from './pages/TestPage';
-import CollegesByLocation from './components/CollegesByLocation';
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminColleges from './pages/AdminColleges';
-import AdminUsers from './pages/AdminUsers';
-import AdminAnalytics from './pages/AdminAnalytics';
-import AdminSettings from './pages/AdminSettings';
+import CollegesByLocation from './components/college/CollegesByLocation';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminColleges from './pages/admin/AdminColleges';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminSettings from './pages/admin/AdminSettings';
 import ResumeBuilder from './pages/ResumeBuilder';
-import AdminResumes from './pages/AdminResumes';
-import AdminTools from './pages/AdminTools';
-import AdminReviews from './pages/AdminReviews';
+import AdminResumes from './pages/admin/AdminResumes';
+import AdminTools from './pages/admin/AdminTools';
+import AdminReviews from './pages/admin/AdminReviews';
 import TemplateSelection from './pages/TemplateSelection';
 import CollegeTools from './pages/CollegeTools';
 import ExamPreparation from './pages/ExamPreparation';
 import CareerResources from './pages/CareerResources';
 import StudyAbroad from './pages/StudyAbroad';
+import Admin from './pages/admin/Admin';
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
               <Route path="/study-abroad" element={<StudyAbroad />} />
               
               {/* Admin Routes */}
+              <Route path="/admin" element={<Admin />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/colleges" element={<AdminColleges />} />

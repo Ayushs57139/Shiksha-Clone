@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { FaStar, FaThumbsUp, FaThumbsDown, FaTimes } from 'react-icons/fa';
-import api from '../services/api';
+import api from '../../services/api';
 
 const ReviewForm = ({ collegeId, collegeName, onReviewSubmit, onClose }) => {
   const { user } = useAuth();

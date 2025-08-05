@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { nirfResearchData } from '../src/data/nirfResearchData.js';
+import { nirfResearchData } from '../src/data/college_data/nirfResearchData.js';
 
 async function addNirfData() {
   try {

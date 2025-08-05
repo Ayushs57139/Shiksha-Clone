@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   FaPlus, 
   FaEdit, 
@@ -20,11 +20,15 @@ import {
   FaCalendarAlt,
   FaCheckCircle,
   FaExclamationTriangle,
-  FaSpinner
+  FaSpinner,
+  FaTrophy
 } from 'react-icons/fa';
-import { adminAPI } from '../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { adminAPI } from '../../services/api';
 
 const AdminColleges = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
   const [filteredColleges, setFilteredColleges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,11 +40,28 @@ const AdminColleges = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [selectedColleges, setSelectedColleges] = useState([]);
+  const [bulkAction, setBulkAction] = useState('');
   const [stats, setStats] = useState({
     totalColleges: 0,
     totalCategories: 0,
     totalLocations: 0
   });
+
+  // Auto-hide success/error messages
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(''), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -103,14 +124,37 @@ const AdminColleges = () => {
     'Koraput', 'Bharatpur', 'Begusarai', 'New-Delhi', 'Chhapra'
   ];
 
+  // Check authentication on component mount
   useEffect(() => {
+    if (!user) {
+      navigate('/admin/login');
+      return;
+    }
+    
+    if (user.role !== 'admin') {
+      navigate('/admin/login');
+      return;
+    }
+
     fetchColleges();
     fetchStats();
-  }, []);
+  }, [user, navigate]);
 
   useEffect(() => {
     filterColleges();
   }, [searchQuery, selectedCategory, selectedLocation, colleges]);
+
+  // Show loading while checking authentication
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const fetchColleges = async () => {
     try {
@@ -125,14 +169,23 @@ const AdminColleges = () => {
       });
       
       if (response.data.success) {
-        setColleges(response.data.data);
-        setFilteredColleges(response.data.data);
+        setColleges(response.data.data.colleges || response.data.data);
+        setFilteredColleges(response.data.data.colleges || response.data.data);
       } else {
         setError('Failed to fetch colleges');
       }
     } catch (error) {
       console.error('Error fetching colleges:', error);
-      setError('Failed to fetch colleges');
+      
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please login again.');
+        navigate('/admin/login');
+      } else if (error.response?.status === 403) {
+        setError('Access denied. Admin privileges required.');
+        navigate('/admin/login');
+      } else {
+        setError('Failed to fetch colleges. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -208,6 +261,8 @@ const AdminColleges = () => {
       setError('');
       setSuccess('');
 
+      console.log('Submitting college data:', formData);
+
       const collegeData = {
         ...formData,
         established: formData.established ? parseInt(formData.established) : undefined,
@@ -216,12 +271,18 @@ const AdminColleges = () => {
         courses: formData.courses ? parseInt(formData.courses) : undefined
       };
 
+      console.log('Processed college data:', collegeData);
+
       let response;
       if (editingCollege) {
+        console.log('Updating college:', editingCollege._id);
         response = await adminAPI.updateCollege(editingCollege._id, collegeData);
       } else {
+        console.log('Creating new college');
         response = await adminAPI.createCollege(collegeData);
       }
+
+      console.log('API response:', response);
 
       if (response.data.success) {
         setSuccess(editingCollege ? 'College updated successfully!' : 'College added successfully!');
@@ -234,6 +295,7 @@ const AdminColleges = () => {
       }
     } catch (error) {
       console.error('Error saving college:', error);
+      console.error('Error response:', error.response);
       setError(error.response?.data?.message || 'Failed to save college');
     } finally {
       setSaving(false);
@@ -280,6 +342,48 @@ const AdminColleges = () => {
     } catch (error) {
       console.error('Error deleting college:', error);
       setError('Failed to delete college');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${selectedColleges.length} colleges?`)) {
+      return;
+    }
+
+    try {
+      setError('');
+      setSaving(true);
+      
+      // Delete colleges one by one
+      for (const id of selectedColleges) {
+        await adminAPI.deleteCollege(id);
+      }
+      
+      setSuccess(`${selectedColleges.length} colleges deleted successfully!`);
+      setSelectedColleges([]);
+      fetchColleges();
+      fetchStats();
+    } catch (error) {
+      console.error('Error bulk deleting colleges:', error);
+      setError('Failed to delete some colleges');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedColleges.length === filteredColleges.length) {
+      setSelectedColleges([]);
+    } else {
+      setSelectedColleges(filteredColleges.map(college => college._id));
+    }
+  };
+
+  const handleSelectCollege = (id) => {
+    if (selectedColleges.includes(id)) {
+      setSelectedColleges(selectedColleges.filter(collegeId => collegeId !== id));
+    } else {
+      setSelectedColleges([...selectedColleges, id]);
     }
   };
 
@@ -335,37 +439,52 @@ const AdminColleges = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">College Management</h1>
-              <p className="text-gray-600 mt-1">Manage all colleges in your database</p>
-            </div>
-            <div className="mt-4 sm:mt-0 flex gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <FaDownload className="text-lg" />
-                Export
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <FaUpload className="text-lg" />
-                Import
-              </button>
-              <button
-                onClick={() => {
-                  setEditingCollege(null);
-                  resetForm();
-                  setShowAddModal(true);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 font-medium shadow-lg"
-              >
-                <FaPlus className="text-lg" />
-                Add College
-              </button>
-            </div>
-          </div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">College Management</h1>
+          <p className="text-gray-600">Manage all colleges in your database</p>
+        </div>
+        <div className="flex gap-4 mt-4 md:mt-0">
+          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <FaDownload className="text-lg" />
+            Export
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <FaUpload className="text-lg" />
+            Import
+          </button>
+          <button
+            onClick={() => {
+              setEditingCollege(null);
+              resetForm();
+              setShowAddModal(true);
+            }}
+            className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+          >
+            <FaPlus className="text-lg" />
+            + Add College
+          </button>
         </div>
       </div>
+
+      {/* Success/Error Messages */}
+      {success && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center">
+            <FaCheckCircle className="text-green-500 mr-2" />
+            <span className="text-green-800 font-medium">{success}</span>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center">
+            <FaExclamationTriangle className="text-red-500 mr-2" />
+            <span className="text-red-800 font-medium">{error}</span>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
@@ -474,124 +593,167 @@ const AdminColleges = () => {
           </div>
         </div>
 
-        {/* Success/Error Messages */}
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
-            <FaCheckCircle className="text-green-500 text-lg" />
-            <span className="text-green-800 font-medium">{success}</span>
+        {/* Bulk Operations */}
+        {selectedColleges.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <FaCheckCircle className="text-blue-600 mr-2" />
+                <span className="text-blue-800 font-medium">
+                  {selectedColleges.length} college(s) selected
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={saving}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Deleting...' : `Delete ${selectedColleges.length} College(s)`}
+                </button>
+                <button
+                  onClick={() => setSelectedColleges([])}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Clear Selection
+                </button>
+              </div>
+            </div>
           </div>
         )}
-        
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-            <FaExclamationTriangle className="text-red-500 text-lg" />
-            <span className="text-red-800 font-medium">{error}</span>
+
+        {/* Select All Button */}
+        {filteredColleges.length > 0 && (
+          <div className="mb-4">
+            <button
+              onClick={handleSelectAll}
+              className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              {selectedColleges.length === filteredColleges.length ? 'Deselect All' : 'Select All'}
+            </button>
           </div>
         )}
 
         {/* Colleges Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredColleges.map((college) => (
-            <div key={college._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-              {/* College Header */}
-              <div className="relative h-48 bg-gradient-to-br from-blue-400 to-purple-500 overflow-hidden">
-                {college.image ? (
-                  <img
-                    src={college.image}
-                    alt={college.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <FaGraduationCap className="text-white text-6xl opacity-80" />
+        {filteredColleges.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredColleges.map((college) => (
+              <div key={college._id} className="group">
+                <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 overflow-hidden">
+                  {/* Selection Checkbox */}
+                  <div className="absolute top-4 left-4 z-10">
+                    <input
+                      type="checkbox"
+                      checked={selectedColleges.includes(college._id)}
+                      onChange={() => handleSelectCollege(college._id)}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
                   </div>
-                )}
-                
-                {/* Category Badge */}
-                <div className="absolute top-4 left-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(college.category)}`}>
-                    {college.category}
-                  </span>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <button
-                    onClick={() => handleEdit(college)}
-                    className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all"
-                  >
-                    <FaEdit className="text-blue-600 text-lg" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(college._id)}
-                    className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all"
-                  >
-                    <FaTrash className="text-red-500 text-lg" />
-                  </button>
-                </div>
-              </div>
-
-              {/* College Info */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2">
-                  {college.name}
-                </h3>
-                
-                <div className="flex items-center text-gray-600 mb-3">
-                  <FaMapMarkerAlt className="text-red-500 mr-2" />
-                  <span className="text-sm">{college.location}</span>
-                </div>
-                
-                <div className="mb-4">
-                  {renderStars(college.rating)}
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
-                  <div className="flex items-center">
-                    <FaUsers className="mr-2" />
-                    <span>{college.students?.toLocaleString() || 'N/A'} students</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaGraduationCap className="mr-2" />
-                    <span>{college.courses || 'N/A'} courses</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                  <div className="flex items-center">
-                    <FaCalendarAlt className="mr-1" />
-                    <span>Est. {college.established}</span>
-                  </div>
-                  {college.fees && (
-                    <div className="font-semibold text-blue-600">
-                      ₹{college.fees?.toLocaleString()}
+                  
+                  {/* College Image */}
+                  <div className="relative h-48 bg-gradient-to-br from-teal-400 to-blue-500 overflow-hidden">
+                    {college.image ? (
+                      <img
+                        src={college.image}
+                        alt={college.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <FaGraduationCap className="text-white text-6xl opacity-80" />
+                      </div>
+                    )}
+                    
+                    {/* Category Badge */}
+                    <div className="absolute top-4 right-4 flex flex-col gap-1">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(college.category)}`}>
+                        {college.category}
+                      </span>
+                      {college.nirfRank && (
+                        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 flex items-center gap-1">
+                          <FaTrophy className="text-xs" />
+                          NIRF #{college.nirfRank}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Link
-                    to={`/college/${college.slug}`}
-                    className="flex-1 text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                  >
-                    <FaEye className="inline mr-1" />
-                    View
-                  </Link>
-                  <button
-                    onClick={() => handleEdit(college)}
-                    className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
-                  >
-                    <FaEdit className="inline mr-1" />
-                    Edit
-                  </button>
+                    
+                    {/* Action Buttons */}
+                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleEdit(college)}
+                        className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all"
+                      >
+                        <FaEdit className="text-blue-600 text-lg" />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(college._id)}
+                        className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all"
+                      >
+                        <FaTrash className="text-red-500 text-lg" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* College Info */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2">
+                      {college.name}
+                    </h3>
+                    
+                    <div className="flex items-center text-gray-600 mb-3">
+                      <FaMapMarkerAlt className="text-red-500 mr-2" />
+                      <span className="text-sm">{college.location}</span>
+                    </div>
+                    
+                    <div className="mb-4">
+                      {renderStars(college.rating)}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
+                      <div className="flex items-center">
+                        <FaUsers className="mr-2" />
+                        <span>{college.students?.toLocaleString() || 'N/A'} students</span>
+                      </div>
+                      <div className="flex items-center">
+                        <FaGraduationCap className="mr-2" />
+                        <span>{college.courses || 'N/A'} courses</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <div className="flex items-center">
+                        <FaCalendarAlt className="mr-1" />
+                        <span>Est. {college.established}</span>
+                      </div>
+                      {college.fees && (
+                        <div className="font-semibold text-blue-600">
+                          ₹{college.fees?.toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Link
+                        to={`/college/${college.slug}`}
+                        className="flex-1 text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      >
+                        <FaEye className="inline mr-1" />
+                        View
+                      </Link>
+                      <button
+                        onClick={() => handleEdit(college)}
+                        className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                      >
+                        <FaEdit className="inline mr-1" />
+                        Edit
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {filteredColleges.length === 0 && !loading && (
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-16">
             <div className="text-gray-400 text-6xl mb-4">📚</div>
             <h3 className="text-2xl font-bold text-gray-800 mb-2">No colleges found</h3>
