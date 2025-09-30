@@ -70,7 +70,7 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <div className="bg-primary text-white px-3 py-2 rounded-lg font-bold text-xl">
-                Shiksha
+                Diksha Buddy
               </div>
             </Link>
             <p className="text-gray-300 mb-4">
@@ -138,7 +138,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-600 mt-8 pt-8 text-center">
           <p className="text-gray-300 text-sm">
-            © 2024 Shiksha.com. All rights reserved. | Made with ❤️ in India
+            © 2024 Diksha Buddy. All rights reserved. | Made with ❤️ in India
           </p>
         </div>
       </div>

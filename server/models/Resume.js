@@ -41,6 +41,7 @@ const resumeSchema = new mongoose.Schema({
     date: { type: String },
     link: { type: String }
   }],
+  selectedTemplateId: { type: mongoose.Schema.Types.ObjectId, ref: 'Template', default: null },
   createdAt: {
     type: Date,
     default: Date.now

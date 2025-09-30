@@ -1,0 +1,1274 @@
+/* Professional Resume Template Styles - Premium Quality */
+
+/* Template Wrapper */
+.template-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+/* Resume Preview Container */
+.resume-preview {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+/* Executive Layout Styles */
+.template-executive {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.5;
+  color: var(--secondary, #111827);
+  max-width: 900px;
+  margin: 0 auto;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+  position: relative;
+  overflow: visible;
+  border: none;
+}
+
+.template-executive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--accent, #0f766e) 0%, var(--tertiary, #64748b) 50%, var(--accent, #0f766e) 100%);
+  z-index: 1;
+}
+
+.template-executive::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(0,0,0,0.02) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(0,0,0,0.01) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.template-executive .executive-header {
+  text-align: center;
+  padding: 60px 50px;
+  margin: 0;
+  position: relative;
+  background: transparent;
+  color: var(--secondary, #111827);
+  z-index: 2;
+}
+
+.template-executive .executive-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.template-executive .executive-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+}
+
+.template-executive .name {
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: var(--accent, #0f766e);
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+  text-shadow: none;
+  position: relative;
+  z-index: 3;
+}
+
+.template-executive .title {
+  font-size: 1.4rem;
+  color: var(--tertiary, #64748b);
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 3;
+}
+
+.template-executive .contact-bar {
+  font-size: 1.1rem;
+  color: var(--secondary, #111827);
+  letter-spacing: 0.5px;
+  font-weight: 400;
+  line-height: 1.8;
+  position: relative;
+  z-index: 3;
+}
+
+.template-executive .executive-content {
+  display: grid;
+  gap: 40px;
+  padding: 50px;
+  position: relative;
+  z-index: 2;
+}
+
+.template-executive .executive-summary h2,
+.template-executive .executive-experience h2,
+.template-executive .executive-education h2,
+.template-executive .executive-skills h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent, #0f766e);
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  padding-left: 25px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.template-executive .executive-summary h2::before,
+.template-executive .executive-experience h2::before,
+.template-executive .executive-education h2::before,
+.template-executive .executive-skills h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 30px;
+  background: linear-gradient(180deg, var(--accent, #0f766e), var(--tertiary, #64748b));
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.template-executive .executive-position {
+  margin-bottom: 35px;
+  padding: 25px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,250,252,0.7));
+  border-radius: 12px;
+  border-left: 5px solid var(--accent, #0f766e);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.template-executive .executive-position::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent, #0f766e), var(--tertiary, #64748b));
+}
+
+.template-executive .executive-position:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  border-left-color: var(--tertiary, #64748b);
+}
+
+.template-executive .position-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.template-executive .position-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--secondary);
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.template-executive .company {
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-right: 15px;
+}
+
+.template-executive .duration {
+  font-size: 0.95rem;
+  color: var(--tertiary);
+  font-weight: 500;
+  background: rgba(0,0,0,0.05);
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.template-executive .achievements {
+  margin: 15px 0;
+  padding-left: 0;
+}
+
+.template-executive .achievements li {
+  margin-bottom: 8px;
+  color: var(--secondary);
+  line-height: 1.6;
+  position: relative;
+  padding-left: 20px;
+}
+
+.template-executive .achievements li::before {
+  content: '▶';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 0.8rem;
+  top: 2px;
+}
+
+.template-executive .skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.template-executive .skill-tag {
+  background: transparent;
+  color: var(--accent, #0f766e);
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: visible;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid var(--accent, #0f766e);
+}
+
+.template-executive .skill-tag::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.template-executive .skill-tag:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.template-executive .skill-tag:hover::before {
+  left: 100%;
+}
+
+/* Creative Layout Styles */
+.template-creative {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.5;
+  color: var(--secondary);
+  max-width: 1000px;
+  margin: 0 auto;
+  background: transparent;
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  min-height: 100vh;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  position: relative;
+  border: none;
+}
+
+.template-creative .creative-sidebar {
+  background: transparent;
+  color: var(--secondary, #111827);
+  padding: 60px 40px;
+  position: relative;
+  overflow: visible;
+}
+
+.template-creative .creative-sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 15% 15%, rgba(255,255,255,0.15) 0%, transparent 60%),
+    radial-gradient(circle at 85% 85%, rgba(255,255,255,0.1) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0%, transparent 80%),
+    linear-gradient(45deg, transparent 20%, rgba(255,255,255,0.03) 50%, transparent 80%);
+  pointer-events: none;
+}
+
+.template-creative .creative-sidebar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2), rgba(255,255,255,0.4));
+}
+
+.template-creative .creative-avatar {
+  width: 160px;
+  height: 160px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.15));
+  border-radius: 50%;
+  margin: 0 auto 40px;
+  border: 6px solid rgba(255,255,255,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: white;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.template-creative .creative-avatar::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, rgba(255,255,255,0.2), transparent, rgba(255,255,255,0.2));
+  z-index: -1;
+  animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.template-creative .creative-name {
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.template-creative .creative-role {
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 35px;
+  opacity: 0.95;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 2;
+}
+
+.template-creative .creative-contact {
+  margin-bottom: 30px;
+}
+
+.template-creative .creative-contact p {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.template-creative .creative-skills h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.template-creative .skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.template-creative .skill-tag {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.template-creative .creative-main {
+  padding: 40px;
+  background: white;
+}
+
+.template-creative .creative-about h2,
+.template-creative .creative-experience h2,
+.template-creative .creative-education h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.template-creative .creative-about h2::after,
+.template-creative .creative-experience h2::after,
+.template-creative .creative-education h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: var(--accent);
+}
+
+.template-creative .creative-job {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid var(--accent);
+}
+
+.template-creative .creative-job h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 5px;
+}
+
+.template-creative .creative-company {
+  font-size: 0.95rem;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.template-creative .creative-date {
+  font-size: 0.85rem;
+  color: var(--tertiary);
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.template-creative .creative-job ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.template-creative .creative-job li {
+  margin-bottom: 5px;
+  color: var(--secondary);
+  line-height: 1.4;
+}
+
+/* Technical Layout Styles */
+.template-technical {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  line-height: 1.6;
+  color: var(--secondary);
+  max-width: 950px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+  padding: 0;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.template-technical::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--tertiary) 25%, var(--accent) 50%, var(--tertiary) 75%, var(--accent) 100%);
+  z-index: 1;
+}
+
+.template-technical::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 5% 10%, rgba(0,0,0,0.02) 0%, transparent 50%),
+    radial-gradient(circle at 95% 90%, rgba(0,0,0,0.01) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.template-technical .tech-header {
+  text-align: center;
+  padding: 50px 40px;
+  margin: 0;
+  position: relative;
+  background: linear-gradient(135deg, var(--accent, #0f766e) 0%, var(--secondary, #111827) 100%);
+  color: white;
+  z-index: 2;
+}
+
+.template-technical .tech-header::before {
+  content: '/* DEVELOPER PROFILE */';
+  position: absolute;
+  top: -12px;
+  left: 30px;
+  font-size: 0.7rem;
+  color: var(--tertiary, #64748b);
+  font-style: italic;
+  background: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 3;
+}
+
+.template-technical .tech-header::after {
+  content: '*/';
+  position: absolute;
+  bottom: -12px;
+  right: 30px;
+  font-size: 0.7rem;
+  color: var(--tertiary, #64748b);
+  font-style: italic;
+  background: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 3;
+}
+
+.template-technical .tech-name {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 3;
+}
+
+.template-technical .tech-title {
+  font-size: 1.1rem;
+  color: var(--tertiary);
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.template-technical .tech-contact {
+  font-size: 0.9rem;
+  color: var(--tertiary);
+  font-family: 'Consolas', monospace;
+}
+
+.template-technical .tech-content {
+  display: grid;
+  gap: 35px;
+  padding: 50px;
+  position: relative;
+  z-index: 2;
+}
+
+.template-technical .tech-summary h2,
+.template-technical .tech-skills h2,
+.template-technical .tech-projects h2,
+.template-technical .tech-experience h2,
+.template-technical .tech-education h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 15px;
+  position: relative;
+  padding-left: 20px;
+}
+
+.template-technical .tech-summary h2::before,
+.template-technical .tech-skills h2::before,
+.template-technical .tech-projects h2::before,
+.template-technical .tech-experience h2::before,
+.template-technical .tech-education h2::before {
+  content: '// ';
+  position: absolute;
+  left: 0;
+  color: var(--tertiary);
+  font-style: italic;
+}
+
+.template-technical .tech-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.template-technical .skill-tag {
+  background: var(--accent);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: 'Consolas', monospace;
+}
+
+.template-technical .tech-project {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--accent);
+}
+
+.template-technical .tech-project h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 8px;
+}
+
+.template-technical .tech-stack {
+  font-size: 0.9rem;
+  color: var(--tertiary);
+  font-style: italic;
+  margin-bottom: 8px;
+  font-family: 'Consolas', monospace;
+}
+
+.template-technical .tech-job {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--accent);
+}
+
+.template-technical .tech-job h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 5px;
+}
+
+.template-technical .tech-duration {
+  font-size: 0.9rem;
+  color: var(--tertiary);
+  margin-bottom: 10px;
+  font-family: 'Consolas', monospace;
+}
+
+.template-technical .tech-job ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.template-technical .tech-job li {
+  margin-bottom: 5px;
+  color: var(--secondary);
+  line-height: 1.4;
+}
+
+/* Academic Layout Styles */
+.template-academic {
+  font-family: 'Times New Roman', 'Georgia', serif;
+  line-height: 1.7;
+  color: var(--secondary);
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border: 2px solid #f3f4f6;
+}
+
+.template-academic .academic-header {
+  text-align: center;
+  border-bottom: 3px double var(--accent);
+  padding-bottom: 25px;
+  margin-bottom: 35px;
+  position: relative;
+}
+
+.template-academic .academic-header::before {
+  content: '◆';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.template-academic .academic-name {
+  font-size: 2.3rem;
+  font-weight: 400;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-variant: small-caps;
+  letter-spacing: 2px;
+}
+
+.template-academic .academic-title {
+  font-size: 1.2rem;
+  color: var(--tertiary);
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.template-academic .academic-contact {
+  font-size: 0.95rem;
+  color: var(--tertiary);
+  letter-spacing: 0.5px;
+}
+
+.template-academic .academic-content {
+  display: grid;
+  gap: 35px;
+}
+
+.template-academic .academic-summary h2,
+.template-academic .academic-experience h2,
+.template-academic .academic-education h2,
+.template-academic .academic-certifications h2 {
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--accent);
+  margin-bottom: 20px;
+  text-align: center;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.template-academic .academic-summary h2::after,
+.template-academic .academic-experience h2::after,
+.template-academic .academic-education h2::after,
+.template-academic .academic-certifications h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.template-academic .academic-position {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 5px;
+  border-left: 5px solid var(--accent);
+}
+
+.template-academic .academic-position h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 8px;
+}
+
+.template-academic .academic-institution {
+  font-size: 1rem;
+  color: var(--tertiary);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.template-academic .academic-position ul {
+  margin: 10px 0;
+  padding-left: 25px;
+}
+
+.template-academic .academic-position li {
+  margin-bottom: 6px;
+  color: var(--secondary);
+  line-height: 1.5;
+}
+
+.template-academic .academic-cert {
+  margin-bottom: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid var(--accent);
+  font-size: 0.95rem;
+}
+
+.template-academic .academic-cert strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Financial Layout Styles */
+.template-financial {
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  line-height: 1.6;
+  color: var(--secondary);
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 35px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.template-financial .financial-header {
+  text-align: center;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.template-financial .financial-header::before {
+  content: '💰';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+}
+
+.template-financial .financial-name {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.template-financial .financial-title {
+  font-size: 1.1rem;
+  color: var(--tertiary);
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.template-financial .financial-contact {
+  font-size: 0.9rem;
+  color: var(--tertiary);
+}
+
+.template-financial .financial-content {
+  display: grid;
+  gap: 30px;
+}
+
+.template-financial .financial-summary h2,
+.template-financial .financial-experience h2,
+.template-financial .financial-education h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.template-financial .financial-position {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--accent);
+}
+
+.template-financial .financial-position h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 5px;
+}
+
+.template-financial .financial-company {
+  font-size: 0.95rem;
+  color: var(--tertiary);
+  margin-bottom: 8px;
+}
+
+.template-financial .financial-position ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.template-financial .financial-position li {
+  margin-bottom: 4px;
+  color: var(--secondary);
+  line-height: 1.4;
+}
+
+/* Marketing Layout Styles */
+.template-marketing {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.5;
+  color: var(--secondary);
+  max-width: 950px;
+  margin: 0 auto;
+  background: white;
+  padding: 0;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.template-marketing .marketing-header {
+  text-align: center;
+  background: linear-gradient(135deg, var(--accent, #0f766e) 0%, var(--secondary, #111827) 30%, var(--tertiary, #64748b) 70%, var(--accent, #0f766e) 100%);
+  color: white;
+  padding: 60px 50px;
+  margin-bottom: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.template-marketing .marketing-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+  pointer-events: none;
+}
+
+.template-marketing .marketing-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+}
+
+.template-marketing .marketing-name {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.template-marketing .marketing-title {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  opacity: 0.95;
+  position: relative;
+  z-index: 2;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.template-marketing .marketing-contact {
+  font-size: 1rem;
+  opacity: 0.9;
+  position: relative;
+  z-index: 2;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.template-marketing .marketing-content {
+  display: grid;
+  gap: 40px;
+  padding: 50px;
+  position: relative;
+  z-index: 2;
+}
+
+.template-marketing .marketing-summary h2,
+.template-marketing .marketing-experience h2,
+.template-marketing .marketing-education h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.template-marketing .marketing-summary h2::after,
+.template-marketing .marketing-experience h2::after,
+.template-marketing .marketing-education h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--tertiary));
+}
+
+.template-marketing .marketing-position {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  border-radius: 10px;
+  border-left: 5px solid var(--accent);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.template-marketing .marketing-position h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 8px;
+}
+
+.template-marketing .marketing-company {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.template-marketing .marketing-position ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.template-marketing .marketing-position li {
+  margin-bottom: 6px;
+  color: var(--secondary);
+  line-height: 1.4;
+}
+
+/* Mini Template Previews */
+.template-preview {
+  width: 100%;
+  height: 200px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.template-mini-executive,
+.template-mini-technical,
+.template-mini-academic,
+.template-mini-financial,
+.template-mini-default {
+  padding: 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.template-mini-creative {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+}
+
+.template-mini-marketing {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-header {
+  margin-bottom: 8px;
+}
+
+.mini-name {
+  height: 12px;
+  width: 60%;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.mini-name.white {
+  background-color: white !important;
+}
+
+.mini-line {
+  height: 2px;
+  width: 100%;
+  border-radius: 1px;
+}
+
+.mini-line.white {
+  background-color: white !important;
+}
+
+.mini-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mini-section {
+  margin-bottom: 6px;
+}
+
+.mini-section-title {
+  height: 8px;
+  width: 40%;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.mini-text {
+  height: 6px;
+  width: 100%;
+  border-radius: 1px;
+  margin-bottom: 2px;
+}
+
+.mini-text.short {
+  width: 70%;
+}
+
+.mini-skills {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.mini-skill {
+  height: 6px;
+  width: 20px;
+  border-radius: 3px;
+}
+
+/* Creative Mini Layout */
+.template-mini-creative .mini-sidebar {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mini-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.3);
+  margin-bottom: 4px;
+}
+
+.mini-sidebar-text {
+  height: 4px;
+  width: 100%;
+  background-color: rgba(255,255,255,0.7);
+  border-radius: 1px;
+  margin-bottom: 2px;
+}
+
+.mini-sidebar-text.short {
+  width: 60%;
+}
+
+.template-mini-creative .mini-main {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Marketing Mini Layout */
+.template-mini-marketing .mini-header {
+  padding: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--secondary));
+  margin-bottom: 0;
+}
+
+.template-mini-marketing .mini-content {
+  padding: 8px;
+  flex: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .template-creative {
+    grid-template-columns: 1fr;
+  }
+  
+  .template-creative .creative-sidebar {
+    order: 2;
+  }
+  
+  .template-creative .creative-main {
+    order: 1;
+  }
+  
+  .template-executive,
+  .template-technical,
+  .template-academic,
+  .template-financial,
+  .template-marketing {
+    padding: 20px;
+  }
+  
+  .template-executive .name,
+  .template-technical .tech-name,
+  .template-academic .academic-name,
+  .template-financial .financial-name,
+  .template-marketing .marketing-name {
+    font-size: 1.8rem;
+  }
+  
+  .template-mini-creative {
+    grid-template-columns: 60px 1fr;
+  }
+}

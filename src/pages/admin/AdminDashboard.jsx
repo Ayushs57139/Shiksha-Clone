@@ -16,7 +16,8 @@ import {
   FaFileAlt,
   FaClock,
   FaMapMarkerAlt,
-  FaComments
+  FaComments,
+  FaBrain
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI } from '../../services/api';
@@ -58,6 +59,8 @@ const AdminDashboard = () => {
     if (path.includes('/admin/colleges')) setActiveTab('colleges');
     else if (path.includes('/admin/users')) setActiveTab('users');
     else if (path.includes('/admin/resumes')) setActiveTab('resumes');
+    else if (path.includes('/admin/reviews')) setActiveTab('reviews');
+    else if (path.includes('/admin/psychometrics')) setActiveTab('psychometrics');
     else if (path.includes('/admin/tools')) setActiveTab('tools');
     else if (path.includes('/admin/analytics')) setActiveTab('analytics');
     else if (path.includes('/admin/settings')) setActiveTab('settings');
@@ -138,6 +141,8 @@ const AdminDashboard = () => {
     { id: 'users', label: 'Users', icon: FaUsers, path: '/admin/users' },
     { id: 'resumes', label: 'Resumes', icon: FaFileAlt, path: '/admin/resumes' },
     { id: 'reviews', label: 'Reviews', icon: FaComments, path: '/admin/reviews' },
+    { id: 'psychometrics', label: 'Psychometrics', icon: FaBrain, path: '/admin/psychometrics' },
+    { id: 'exam-predictor', label: 'Exam Predictor', icon: FaChartBar, path: '/admin/exam-predictor' },
     { id: 'tools', label: 'Tools', icon: FaCog, path: '/admin/tools' },
     { id: 'analytics', label: 'Analytics', icon: FaChartBar, path: '/admin/analytics' },
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/admin/settings' }

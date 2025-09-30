@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Calendar } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
@@ -164,7 +164,7 @@ const Register = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-6">
             <div className="bg-primary text-white px-6 py-3 rounded-lg font-bold text-2xl">
-              Shiksha
+              Diksha Buddy
             </div>
           </Link>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -211,16 +211,13 @@ const Register = () => {
                     First Name
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
                     <input
                       id="firstName"
                       name="firstName"
                       type="text"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className={`input-field pl-10 ${errors.firstName ? 'border-red-500 focus:ring-red-500' : ''}`}
+                      className={`input-field ${errors.firstName ? 'border-red-500 focus:ring-red-500' : ''}`}
                       placeholder="First name"
                     />
                   </div>
@@ -254,16 +251,13 @@ const Register = () => {
                   Email Address
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
-                  </div>
                   <input
                     id="email"
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`input-field pl-10 ${errors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    className={`input-field ${errors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
                     placeholder="Enter your email"
                   />
                 </div>
@@ -278,16 +272,13 @@ const Register = () => {
                   Phone Number
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone className="h-5 w-5 text-gray-400" />
-                  </div>
                   <input
                     id="phone"
                     name="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={handleChange}
-                    className={`input-field pl-10 ${errors.phone ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    className={`input-field ${errors.phone ? 'border-red-500 focus:ring-red-500' : ''}`}
                     placeholder="Enter your phone number"
                   />
                 </div>
@@ -314,27 +305,24 @@ const Register = () => {
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
                   <input
                     id="password"
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
                     onChange={handleChange}
-                    className={`input-field pl-10 pr-10 ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    className={`input-field pr-12 ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
                     placeholder="Create a password"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-50 rounded-r-lg transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <EyeOff className="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <Eye className="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors" />
                     )}
                   </button>
                 </div>
@@ -348,27 +336,24 @@ const Register = () => {
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`input-field pl-10 pr-10 ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    className={`input-field pr-12 ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}`}
                     placeholder="Confirm your password"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-50 rounded-r-lg transition-colors"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <EyeOff className="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <Eye className="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors" />
                     )}
                   </button>
                 </div>
@@ -384,16 +369,13 @@ const Register = () => {
                     Date of Birth
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Calendar className="h-5 w-5 text-gray-400" />
-                    </div>
                     <input
                       id="dateOfBirth"
                       name="dateOfBirth"
                       type="date"
                       value={formData.dateOfBirth}
                       onChange={handleChange}
-                      className={`input-field pl-10 ${errors.dateOfBirth ? 'border-red-500 focus:ring-red-500' : ''}`}
+                      className={`input-field ${errors.dateOfBirth ? 'border-red-500 focus:ring-red-500' : ''}`}
                     />
                   </div>
                   {errors.dateOfBirth && (
@@ -406,16 +388,13 @@ const Register = () => {
                     City
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <MapPin className="h-5 w-5 text-gray-400" />
-                    </div>
                     <input
                       id="city"
                       name="city"
                       type="text"
                       value={formData.city}
                       onChange={handleChange}
-                      className={`input-field pl-10 ${errors.city ? 'border-red-500 focus:ring-red-500' : ''}`}
+                      className={`input-field ${errors.city ? 'border-red-500 focus:ring-red-500' : ''}`}
                       placeholder="Your city"
                     />
                   </div>

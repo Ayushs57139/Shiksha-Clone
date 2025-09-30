@@ -1,133 +1,92 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Users, Award, BookOpen, Search, Filter } from 'lucide-react';
+import { Search, Filter, BookOpen, GraduationCap, Clock, DollarSign, Star } from 'lucide-react';
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
-  const [filters, setFilters] = useState({
-    level: '',
-    field: '',
-    duration: '',
-    mode: ''
-  });
-  const [showFilters, setShowFilters] = useState(false);
-
-  // Mock data
-  const mockCourses = [
-    {
-      id: 1,
-      name: 'Bachelor of Technology (B.Tech)',
-      field: 'Engineering',
-      level: 'Undergraduate',
-      duration: '4 years',
-      mode: 'Full-time',
-      description: 'Comprehensive engineering program covering various specializations',
-      colleges: 2500,
-      averageFees: '₹3-8 Lakhs',
-      averageSalary: '₹6-12 LPA',
-      specializations: ['Computer Science', 'Mechanical', 'Electrical', 'Civil'],
-      image: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: 2,
-      name: 'Master of Business Administration (MBA)',
-      field: 'Management',
-      level: 'Postgraduate',
-      duration: '2 years',
-      mode: 'Full-time',
-      description: 'Advanced business management program for leadership roles',
-      colleges: 1200,
-      averageFees: '₹8-25 Lakhs',
-      averageSalary: '₹12-25 LPA',
-      specializations: ['Finance', 'Marketing', 'HR', 'Operations'],
-      image: 'https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: 3,
-      name: 'Bachelor of Medicine (MBBS)',
-      field: 'Medical',
-      level: 'Undergraduate',
-      duration: '5.5 years',
-      mode: 'Full-time',
-      description: 'Medical degree program to become a licensed doctor',
-      colleges: 600,
-      averageFees: '₹5-50 Lakhs',
-      averageSalary: '₹8-15 LPA',
-      specializations: ['General Medicine', 'Surgery', 'Pediatrics', 'Cardiology'],
-      image: 'https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: 4,
-      name: 'Bachelor of Laws (LLB)',
-      field: 'Law',
-      level: 'Undergraduate',
-      duration: '3 years',
-      mode: 'Full-time',
-      description: 'Legal education program for aspiring lawyers',
-      colleges: 800,
-      averageFees: '₹2-10 Lakhs',
-      averageSalary: '₹5-12 LPA',
-      specializations: ['Corporate Law', 'Criminal Law', 'Constitutional Law', 'International Law'],
-      image: 'https://images.pexels.com/photos/1595391/pexels-photo-1595391.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: 5,
-      name: 'Bachelor of Computer Applications (BCA)',
-      field: 'Computer Science',
-      level: 'Undergraduate',
-      duration: '3 years',
-      mode: 'Full-time',
-      description: 'Computer applications and programming focused degree',
-      colleges: 1500,
-      averageFees: '₹1-5 Lakhs',
-      averageSalary: '₹4-8 LPA',
-      specializations: ['Software Development', 'Web Development', 'Database Management', 'Networking'],
-      image: 'https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: 6,
-      name: 'Master of Science (M.Sc)',
-      field: 'Science',
-      level: 'Postgraduate',
-      duration: '2 years',
-      mode: 'Full-time',
-      description: 'Advanced scientific research and study program',
-      colleges: 2000,
-      averageFees: '₹1-8 Lakhs',
-      averageSalary: '₹5-10 LPA',
-      specializations: ['Physics', 'Chemistry', 'Mathematics', 'Biology'],
-      image: 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=400'
-    }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedField, setSelectedField] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
 
   useEffect(() => {
-    let filteredCourses = mockCourses;
+    const fetchCourses = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // TODO: Replace with actual API call
+        // const response = await courseAPI.getAll();
+        // setCourses(response.data);
+        
+        // For now, show empty state
+        setCourses([]);
+      } catch (err) {
+        setError('Failed to load courses. Please try again.');
+        console.error('Error fetching courses:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (filters.level) {
-      filteredCourses = filteredCourses.filter(course => course.level === filters.level);
-    }
-    if (filters.field) {
-      filteredCourses = filteredCourses.filter(course => 
-        course.field.toLowerCase().includes(filters.field.toLowerCase())
-      );
-    }
-    if (filters.duration) {
-      filteredCourses = filteredCourses.filter(course => course.duration === filters.duration);
-    }
-    if (filters.mode) {
-      filteredCourses = filteredCourses.filter(course => course.mode === filters.mode);
-    }
+    fetchCourses();
+  }, []);
 
-    setCourses(filteredCourses);
-  }, [filters]);
+  const filteredCourses = courses.filter(course => {
+    const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.field.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesField = selectedField === 'all' || course.field === selectedField;
+    const matchesLevel = selectedLevel === 'all' || course.level === selectedLevel;
+    
+    return matchesSearch && matchesField && matchesLevel;
+  });
 
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading courses...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const clearFilters = () => {
-    setFilters({ level: '', field: '', duration: '', mode: '' });
-  };
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Courses</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (courses.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-400 text-6xl mb-4">📚</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Courses Available</h2>
+          <p className="text-gray-600 mb-4">There are currently no courses in our database.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

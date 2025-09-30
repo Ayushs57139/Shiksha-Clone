@@ -61,8 +61,8 @@ const pharmacyColleges = [
 async function addPharmacyColleges() {
   try {
     console.log('🚀 Adding Pharmacy Colleges from NIRF 2024 Rankings...');
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://ayushs81740:6JplFZPJ3W38tYAh@cluster0.emv3s7n.mongodb.net/Shiksha', {
-      dbName: 'Shiksha'
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://ayushs81740:6JplFZPJ3W38tYAh@cluster0.emv3s7n.mongodb.net/DikshaBuddy', {
+      dbName: 'Diksha Buddy'
     });
     console.log('✅ Connected to MongoDB');
 

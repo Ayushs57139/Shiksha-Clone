@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, Search, Filter, Download, Upload } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Filter } from 'lucide-react';
 import CollegeCard from '../components/college/CollegeCard';
 import CollegeFilters from '../components/college/CollegeFilters';
 import CollegeStats from '../components/college/CollegeStats';
@@ -7,135 +7,74 @@ import CollegeStats from '../components/college/CollegeStats';
 const CollegeManagement = () => {
   const [colleges, setColleges] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [showAddModal, setShowAddModal] = useState(false);
   const [editingCollege, setEditingCollege] = useState(null);
-  const [filters, setFilters] = useState({
-    category: '',
-    location: '',
-    rating: '',
-    search: ''
-  });
-
-  // Mock data for demonstration
-  const mockColleges = [
-    {
-      _id: '1',
-      name: 'Indian Institute of Technology Delhi',
-      location: 'New Delhi',
-      category: 'engineering',
-      rating: 4.8,
-      fees: '₹2.5 Lakhs',
-      established: 1961,
-      students: 8000,
-      courses: 45,
-      image: 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=400',
-      highlights: ['NIRF Ranking #2', 'Top Placements', 'Research Excellence'],
-      slug: 'iit-delhi'
-    },
-    {
-      _id: '2',
-      name: 'Indian Institute of Management Ahmedabad',
-      location: 'Ahmedabad',
-      category: 'mba',
-      rating: 4.9,
-      fees: '₹25 Lakhs',
-      established: 1961,
-      students: 1200,
-      courses: 8,
-      image: 'https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg?auto=compress&cs=tinysrgb&w=400',
-      highlights: ['NIRF Ranking #1', 'Global Recognition', 'Industry Connect'],
-      slug: 'iim-ahmedabad'
-    }
-  ];
-
-  const mockStats = {
-    totalColleges: 156,
-    totalStudents: 250000,
-    averageRating: 4.2,
-    topCategories: [
-      { name: 'Engineering', count: 45 },
-      { name: 'MBA', count: 32 },
-      { name: 'Medical', count: 28 },
-      { name: 'Law', count: 15 }
-    ],
-    topLocations: [
-      { name: 'Delhi', count: 25 },
-      { name: 'Mumbai', count: 22 },
-      { name: 'Bangalore', count: 18 },
-      { name: 'Chennai', count: 15 }
-    ],
-    recentAdditions: 12
-  };
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setColleges(mockColleges);
-      setLoading(false);
-    }, 1000);
+    const fetchColleges = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // TODO: Replace with actual API call
+        // const response = await collegeAPI.getAll();
+        // setColleges(response.data);
+        
+        // For now, show empty state
+        setColleges([]);
+      } catch (err) {
+        setError('Failed to load colleges. Please try again.');
+        console.error('Error fetching colleges:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchColleges();
   }, []);
 
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleClearFilters = () => {
-    setFilters({
-      category: '',
-      location: '',
-      rating: '',
-      search: ''
-    });
-  };
-
-  const handleAddCollege = (collegeData) => {
-    const newCollege = {
-      _id: Date.now().toString(),
-      ...collegeData,
-      slug: collegeData.name.toLowerCase().replace(/\s+/g, '-')
-    };
-    setColleges(prev => [newCollege, ...prev]);
-    setShowAddForm(false);
-  };
-
-  const handleEditCollege = (collegeId, updatedData) => {
-    setColleges(prev => prev.map(college => 
-      college._id === collegeId ? { ...college, ...updatedData } : college
-    ));
-    setEditingCollege(null);
-  };
-
-  const handleDeleteCollege = (collegeId) => {
-    if (window.confirm('Are you sure you want to delete this college?')) {
-      setColleges(prev => prev.filter(college => college._id !== collegeId));
-    }
-  };
-
   const filteredColleges = colleges.filter(college => {
-    const matchesSearch = college.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-                         college.location.toLowerCase().includes(filters.search.toLowerCase());
+    const matchesSearch = college.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         college.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === 'all' || college.status === selectedStatus;
     
-    // Handle engineering-by-location filter
-    if (filters.category === 'engineering-by-location') {
-      const matchesEngineeringByLocation = college.category === 'Engineering' && 
-                                         filters.location && 
-                                         college.location === filters.location;
-      const matchesRating = !filters.rating || college.rating >= parseFloat(filters.rating);
-      return matchesSearch && matchesEngineeringByLocation && matchesRating;
-    }
-    
-    // Handle regular filters
-    const matchesCategory = !filters.category || college.category === filters.category;
-    const matchesLocation = !filters.location || college.location === filters.location;
-    const matchesRating = !filters.rating || college.rating >= parseFloat(filters.rating);
-    
-    return matchesSearch && matchesCategory && matchesLocation && matchesRating;
+    return matchesSearch && matchesStatus;
   });
+
+  const stats = {
+    total: colleges.length,
+    active: colleges.filter(c => c.status === 'active').length,
+    pending: colleges.filter(c => c.status === 'pending').length,
+    inactive: colleges.filter(c => c.status === 'inactive').length
+  };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading college management...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Colleges</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
@@ -151,7 +90,7 @@ const CollegeManagement = () => {
 
         {/* Stats Section */}
         <div className="mb-8">
-          <CollegeStats stats={mockStats} />
+          <CollegeStats stats={stats} />
         </div>
 
         {/* Actions Bar */}
@@ -159,18 +98,18 @@ const CollegeManagement = () => {
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => setShowAddForm(true)}
+                onClick={() => setShowAddModal(true)}
                 className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Add New College
               </button>
               <button className="flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                <Upload className="h-4 w-4" />
+                {/* <Upload className="h-4 w-4" /> */}
                 Import CSV
               </button>
               <button className="flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                <Download className="h-4 w-4" />
+                {/* <Download className="h-4 w-4" /> */}
                 Export Data
               </button>
             </div>
@@ -186,9 +125,15 @@ const CollegeManagement = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
           <div className="lg:col-span-1">
             <CollegeFilters
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onClearFilters={handleClearFilters}
+              filters={{ search: searchTerm, status: selectedStatus }}
+              onFilterChange={(key, value) => {
+                if (key === 'search') setSearchTerm(value);
+                if (key === 'status') setSelectedStatus(value);
+              }}
+              onClearFilters={() => {
+                setSearchTerm('');
+                setSelectedStatus('all');
+              }}
             />
           </div>
           <div className="lg:col-span-3">
@@ -198,8 +143,8 @@ const CollegeManagement = () => {
               <input
                 type="text"
                 placeholder="Search colleges by name or location..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -241,7 +186,7 @@ const CollegeManagement = () => {
       </div>
 
       {/* Add/Edit College Modal */}
-      {(showAddForm || editingCollege) && (
+      {(showAddModal || editingCollege) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4">
@@ -251,7 +196,7 @@ const CollegeManagement = () => {
               college={editingCollege}
               onSubmit={editingCollege ? handleEditCollege : handleAddCollege}
               onCancel={() => {
-                setShowAddForm(false);
+                setShowAddModal(false);
                 setEditingCollege(null);
               }}
             />

@@ -41,9 +41,13 @@ const CollegeList = () => {
   const fetchColleges = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/colleges');
+      // Fetch all colleges using a very high limit with cache busting
+      const response = await fetch(`http://localhost:5000/api/colleges?limit=10000&page=1&_t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('API Response:', data);
+        console.log('Total colleges fetched:', data.data?.length || 0);
+        console.log('Pagination info:', data.pagination);
         setColleges(data.data || []);
       } else {
         setError('Failed to fetch colleges');
@@ -115,6 +119,11 @@ const CollegeList = () => {
 
     return matchesSearch && matchesCategory && matchesLocation && matchesFilter;
   });
+
+  // Debug logging
+  console.log('Total colleges in state:', colleges.length);
+  console.log('Filtered colleges:', filteredColleges.length);
+  console.log('Current filters:', { searchQuery, selectedCategory, selectedLocation, filterParam, categoryParam });
 
   // Get unique categories and locations
   const categories = [...new Set(colleges.map(college => college.category))];

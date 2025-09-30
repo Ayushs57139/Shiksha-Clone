@@ -5,94 +5,79 @@ import { Calendar, Users, Clock, Award, Download, BookOpen, CheckCircle } from '
 const ExamDetail = () => {
   const { id } = useParams();
   const [exam, setExam] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    // Mock data - in real app, this would come from API
-    const mockExam = {
-      id: parseInt(id),
-      name: 'JEE Main 2024',
-      fullName: 'Joint Entrance Examination Main',
-      field: 'Engineering',
-      level: 'Undergraduate',
-      mode: 'Online',
-      date: 'January 24-31, 2024',
-      applicationDeadline: 'December 15, 2023',
-      registrations: '12,00,000+',
-      status: 'Registration Open',
-      description: 'JEE Main is a national level entrance examination conducted by NTA for admission to undergraduate engineering programs in NITs, IIITs, and other centrally funded technical institutions.',
-      image: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=800',
-      conductingBody: 'National Testing Agency (NTA)',
-      frequency: 'Twice a year (January & April)',
-      applicationFee: '₹650 (General), ₹325 (SC/ST/PwD)',
-      eligibility: {
-        qualification: '12th with Physics, Chemistry, Mathematics',
-        percentage: '75% in 12th or top 20 percentile',
-        ageLimit: 'No age limit',
-        attempts: 'No limit on attempts'
-      },
-      examPattern: {
-        mode: 'Computer Based Test (CBT)',
-        duration: '3 hours',
-        totalQuestions: 90,
-        totalMarks: 300,
-        sections: [
-          { subject: 'Physics', questions: 30, marks: 100 },
-          { subject: 'Chemistry', questions: 30, marks: 100 },
-          { subject: 'Mathematics', questions: 30, marks: 100 }
-        ],
-        markingScheme: '+4 for correct, -1 for incorrect'
-      },
-      syllabus: {
-        Physics: [
-          'Mechanics',
-          'Thermodynamics',
-          'Waves and Optics',
-          'Electricity and Magnetism',
-          'Modern Physics'
-        ],
-        Chemistry: [
-          'Physical Chemistry',
-          'Inorganic Chemistry',
-          'Organic Chemistry',
-          'Environmental Chemistry'
-        ],
-        Mathematics: [
-          'Algebra',
-          'Trigonometry',
-          'Coordinate Geometry',
-          'Calculus',
-          'Statistics and Probability'
-        ]
-      },
-      importantDates: [
-        { event: 'Application Start', date: 'November 1, 2023' },
-        { event: 'Application Deadline', date: 'December 15, 2023' },
-        { event: 'Admit Card Release', date: 'January 15, 2024' },
-        { event: 'Exam Dates', date: 'January 24-31, 2024' },
-        { event: 'Result Declaration', date: 'February 15, 2024' }
-      ],
-      preparationTips: [
-        'Create a structured study plan covering all subjects',
-        'Practice previous year question papers regularly',
-        'Take mock tests to improve time management',
-        'Focus on NCERT books for conceptual clarity',
-        'Solve numerical problems daily for Physics and Chemistry',
-        'Regular revision is key to retention'
-      ],
-      topColleges: [
-        'NIT Trichy',
-        'NIT Warangal',
-        'IIIT Hyderabad',
-        'NIT Surathkal',
-        'IIIT Allahabad'
-      ]
+    const fetchExamData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // TODO: Replace with actual API call
+        // const response = await examAPI.getExamById(id);
+        // setExam(response.data);
+        
+        // For now, show empty state
+        setExam(null);
+      } catch (err) {
+        setError('Failed to load exam details. Please try again.');
+        console.error('Error fetching exam:', err);
+      } finally {
+        setLoading(false);
+      }
     };
-    setExam(mockExam);
+
+    if (id) {
+      fetchExamData();
+    }
   }, [id]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading exam details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Exam</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!exam) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-400 text-6xl mb-4">📚</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Exam Not Found</h2>
+          <p className="text-gray-600 mb-4">The exam you're looking for doesn't exist or has been removed.</p>
+          <button 
+            onClick={() => window.history.back()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const tabs = [

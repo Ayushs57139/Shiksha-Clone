@@ -1,12 +1,17 @@
 {
-  "name": "shiksha-backend",
+  "name": "diksha-buddy-backend",
   "version": "1.0.0",
-  "description": "Backend for Shiksha Clone",
+  "description": "Backend for Diksha Buddy",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "generate-templates": "node scripts/runTemplateGeneration.js",
+    "generate-previews": "node scripts/generateTemplatePreviews.js",
+    "populate-colleges": "node populate-all-colleges.js",
+    "run-nirf-scripts": "node run-all-nirf-scripts.js",
+    "check-colleges": "node check-college-count.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

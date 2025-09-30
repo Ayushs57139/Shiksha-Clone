@@ -1,78 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Clock, Users, Award, BookOpen, DollarSign, TrendingUp, Calendar } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { Star, Clock, Users, MapPin, GraduationCap, BookOpen, CheckCircle, DollarSign } from 'lucide-react';
 
 const CourseDetail = () => {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    // Mock data - in real app, this would come from API
-    const mockCourse = {
-      id: parseInt(id),
-      name: 'Bachelor of Technology (B.Tech)',
-      field: 'Engineering',
-      level: 'Undergraduate',
-      duration: '4 years',
-      mode: 'Full-time',
-      description: 'Bachelor of Technology is a comprehensive engineering program that provides students with strong technical foundation and practical skills across various engineering disciplines.',
-      image: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=800',
-      colleges: 2500,
-      averageFees: '₹3-8 Lakhs',
-      averageSalary: '₹6-12 LPA',
-      specializations: [
-        'Computer Science Engineering',
-        'Mechanical Engineering',
-        'Electrical Engineering',
-        'Civil Engineering',
-        'Electronics & Communication',
-        'Chemical Engineering'
-      ],
-      eligibility: {
-        qualification: '12th with Physics, Chemistry, Mathematics',
-        percentage: 'Minimum 75% or top 20 percentile',
-        entrance: 'JEE Main, JEE Advanced, State CET'
-      },
-      curriculum: [
-        'Engineering Mathematics',
-        'Physics and Chemistry',
-        'Programming Languages',
-        'Data Structures and Algorithms',
-        'Engineering Graphics',
-        'Workshop Practice',
-        'Specialization Subjects',
-        'Project Work'
-      ],
-      careerOptions: [
-        'Software Engineer',
-        'Mechanical Engineer',
-        'Civil Engineer',
-        'Electrical Engineer',
-        'Research Scientist',
-        'Project Manager',
-        'Technical Consultant',
-        'Entrepreneur'
-      ],
-      topColleges: [
-        { name: 'IIT Delhi', fees: '₹2.5 Lakhs', rating: 4.8 },
-        { name: 'IIT Bombay', fees: '₹2.5 Lakhs', rating: 4.9 },
-        { name: 'IIT Madras', fees: '₹2.5 Lakhs', rating: 4.7 },
-        { name: 'NIT Trichy', fees: '₹1.5 Lakhs', rating: 4.5 }
-      ],
-      examInfo: {
-        name: 'JEE Main',
-        date: 'January & April 2024',
-        applicationDeadline: 'December 2023',
-        examPattern: 'Computer Based Test (CBT)',
-        subjects: ['Physics', 'Chemistry', 'Mathematics']
+    const fetchCourseData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // TODO: Replace with actual API call
+        // const response = await courseAPI.getCourseById(id);
+        // setCourse(response.data);
+        
+        // For now, show empty state
+        setCourse(null);
+      } catch (err) {
+        setError('Failed to load course details. Please try again.');
+        console.error('Error fetching course:', err);
+      } finally {
+        setLoading(false);
       }
     };
-    setCourse(mockCourse);
+
+    if (id) {
+      fetchCourseData();
+    }
   }, [id]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading course details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Course</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!course) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-400 text-6xl mb-4">📚</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Course Not Found</h2>
+          <p className="text-gray-600 mb-4">The course you're looking for doesn't exist or has been removed.</p>
+          <button 
+            onClick={() => window.history.back()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const tabs = [
@@ -101,7 +106,7 @@ const CourseDetail = () => {
               
               <div className="flex flex-wrap items-center gap-4 mb-6">
                 <div className="flex items-center text-gray-600">
-                  <Award size={20} className="mr-2" />
+                  <GraduationCap size={20} className="mr-2" />
                   <span>{course.level}</span>
                 </div>
                 <div className="flex items-center text-gray-600">
@@ -281,21 +286,21 @@ const CourseDetail = () => {
                 <h4 className="font-semibold mb-3">Academic Requirements</h4>
                 <div className="space-y-3">
                   <div className="flex items-center">
-                    <Award size={16} className="mr-3 text-gray-400" />
+                    <GraduationCap size={16} className="mr-3 text-gray-400" />
                     <div>
                       <div className="font-medium">Qualification</div>
                       <div className="text-sm text-gray-600">{course.eligibility.qualification}</div>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <TrendingUp size={16} className="mr-3 text-gray-400" />
+                    <CheckCircle size={16} className="mr-3 text-gray-400" />
                     <div>
                       <div className="font-medium">Minimum Percentage</div>
                       <div className="text-sm text-gray-600">{course.eligibility.percentage}</div>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <Calendar size={16} className="mr-3 text-gray-400" />
+                    <MapPin size={16} className="mr-3 text-gray-400" />
                     <div>
                       <div className="font-medium">Entrance Exams</div>
                       <div className="text-sm text-gray-600">{course.eligibility.entrance}</div>

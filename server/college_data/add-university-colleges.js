@@ -110,8 +110,8 @@ const universityColleges = [
 async function addUniversityColleges() {
   try {
     console.log('🚀 Adding University Colleges from NIRF 2024 Rankings...');
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://ayushs81740:6JplFZPJ3W38tYAh@cluster0.emv3s7n.mongodb.net/Shiksha', {
-      dbName: 'Shiksha'
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://ayushs81740:6JplFZPJ3W38tYAh@cluster0.emv3s7n.mongodb.net/DikshaBuddy', {
+      dbName: 'Diksha Buddy'
     });
     console.log('✅ Connected to MongoDB');
 

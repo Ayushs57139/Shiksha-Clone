@@ -25,7 +25,7 @@ node add-nirf-architecture.js
 
 ## Data Source
 
-All scripts import data from `../src/data/college_data/` folder and add it to the `shiksha` database.
+All scripts import data from `../src/data/college_data/` folder and add it to the `diksha-buddy` database.
 
 ## Database Operations
 

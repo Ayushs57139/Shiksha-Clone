@@ -6,7 +6,7 @@ async function addNirfData() {
     const client = new MongoClient('mongodb://localhost:27017/');
     await client.connect();
     
-    const db = client.db('Shiksha');
+    const db = client.db('Diksha Buddy');
     const collection = db.collection('colleges');
     
     console.log('🗄️ Adding NIRF Research Data to Database...');

@@ -1,6 +1,7 @@
 import express from 'express';
 import Resume from '../models/Resume.js';
 import puppeteer from 'puppeteer';
+import Template from '../models/Template.js';
 
 const router = express.Router();
 
@@ -103,8 +104,20 @@ router.post('/generate-pdf', async (req, res) => {
       });
     }
     
-    // Generate HTML for PDF
-    const htmlContent = generateResumeHTML(resumeData);
+    // Build HTML either from selected template (Handlebars-like) or default
+    let htmlContent = generateResumeHTML(resumeData);
+    if (resumeData.selectedTemplateId) {
+      try {
+        const tpl = await Template.findById(resumeData.selectedTemplateId);
+        if (tpl && tpl.html) {
+          htmlContent = wrapTemplateHTML(applyTemplateHtml(tpl.html, resumeData), tpl.accentColor, tpl.secondaryColor, tpl.tertiaryColor);
+          // Increment usage count
+          await Template.findByIdAndUpdate(resumeData.selectedTemplateId, { $inc: { usageCount: 1 } });
+        }
+      } catch (e) {
+        console.error('Template render fallback:', e.message);
+      }
+    }
     
     // Launch puppeteer with better configuration
     const browser = await puppeteer.launch({
@@ -368,6 +381,88 @@ function generateResumeHTML(resumeData) {
     </body>
     </html>
   `;
+}
+
+// Very small helper to replace {{placeholders}} and simple each blocks
+function applyTemplateHtml(templateHtml, resumeData) {
+  const data = normalizeResumeData(resumeData);
+
+  // each blocks for arrays: {{#each experience}} ... {{/each}}
+  const eachRegex = /\{\{#each\s+(\w+)}}([\s\S]*?)\{\{\/each}}/g;
+  let rendered = templateHtml.replace(eachRegex, (match, key, inner) => {
+    const arr = data[key];
+    if (!Array.isArray(arr)) return '';
+    return arr.map((item) => {
+      return inner.replace(/\{\{(\w+)}}/g, (m, k) => (item[k] ?? ''));
+    }).join('');
+  });
+
+  // simple placeholders like {{firstName}}
+  rendered = rendered.replace(/\{\{(\w+)}}/g, (m, key) => (data[key] ?? ''));
+  return rendered;
+}
+
+function normalizeResumeData(resumeData) {
+  const personal = resumeData.personalInfo || {};
+  const [firstName, ...rest] = (personal.name || '').split(' ');
+  const lastName = rest.join(' ');
+  return {
+    firstName: firstName || 'First',
+    lastName: lastName || 'Last',
+    title: resumeData.summary ? 'Professional Summary' : '',
+    email: personal.email || '',
+    phone: personal.phone || '',
+    location: personal.address || '',
+    summary: resumeData.summary || '',
+    skills: (resumeData.skills || []).join(', '),
+    education: (resumeData.education || []).map(e => ({
+      degree: e.degree,
+      institution: e.institution,
+      year: e.year
+    })),
+    experience: (resumeData.experience || []).map(x => ({
+      title: x.title,
+      company: x.company,
+      startDate: (x.duration || '').split('-')[0]?.trim() || '',
+      endDate: (x.duration || '').split('-')[1]?.trim() || '',
+      achievements: (x.description ? x.description.split('\n') : [])
+    })),
+    projects: (resumeData.projects || []).map(p => ({
+      name: p.name,
+      technologies: p.technologies,
+      description: p.description,
+      link: p.link
+    })),
+    certifications: (resumeData.certifications || []).map(c => ({
+      name: c.name,
+      issuer: c.issuer,
+      date: c.date,
+      link: c.link
+    })),
+  };
+}
+
+function wrapTemplateHTML(inner, accent = '#0f766e', secondary = '#111827', tertiary = '#64748b') {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+    :root{--accent:${accent}; --secondary:${secondary}; --tertiary:${tertiary};}
+    body{font-family: Arial, Helvetica, sans-serif; color:var(--secondary); line-height:1.6;}
+    h1,h2,h3{color:var(--accent); margin-bottom:8px;}
+    .header{border-bottom:3px solid var(--accent); padding-bottom:12px; margin-bottom:16px}
+    .title{color:var(--tertiary); font-weight:500;}
+    .sidebar{background:rgba(0,0,0,0.03); padding:12px;}
+    .skill-tags{color:var(--accent)}
+    .job-head{display:flex; gap:8px; align-items:center;}
+    .contact-bar{color:var(--tertiary); font-size:14px;}
+    .company{color:var(--tertiary); font-style:italic;}
+    .duration{color:var(--tertiary); font-size:12px;}
+    .achievements{margin:8px 0; padding-left:16px;}
+    .achievements li{margin-bottom:4px;}
+    .skills-grid{display:flex; flex-wrap:wrap; gap:8px;}
+    .skill-tag{background:var(--accent); color:white; padding:4px 8px; border-radius:4px; font-size:12px;}
+    .creative-avatar{width:80px; height:80px; background:var(--accent); border-radius:50%; margin:0 auto 16px;}
+    .tech-skills-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:8px;}
+    .academic-cert{margin-bottom:8px; padding:8px; background:rgba(0,0,0,0.02); border-left:3px solid var(--accent);}
+  </style></head><body>${inner}</body></html>`;
 }
 
 export default router; 

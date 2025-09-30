@@ -33,7 +33,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -252,6 +252,7 @@ const Navbar = () => {
       name: 'Exam Preparation',
       icon: <FaBook className="text-purple-600" />,
       items: [
+        { name: 'Exam Predictor', link: '/exam-predictor', icon: <FaChartLine /> },
         { name: 'JEE Main', link: '/exam-preparation', icon: <FaBook /> },
         { name: 'NEET', link: '/exam-preparation', icon: <FaBook /> },
         { name: 'CAT', link: '/exam-preparation', icon: <FaBook /> },
@@ -288,7 +289,7 @@ const Navbar = () => {
               <div className="bg-teal-600 text-white p-2 rounded-lg">
                 <FaGraduationCap className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold text-gray-900">CollegeInfo</span>
+              <span className="text-xl font-bold text-gray-900">Diksha Buddy </span>
             </Link>
           </div>
 
@@ -405,6 +406,9 @@ const Navbar = () => {
             <Link to="/colleges" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
               Browse All Colleges
             </Link>
+            <Link to="/psychometrics" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              Psychometric Tests
+            </Link>
             <Link to="/resume-builder" className="flex items-center space-x-1 bg-orange-500 text-white px-3 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium">
               <FaFileAlt className="h-4 w-4" />
               <span className="hidden sm:block">Resume Builder</span>
@@ -413,33 +417,25 @@ const Navbar = () => {
 
           {/* Right Side */}
           <div className="flex items-center space-x-3">
-            {/* Search */}
-            <div className="relative hidden sm:block">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search colleges..."
-                className="pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm w-48"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => handleSearchKeyPress(e)}
-              />
-              <button
-                onClick={() => handleSearch(searchQuery)}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-teal-600 hover:text-teal-700"
-              >
-                <FaSearch className="h-4 w-4" />
-              </button>
-            </div>
+            {/* Search removed */}
 
             {/* Conditional rendering based on authentication */}
-            {user ? (
+            {loading ? (
+              // Loading state
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600"></div>
+                <span className="text-sm text-gray-500 hidden sm:block">Loading...</span>
+              </div>
+            ) : user ? (
               // Logged in user
               <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2 text-gray-700">
+                <Link
+                  to="/dashboard"
+                  className="flex items-center space-x-2 text-gray-700 hover:text-teal-600 transition-colors cursor-pointer"
+                >
                   <FaUser className="h-4 w-4" />
                   <span className="text-sm font-medium hidden sm:block">{user.firstName || user.email}</span>
-                </div>
+                </Link>
                 <button
                   onClick={logout}
                   className="flex items-center space-x-1 text-gray-600 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -486,24 +482,7 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
-              {/* Mobile Search */}
-              <div className="relative mb-4">
-                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Search colleges..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm"
-                  value={mobileSearchQuery}
-                  onChange={(e) => setMobileSearchQuery(e.target.value)}
-                  onKeyPress={(e) => handleSearchKeyPress(e, true)}
-                />
-                <button
-                  onClick={() => handleSearch(mobileSearchQuery, true)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-teal-600 hover:text-teal-700"
-                >
-                  <FaSearch className="h-4 w-4" />
-                </button>
-              </div>
+              {/* Mobile Search removed */}
 
               {/* Mobile Colleges Dropdown */}
               <div className="mb-4">
@@ -597,14 +576,31 @@ const Navbar = () => {
               >
                 Browse All Colleges
               </Link>
+              <Link
+                to="/psychometrics"
+                className="block px-3 py-2 text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded-md text-sm font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Psychometric Tests
+              </Link>
 
               {/* Mobile Auth Links */}
-              {user ? (
+              {loading ? (
                 <div className="pt-4 border-t border-gray-200">
-                  <div className="flex items-center px-3 py-2 text-gray-700">
+                  <div className="flex items-center justify-center px-3 py-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600 mr-2"></div>
+                    <span className="text-sm text-gray-500">Loading...</span>
+                  </div>
+                </div>
+              ) : user ? (
+                <div className="pt-4 border-t border-gray-200">
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center px-3 py-2 text-gray-700 hover:text-teal-600 transition-colors"
+                  >
                     <FaUser className="h-4 w-4 mr-2" />
                     <span className="text-sm font-medium">{user.firstName || user.email}</span>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => {
                       logout();

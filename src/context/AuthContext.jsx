@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
@@ -14,35 +14,71 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-
-  useEffect(() => {
-    if (token) {
-      loadUser();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
-
-  const loadUser = async () => {
+  const [error, setError] = useState(null);
+  const [initialized, setInitialized] = useState(false);
+  const [token, setToken] = useState(() => {
     try {
+      return localStorage.getItem('token');
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      return null;
+    }
+  });
+
+  const loadUser = useCallback(async () => {
+    try {
+      setError(null);
       const response = await authAPI.getProfile();
       setUser(response.data.user);
     } catch (error) {
       console.error('Load user error:', error);
-      logout();
+      setError(error);
+      // Don't call logout here as it might cause infinite loops
+      // Just clear the token and user state
+      try {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } catch (storageError) {
+        console.error('Error clearing localStorage in loadUser:', storageError);
+      }
+      setToken(null);
+      setUser(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        if (token) {
+          await loadUser();
+        } else {
+          setLoading(false);
+        }
+        setInitialized(true);
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setError(error);
+        setLoading(false);
+        setInitialized(true);
+      }
+    };
+
+    initializeAuth();
+  }, [token, loadUser]);
 
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
       const { token, user } = response.data;
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      try {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+      } catch (storageError) {
+        console.error('Error saving to localStorage:', storageError);
+      }
       
       setToken(token);
       setUser(user);
@@ -62,8 +98,12 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.register(userData);
       const { token, user } = response.data;
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      try {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+      } catch (storageError) {
+        console.error('Error saving to localStorage:', storageError);
+      }
       
       setToken(token);
       setUser(user);
@@ -80,8 +120,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
     setToken(null);
     setUser(null);
   };
@@ -103,7 +147,8 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     token,
-    loading,
+    loading: loading || !initialized,
+    error,
     login,
     register,
     logout,
@@ -112,9 +157,29 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.role === 'admin'
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  try {
+    return (
+      <AuthContext.Provider value={value}>
+        {children}
+      </AuthContext.Provider>
+    );
+  } catch (error) {
+    console.error('AuthProvider error:', error);
+    // Return a fallback provider that doesn't crash
+    return (
+      <AuthContext.Provider value={{
+        user: null,
+        token: null,
+        loading: false,
+        login: async () => ({ success: false, message: 'Auth system unavailable' }),
+        register: async () => ({ success: false, message: 'Auth system unavailable' }),
+        logout: () => {},
+        updateProfile: async () => ({ success: false, message: 'Auth system unavailable' }),
+        isAuthenticated: false,
+        isAdmin: false
+      }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 };

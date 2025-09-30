@@ -1,283 +1,129 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Search, Filter, MapPin, Star, Users, Award } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Search, Filter, MapPin, Star, Users, GraduationCap, BookOpen, Calendar } from 'lucide-react';
 
-const SearchPage = () => {
+const Search = () => {
   const [searchParams] = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get('q') || '');
-  const [results, setResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
+  const [results, setResults] = useState({ colleges: [], courses: [], exams: [] });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
-  const [filters, setFilters] = useState({
-    type: '',
-    location: '',
-    rating: ''
-  });
-
-  // Mock search results
-  const mockResults = {
-    colleges: [
-      {
-        id: 1,
-        type: 'college',
-        name: 'Indian Institute of Technology Delhi',
-        location: 'New Delhi',
-        rating: 4.8,
-        fees: '₹2.5 Lakhs',
-        image: 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=400',
-        highlights: ['NIRF Ranking #2', 'Top Placements']
-      },
-      {
-        id: 2,
-        type: 'college',
-        name: 'Indian Institute of Management Ahmedabad',
-        location: 'Ahmedabad',
-        rating: 4.9,
-        fees: '₹25 Lakhs',
-        image: 'https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg?auto=compress&cs=tinysrgb&w=400',
-        highlights: ['NIRF Ranking #1', 'Global Recognition']
-      }
-    ],
-    courses: [
-      {
-        id: 1,
-        type: 'course',
-        name: 'Bachelor of Technology (B.Tech)',
-        field: 'Engineering',
-        duration: '4 years',
-        colleges: 2500,
-        averageFees: '₹3-8 Lakhs',
-        image: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400'
-      },
-      {
-        id: 2,
-        type: 'course',
-        name: 'Master of Business Administration (MBA)',
-        field: 'Management',
-        duration: '2 years',
-        colleges: 1200,
-        averageFees: '₹8-25 Lakhs',
-        image: 'https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=400'
-      }
-    ],
-    exams: [
-      {
-        id: 1,
-        type: 'exam',
-        name: 'JEE Main 2024',
-        field: 'Engineering',
-        date: 'January 24-31, 2024',
-        registrations: '12,00,000+',
-        status: 'Registration Open',
-        image: 'https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg?auto=compress&cs=tinysrgb&w=400'
-      }
-    ]
-  };
 
   useEffect(() => {
-    // Simulate search API call
-    const searchResults = [];
-    
-    if (query) {
-      // Add colleges that match the query
-      const matchingColleges = mockResults.colleges.filter(college =>
-        college.name.toLowerCase().includes(query.toLowerCase()) ||
-        college.location.toLowerCase().includes(query.toLowerCase())
-      );
-      searchResults.push(...matchingColleges);
-
-      // Add courses that match the query
-      const matchingCourses = mockResults.courses.filter(course =>
-        course.name.toLowerCase().includes(query.toLowerCase()) ||
-        course.field.toLowerCase().includes(query.toLowerCase())
-      );
-      searchResults.push(...matchingCourses);
-
-      // Add exams that match the query
-      const matchingExams = mockResults.exams.filter(exam =>
-        exam.name.toLowerCase().includes(query.toLowerCase()) ||
-        exam.field.toLowerCase().includes(query.toLowerCase())
-      );
-      searchResults.push(...matchingExams);
+    if (searchTerm.trim()) {
+      performSearch();
     }
+  }, [searchTerm]);
 
-    setResults(searchResults);
-  }, [query]);
+  const performSearch = async () => {
+    if (!searchTerm.trim()) return;
+    
+    setLoading(true);
+    setError(null);
+    try {
+      // TODO: Replace with actual API calls
+      // const [collegesRes, coursesRes, examsRes] = await Promise.all([
+      //   collegeAPI.search(searchTerm),
+      //   courseAPI.search(searchTerm),
+      //   examAPI.search(searchTerm)
+      // ]);
+      // setResults({
+      //   colleges: collegesRes.data,
+      //   courses: coursesRes.data,
+      //   exams: examsRes.data
+      // });
+      
+      // For now, show empty results
+      setResults({ colleges: [], courses: [], exams: [] });
+    } catch (err) {
+      setError('Search failed. Please try again.');
+      console.error('Search error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Update URL with search query
-    window.history.pushState({}, '', `/search?q=${encodeURIComponent(query)}`);
+    performSearch();
   };
 
-  const getFilteredResults = () => {
-    let filtered = results;
+  const totalResults = results.colleges.length + results.courses.length + results.exams.length;
 
-    if (activeTab !== 'all') {
-      filtered = filtered.filter(result => result.type === activeTab);
-    }
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Searching...</p>
+        </div>
+      </div>
+    );
+  }
 
-    if (filters.type) {
-      filtered = filtered.filter(result => result.type === filters.type);
-    }
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Search Error</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-    if (filters.location) {
-      filtered = filtered.filter(result => 
-        result.location && result.location.toLowerCase().includes(filters.location.toLowerCase())
-      );
-    }
-
-    if (filters.rating) {
-      filtered = filtered.filter(result => 
-        result.rating && result.rating >= parseFloat(filters.rating)
-      );
-    }
-
-    return filtered;
-  };
-
-  const filteredResults = getFilteredResults();
-
-  const tabs = [
-    { id: 'all', name: 'All Results', count: results.length },
-    { id: 'college', name: 'Colleges', count: results.filter(r => r.type === 'college').length },
-    { id: 'course', name: 'Courses', count: results.filter(r => r.type === 'course').length },
-    { id: 'exam', name: 'Exams', count: results.filter(r => r.type === 'exam').length }
-  ];
-
-  const renderResult = (result) => {
-    switch (result.type) {
-      case 'college':
-        return (
-          <div key={`${result.type}-${result.id}`} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="flex flex-col md:flex-row">
-              <div className="md:w-1/3">
-                <img
-                  src={result.image}
-                  alt={result.name}
-                  className="w-full h-48 md:h-full object-cover"
+  if (searchTerm && !loading && totalResults === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Search Header */}
+          <div className="mb-8">
+            <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search for colleges, courses, or exams..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-teal-600 text-white px-4 py-1.5 rounded-md hover:bg-teal-700 transition-colors"
+                >
+                  Search
+                </button>
               </div>
-              <div className="md:w-2/3 p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <Link
-                      to={`/colleges/${result.id}`}
-                      className="text-xl font-semibold text-gray-900 hover:text-primary transition-colors"
-                    >
-                      {result.name}
-                    </Link>
-                    <div className="flex items-center text-gray-600 mt-1">
-                      <MapPin size={16} className="mr-1" />
-                      <span>{result.location}</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center space-x-1 mb-1">
-                      <Star className="text-yellow-400 fill-current" size={16} />
-                      <span className="font-medium">{result.rating}</span>
-                    </div>
-                    <div className="text-primary font-semibold">{result.fees}</div>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {result.highlights.map((highlight, index) => (
-                    <span
-                      key={index}
-                      className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
-                    >
-                      {highlight}
-                    </span>
-                  ))}
-                </div>
-                <Link to={`/colleges/${result.id}`} className="btn-primary">
-                  View Details
-                </Link>
-              </div>
-            </div>
+            </form>
           </div>
-        );
 
-      case 'course':
-        return (
-          <div key={`${result.type}-${result.id}`} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="flex flex-col md:flex-row">
-              <div className="md:w-1/3">
-                <img
-                  src={result.image}
-                  alt={result.name}
-                  className="w-full h-48 md:h-full object-cover"
-                />
-              </div>
-              <div className="md:w-2/3 p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <Link
-                      to={`/courses/${result.id}`}
-                      className="text-xl font-semibold text-gray-900 hover:text-primary transition-colors"
-                    >
-                      {result.name}
-                    </Link>
-                    <div className="text-gray-600 mt-1">{result.field}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-primary font-semibold">{result.averageFees}</div>
-                    <div className="text-sm text-gray-600">Average Fees</div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
-                  <div>Duration: {result.duration}</div>
-                  <div>{result.colleges} Colleges</div>
-                </div>
-                <Link to={`/courses/${result.id}`} className="btn-primary">
-                  View Details
-                </Link>
-              </div>
-            </div>
+          {/* No Results */}
+          <div className="text-center py-16">
+            <div className="text-gray-400 text-6xl mb-4">🔍</div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Results Found</h2>
+            <p className="text-gray-600 mb-4">
+              We couldn't find any results for "{searchTerm}". Try different keywords or check your spelling.
+            </p>
+            <button 
+              onClick={() => setSearchTerm('')}
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+            >
+              Clear Search
+            </button>
           </div>
-        );
-
-      case 'exam':
-        return (
-          <div key={`${result.type}-${result.id}`} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="flex flex-col md:flex-row">
-              <div className="md:w-1/3">
-                <img
-                  src={result.image}
-                  alt={result.name}
-                  className="w-full h-48 md:h-full object-cover"
-                />
-              </div>
-              <div className="md:w-2/3 p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <Link
-                      to={`/exams/${result.id}`}
-                      className="text-xl font-semibold text-gray-900 hover:text-primary transition-colors"
-                    >
-                      {result.name}
-                    </Link>
-                    <div className="text-gray-600 mt-1">{result.field}</div>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs mt-2 inline-block">
-                      {result.status}
-                    </span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
-                  <div>Exam Date: {result.date}</div>
-                  <div>Registrations: {result.registrations}</div>
-                </div>
-                <Link to={`/exams/${result.id}`} className="btn-primary">
-                  View Details
-                </Link>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -289,24 +135,24 @@ const SearchPage = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search colleges, courses, exams..."
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </form>
           
-          {query && (
+          {searchTerm && (
             <p className="text-gray-600">
-              Showing results for "<span className="font-medium">{query}</span>"
+              Showing results for "<span className="font-medium">{searchTerm}</span>"
             </p>
           )}
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {query ? (
+        {searchTerm ? (
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filters Sidebar */}
             <div className="lg:w-1/4">
@@ -320,11 +166,11 @@ const SearchPage = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Type</label>
                     <select
-                      value={filters.type}
-                      onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
+                      value={activeTab}
+                      onChange={(e) => setActiveTab(e.target.value)}
                       className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="">All Types</option>
+                      <option value="all">All Results</option>
                       <option value="college">Colleges</option>
                       <option value="course">Courses</option>
                       <option value="exam">Exams</option>
@@ -336,8 +182,6 @@ const SearchPage = () => {
                     <input
                       type="text"
                       placeholder="Enter location"
-                      value={filters.location}
-                      onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
                       className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
@@ -345,8 +189,8 @@ const SearchPage = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Minimum Rating</label>
                     <select
-                      value={filters.rating}
-                      onChange={(e) => setFilters(prev => ({ ...prev, rating: e.target.value }))}
+                      value=""
+                      onChange={(e) => {}}
                       className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option value="">Any Rating</option>
@@ -364,26 +208,57 @@ const SearchPage = () => {
               {/* Tabs */}
               <div className="bg-white rounded-lg shadow-sm mb-6">
                 <div className="flex border-b overflow-x-auto">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 ${
-                        activeTab === tab.id
-                          ? 'border-primary text-primary'
-                          : 'border-transparent text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      {tab.name} ({tab.count})
-                    </button>
-                  ))}
+                  <button
+                    key="all"
+                    onClick={() => setActiveTab('all')}
+                    className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 ${
+                      activeTab === 'all'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    All Results ({totalResults})
+                  </button>
+                  <button
+                    key="college"
+                    onClick={() => setActiveTab('college')}
+                    className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 ${
+                      activeTab === 'college'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Colleges ({results.colleges.length})
+                  </button>
+                  <button
+                    key="course"
+                    onClick={() => setActiveTab('course')}
+                    className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 ${
+                      activeTab === 'course'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Courses ({results.courses.length})
+                  </button>
+                  <button
+                    key="exam"
+                    onClick={() => setActiveTab('exam')}
+                    className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 ${
+                      activeTab === 'exam'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Exams ({results.exams.length})
+                  </button>
                 </div>
               </div>
 
               {/* Results List */}
-              {filteredResults.length > 0 ? (
+              {totalResults > 0 ? (
                 <div className="space-y-6">
-                  {filteredResults.map(renderResult)}
+                  {results[activeTab].map(renderResult)}
                 </div>
               ) : (
                 <div className="bg-white rounded-lg shadow-md p-12 text-center">
@@ -414,4 +289,4 @@ const SearchPage = () => {
   );
 };
 
-export default SearchPage;
+export default Search;

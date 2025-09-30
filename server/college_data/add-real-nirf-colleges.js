@@ -113,8 +113,8 @@ async function addRealNirfColleges() {
     console.log('🚀 Adding All 100 Real NIRF Engineering Colleges...');
     
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://ayushs81740:6JplFZPJ3W38tYAh@cluster0.emv3s7n.mongodb.net/Shiksha', {
-      dbName: 'Shiksha'
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://ayushs81740:6JplFZPJ3W38tYAh@cluster0.emv3s7n.mongodb.net/DikshaBuddy', {
+      dbName: 'Diksha Buddy'
     });
     
     console.log('✅ Connected to MongoDB');

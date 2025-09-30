@@ -13,9 +13,13 @@ const api = axios.create({
 // Add token to requests if available
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage in request interceptor:', error);
     }
     return config;
   },
@@ -29,9 +33,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      try {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } catch (storageError) {
+        console.error('Error clearing localStorage in interceptor:', storageError);
+      }
+      // Only redirect if we're not already on the login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -98,6 +109,15 @@ export const newsAPI = {
 // Admin API
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
+  
+  // Exam Predictor Admin
+  examPredictorStats: () => api.get('/exam-predictor/admin/stats'),
+  examPredictorPredictions: (params = {}) => api.get('/exam-predictor/admin/predictions', { params }),
+  createExam: (data) => api.post('/exam-predictor/admin/exams', data),
+  updateExam: (id, data) => api.put(`/exam-predictor/admin/exams/${id}`, data),
+  deleteExam: (id) => api.delete(`/exam-predictor/admin/exams/${id}`),
+  
+  // Dashboard and Analytics
   getDashboardStats: () => api.get('/admin/dashboard/stats'),
   getRecentActivity: () => api.get('/admin/dashboard/activity'),
   getColleges: (params = {}) => api.get('/admin/colleges', { params }),
@@ -108,6 +128,43 @@ export const adminAPI = {
   getUsers: (params = {}) => api.get('/admin/users', { params }),
   getAnalytics: (params = {}) => api.get('/admin/analytics', { params }),
   getCollegeStats: () => api.get('/admin/colleges/stats/overview'),
+};
+
+// Templates API
+export const templatesAPI = {
+  list: (params = {}) => api.get('/templates', { params }),
+  get: (id) => api.get(`/templates/${id}`),
+  create: (data) => api.post('/templates', data),
+  update: (id, data) => api.put(`/templates/${id}`, data),
+  remove: (id) => api.delete(`/templates/${id}`),
+  use: (id) => api.post(`/templates/${id}/use`),
+  seed: () => api.post('/templates/seed'),
+  seedRefresh: () => api.post('/templates/seed/refresh'),
+};
+
+// Psychometrics API
+export const psychometricsAPI = {
+  getTests: () => api.get('/psychometrics/tests'),
+  getQuestions: (key, params) => api.get(`/psychometrics/tests/${key}/questions`, { params }),
+  submit: (key, payload) => api.post(`/psychometrics/tests/${key}/submit`, payload),
+  results: (userId) => api.get(`/psychometrics/results/${userId}`),
+  // Admin
+  adminUpsertTest: (testData) => api.post('/psychometrics/admin/tests', testData),
+  adminCreateCompleteTest: (testData) => api.post('/psychometrics/admin/tests/complete', testData),
+  adminImportQuestions: (testKey, questions, replace = false) => api.post(`/psychometrics/admin/tests/${testKey}/questions/import`, questions, { params: { replace } }),
+  adminListResults: (params = {}) => api.get('/psychometrics/admin/results', { params })
+};
+
+// Exam Predictor API
+export const examPredictorAPI = {
+  getExams: (params = {}) => api.get('/exam-predictor/exams', { params }),
+  getExam: (id) => api.get(`/exam-predictor/exams/${id}`),
+  getCategories: () => api.get('/exam-predictor/categories'),
+  getTypes: () => api.get('/exam-predictor/types'),
+  generatePrediction: (data) => api.post('/exam-predictor/predict', data),
+  getUserPredictions: (userId) => api.get('/exam-predictor/predictions', { params: { userId } }),
+  getPrediction: (id) => api.get(`/exam-predictor/predictions/${id}`),
+  updateMockScore: (id, data) => api.put(`/exam-predictor/predictions/${id}/scores`, data)
 };
 
 export default api;

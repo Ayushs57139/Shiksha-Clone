@@ -15,9 +15,9 @@ import {
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
     general: {
-      siteName: 'Shiksha - Education Portal',
+      siteName: 'Diksha Buddy - Education Portal',
       siteDescription: 'Find the best colleges, courses, and career opportunities',
-      contactEmail: 'admin@shiksha.com',
+      contactEmail: 'admin@dikshabuddy.com',
       contactPhone: '+91 98765 43210',
       maintenanceMode: false
     },

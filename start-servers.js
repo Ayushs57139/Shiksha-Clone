@@ -51,7 +51,7 @@ const mainServerPath = path.join(__dirname, 'server');
 const mainServer = startServer('Main Server', 'npm', ['run', 'dev'], mainServerPath, colors.main);
 
 // Start scraper server
-const scraperServerPath = path.join(__dirname, 'shiksha-scraper');
+const scraperServerPath = path.join(__dirname, 'diksha-scraper');
 const scraperServer = startServer('Scraper Server', 'npm', ['run', 'dev'], scraperServerPath, colors.scraper);
 
 // Handle process termination

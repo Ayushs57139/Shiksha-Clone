@@ -13,8 +13,10 @@ router.get('/', async (req, res) => {
       search = '', 
       category = '', 
       location = '',
-      sort = 'name'
+      sort = 'name',
+      all = false // New parameter to get all colleges
     } = req.query;
+    
     
     let query = { status: 'active' };
     
@@ -38,8 +40,6 @@ router.get('/', async (req, res) => {
       query.location = location;
     }
 
-    const skip = (page - 1) * limit;
-    
     // Build sort object
     let sortObj = {};
     switch (sort) {
@@ -56,23 +56,46 @@ router.get('/', async (req, res) => {
         sortObj = { name: 1 };
     }
     
-    const colleges = await College.find(query)
-      .sort(sortObj)
-      .skip(skip)
-      .limit(parseInt(limit));
+    let colleges;
+    let total;
     
-    const total = await College.countDocuments(query);
-    
-    res.json({
-      success: true,
-      data: colleges,
-      pagination: {
-        current: parseInt(page),
-        total: Math.ceil(total / limit),
-        totalRecords: total,
-        limit: parseInt(limit)
-      }
-    });
+    if (all === 'true' || parseInt(limit) > 1000) {
+      // Get all colleges without pagination
+      colleges = await College.find(query).sort(sortObj);
+      total = colleges.length;
+      
+      res.json({
+        success: true,
+        data: colleges,
+        pagination: {
+          current: 1,
+          total: 1,
+          totalRecords: total,
+          limit: total
+        }
+      });
+    } else {
+      // Use pagination for normal requests
+      const skip = (page - 1) * limit;
+      
+      colleges = await College.find(query)
+        .sort(sortObj)
+        .skip(skip)
+        .limit(parseInt(limit));
+      
+      total = await College.countDocuments(query);
+      
+      res.json({
+        success: true,
+        data: colleges,
+        pagination: {
+          current: parseInt(page),
+          total: Math.ceil(total / limit),
+          totalRecords: total,
+          limit: parseInt(limit)
+        }
+      });
+    }
   } catch (error) {
     console.error('Error fetching colleges:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch colleges' });

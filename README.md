@@ -1,10 +1,10 @@
-# Shiksha Clone Project
+# Diksha Buddy Project
 
-A comprehensive educational platform that scrapes and displays college data from Shiksha.com.
+A comprehensive educational platform that scrapes and displays college data from Diksha Buddy.
 
 ## Features
 
-- Web scraper for Shiksha.com college data
+- Web scraper for Diksha Buddy college data
 - RESTful API for accessing college information
 - React frontend for displaying college listings and details
 - Search, filter, and pagination functionality
@@ -14,7 +14,7 @@ A comprehensive educational platform that scrapes and displays college data from
 ## Project Structure
 
 - `/server` - Main backend server with authentication and core APIs
-- `/shiksha-scraper` - Web scraper and API for Shiksha.com data
+- `/diksha-scraper` - Web scraper and API for Diksha Buddy data
 - `/src` - React frontend application
 
 ## Installation
@@ -31,11 +31,11 @@ cd server
 npm install
 
 # Install scraper dependencies
-cd ../shiksha-scraper
+cd ../diksha-scraper
 npm install
 ```
 
-3. Create `.env` files in the root directory, server directory, and shiksha-scraper directory with the appropriate configuration (see `.env.example` files).
+3. Create `.env` files in the root directory, server directory, and diksha-scraper directory with the appropriate configuration (see `.env.example` files).
 
 ## Running the Application
 
@@ -58,7 +58,7 @@ cd server
 npm run dev
 
 # Scraper Server
-cd shiksha-scraper
+cd diksha-scraper
 npm run dev
 ```
 
@@ -95,7 +95,7 @@ Base URL: `http://localhost:5001/api`
 - Colleges by Location: `/api/colleges/location/:city`
 - Trigger Scraper: `/api/scrape`
 
-See the README.md in the shiksha-scraper directory for more details.
+See the README.md in the diksha-scraper directory for more details.
 
 ## Technologies Used
 

@@ -1,5 +1,5 @@
 {
-  "name": "shiksha-clone",
+  "name": "diksha-buddy",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "start:all": "node start-servers.js",
     "scrape": "node run-scraper.js",
-    "scrape:colleges": "cd shiksha-scraper && node scraper.js"
+    "scrape:colleges": "cd diksha-scraper && node scraper.js"
   },
   "dependencies": {
     "axios": "^1.6.0",

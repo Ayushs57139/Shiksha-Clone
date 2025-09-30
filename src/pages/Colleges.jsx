@@ -1,141 +1,79 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Filter, MapPin, Star, Users, Award, Search } from 'lucide-react';
-import CollegeList from '../components/college/CollegeList';
+import { Link } from 'react-router-dom';
+import { Search, Filter, MapPin, Star, Users, GraduationCap, DollarSign } from 'lucide-react';
+import { allCollegesList, collegeCategories, collegeLocations } from '../data/collegeData';
 
 const Colleges = () => {
-  const [searchParams] = useSearchParams();
   const [colleges, setColleges] = useState([]);
-  const [filters, setFilters] = useState({
-    category: searchParams.get('category') || '',
-    location: '',
-    fees: '',
-    rating: ''
-  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
 
-  // We'll use the CollegeList component which fetches data from API
-  // This mock data is kept for reference but won't be used
-  const mockColleges = [
-    {
-      id: 1,
-      name: 'Indian Institute of Technology Delhi',
-      location: 'New Delhi',
-      category: 'engineering',
-      rating: 4.8,
-      fees: '₹2.5 Lakhs',
-      established: 1961,
-      students: 8000,
-      courses: 45,
-      image: 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=400',
-      highlights: ['NIRF Ranking #2', 'Top Placements', 'Research Excellence']
-    },
-    {
-      id: 2,
-      name: 'Indian Institute of Management Ahmedabad',
-      location: 'Ahmedabad',
-      category: 'mba',
-      rating: 4.9,
-      fees: '₹25 Lakhs',
-      established: 1961,
-      students: 1200,
-      courses: 8,
-      image: 'https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg?auto=compress&cs=tinysrgb&w=400',
-      highlights: ['NIRF Ranking #1', 'Global Recognition', 'Industry Connect']
-    },
-    {
-      id: 3,
-      name: 'All India Institute of Medical Sciences',
-      location: 'New Delhi',
-      category: 'medical',
-      rating: 4.7,
-      fees: '₹1.5 Lakhs',
-      established: 1956,
-      students: 3000,
-      courses: 12,
-      image: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400',
-      highlights: ['Premier Medical Institute', 'Research Hospital', 'Government College']
-    },
-    {
-      id: 4,
-      name: 'National Law School of India University',
-      location: 'Bangalore',
-      category: 'law',
-      rating: 4.6,
-      fees: '₹3 Lakhs',
-      established: 1987,
-      students: 800,
-      courses: 6,
-      image: 'https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg?auto=compress&cs=tinysrgb&w=400',
-      highlights: ['Top Law School', 'Moot Court Champions', 'Legal Research']
-    },
-    {
-      id: 5,
-      name: 'Delhi University',
-      location: 'New Delhi',
-      category: 'arts',
-      rating: 4.4,
-      fees: '₹50,000',
-      established: 1922,
-      students: 300000,
-      courses: 200,
-      image: 'https://images.pexels.com/photos/1595391/pexels-photo-1595391.jpeg?auto=compress&cs=tinysrgb&w=400',
-      highlights: ['Central University', 'Multiple Colleges', 'Diverse Courses']
-    },
-    {
-      id: 6,
-      name: 'Indian Institute of Science',
-      location: 'Bangalore',
-      category: 'science',
-      rating: 4.8,
-      fees: '₹2 Lakhs',
-      established: 1909,
-      students: 4000,
-      courses: 25,
-      image: 'https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=400',
-      highlights: ['Research Institute', 'NIRF Ranking #1', 'Innovation Hub']
-    }
-  ];
-
   useEffect(() => {
-    // Filter colleges based on current filters
-    let filteredColleges = mockColleges;
+    const fetchColleges = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Use the comprehensive college data
+        setColleges(allCollegesList);
+      } catch (err) {
+        setError('Failed to load colleges. Please try again.');
+        console.error('Error fetching colleges:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Handle engineering-by-location filter
-    if (filters.category === 'engineering-by-location') {
-      filteredColleges = filteredColleges.filter(college => 
-        college.category === 'engineering' && 
-        filters.location && 
-        college.location.toLowerCase().includes(filters.location.toLowerCase())
-      );
-    } else if (filters.category) {
-      filteredColleges = filteredColleges.filter(college => 
-        college.category === filters.category
-      );
-    }
+    fetchColleges();
+  }, []);
 
-    if (filters.location && filters.category !== 'engineering-by-location') {
-      filteredColleges = filteredColleges.filter(college => 
-        college.location.toLowerCase().includes(filters.location.toLowerCase())
-      );
-    }
-
-    if (filters.rating) {
-      filteredColleges = filteredColleges.filter(college => 
-        college.rating >= parseFloat(filters.rating)
-      );
-    }
-
-    setColleges(filteredColleges);
-  }, [filters]);
-
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
+  const filteredColleges = colleges.filter(college => {
+    const matchesSearch = college.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         college.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         college.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || college.category === selectedCategory;
+    const matchesLocation = selectedLocation === 'all' || college.location === selectedLocation;
+    
+    return matchesSearch && matchesCategory && matchesLocation;
+  });
 
   const clearFilters = () => {
-    setFilters({ category: '', location: '', fees: '', rating: '' });
+    setSearchTerm('');
+    setSelectedCategory('all');
+    setSelectedLocation('all');
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading colleges...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Colleges</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -149,14 +87,16 @@ const Colleges = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
                   type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search colleges by name, location, or course..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="btn-secondary flex items-center space-x-2"
+              className="px-4 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center space-x-2"
             >
               <Filter size={20} />
               <span>Filters</span>
@@ -174,7 +114,7 @@ const Colleges = () => {
                 <h3 className="text-lg font-semibold">Filters</h3>
                 <button
                   onClick={clearFilters}
-                  className="text-primary hover:underline text-sm"
+                  className="text-teal-600 hover:underline text-sm"
                 >
                   Clear All
                 </button>
@@ -184,62 +124,29 @@ const Colleges = () => {
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2">Category</label>
                 <select
-                  value={filters.category}
-                  onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
-                  <option value="">All Categories</option>
-                  <option value="engineering">Engineering</option>
-                  <option value="engineering-by-location">Engineering by Location</option>
-                  <option value="mba">MBA</option>
-                  <option value="medical">Medical</option>
-                  <option value="law">Law</option>
-                  <option value="arts">Arts</option>
-                  <option value="science">Science</option>
+                  <option value="all">All Categories</option>
+                  {collegeCategories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
                 </select>
               </div>
 
               {/* Location Filter */}
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2">Location</label>
-                <input
-                  type="text"
-                  placeholder="Enter city or state"
-                  value={filters.location}
-                  onChange={(e) => handleFilterChange('location', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              {/* Rating Filter */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Minimum Rating</label>
                 <select
-                  value={filters.rating}
-                  onChange={(e) => handleFilterChange('rating', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={selectedLocation}
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
-                  <option value="">Any Rating</option>
-                  <option value="4.5">4.5+ Stars</option>
-                  <option value="4.0">4.0+ Stars</option>
-                  <option value="3.5">3.5+ Stars</option>
-                  <option value="3.0">3.0+ Stars</option>
-                </select>
-              </div>
-
-              {/* Fees Filter */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Fees Range</label>
-                <select
-                  value={filters.fees}
-                  onChange={(e) => handleFilterChange('fees', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="">Any Range</option>
-                  <option value="low">Under ₹1 Lakh</option>
-                  <option value="medium">₹1-5 Lakhs</option>
-                  <option value="high">₹5-20 Lakhs</option>
-                  <option value="premium">Above ₹20 Lakhs</option>
+                  <option value="all">All Locations</option>
+                  {collegeLocations.map(location => (
+                    <option key={location} value={location}>{location}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -249,36 +156,70 @@ const Colleges = () => {
           <div className="lg:w-3/4">
             <div className="flex justify-between items-center mb-6">
               <p className="text-gray-600">
-                Showing {colleges.length} colleges
+                Showing {filteredColleges.length} of {colleges.length} colleges
               </p>
-              <select className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                <option>Sort by Relevance</option>
-                <option>Sort by Rating</option>
-                <option>Sort by Fees (Low to High)</option>
-                <option>Sort by Fees (High to Low)</option>
-              </select>
             </div>
 
-            <CollegeList 
-              category={filters.category} 
-              location={filters.location} 
-              limit={12} 
-            />
-
-            {/* Pagination */}
-            <div className="flex justify-center mt-12">
-              <div className="flex space-x-2">
-                <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                  Previous
-                </button>
-                <button className="px-4 py-2 bg-primary text-white rounded-lg">1</button>
-                <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
-                <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
-                <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                  Next
+            {filteredColleges.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-6xl mb-4">🔍</div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No colleges found</h3>
+                <p className="text-gray-600 mb-4">Try adjusting your search criteria or filters</p>
+                <button 
+                  onClick={clearFilters}
+                  className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                >
+                  Clear Filters
                 </button>
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredColleges.map((college) => (
+                  <div key={college._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{college.name}</h3>
+                          <p className="text-gray-600 flex items-center mb-2">
+                            <MapPin className="mr-2 text-gray-400" size={16} />
+                            {college.location}, {college.state}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Star className="text-yellow-400" size={16} />
+                          <span className="text-sm font-medium">{college.rating}</span>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{college.description}</p>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 mb-4">
+                        <div className="flex items-center">
+                          <Users className="mr-2 text-gray-400" size={16} />
+                          <span>{college.students?.toLocaleString() || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <GraduationCap className="mr-2 text-gray-400" size={16} />
+                          <span>{college.courses || 'N/A'}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Link
+                          to={`/college/${college.slug}`}
+                          className="flex-1 px-4 py-2 bg-teal-600 text-white text-center rounded-lg hover:bg-teal-700 transition-colors"
+                        >
+                          View Details
+                        </Link>
+                        <button className="px-4 py-2 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+                          <Star size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

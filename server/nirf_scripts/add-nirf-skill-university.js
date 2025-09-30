@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 import { nirfSkillUniversityData } from '../src/data/college_data/nirfSkillUniversityData.js';
 
 const uri = 'mongodb://localhost:27017';
-const dbName = 'shiksha';
+const dbName = 'diksha-buddy';
 
 async function addNirfSkillUniversityData() {
   console.log('🎓 Adding NIRF Skill University Data to Database...');

@@ -1628,96 +1628,106 @@ export const getTemplateById = (id) => {
   return resumeTemplates.find(template => template.id === parseInt(id));
 };
 
-// Generate additional templates to reach 200
-const generateAdditionalTemplates = () => {
-  const additionalTemplates = [];
+// Ensure we have at least 220 templates with unique IDs
+const ensureTemplateCount = (targetCount = 220) => {
+  if (resumeTemplates.length >= targetCount) return;
+
   const categories = ['Professional', 'Creative', 'Technical', 'Academic'];
-  const categoryTemplates = {
-    'Professional': [
-      'Senior Manager', 'Director', 'VP', 'CEO', 'CFO', 'CTO', 'COO',
-      'Business Development', 'Product Manager', 'Operations Manager',
-      'Human Resources', 'Finance Manager', 'Legal Counsel', 'Consultant',
-      'Strategy Manager', 'Business Analyst', 'Process Manager'
+  const roleSeeds = {
+    Professional: [
+      'Senior Manager','Director','VP','CEO','CFO','CTO','COO','Business Development',
+      'Product Manager','Operations Manager','Human Resources','Finance Manager','Legal Counsel',
+      'Consultant','Strategy Manager','Process Manager','Sales Lead','Account Manager','Program Manager'
     ],
-    'Creative': [
-      'Art Director', 'Creative Director', 'Brand Manager', 'Visual Designer',
-      'Web Designer', 'Illustrator', 'Animator', 'Motion Designer',
-      '3D Artist', 'Game Designer', 'Sound Designer', 'Fashion Designer',
-      'Interior Designer', 'Architect', 'Landscape Designer'
+    Creative: [
+      'Art Director','Creative Director','Brand Manager','Visual Designer','Web Designer','Illustrator',
+      'Animator','Motion Designer','3D Artist','Game Designer','Sound Designer','Fashion Designer',
+      'Interior Designer','Architect','Landscape Designer','Photographer','Content Creator','Video Producer'
     ],
-    'Technical': [
-      'Full Stack Developer', 'Frontend Developer', 'Backend Developer',
-      'Mobile Developer', 'Game Developer', 'Machine Learning Engineer',
-      'AI Engineer', 'Cloud Engineer', 'Network Engineer', 'Security Engineer',
-      'Database Administrator', 'Site Reliability Engineer', 'Technical Lead',
-      'Software Architect', 'Product Owner', 'Scrum Master'
+    Technical: [
+      'Full Stack Developer','Frontend Developer','Backend Developer','Mobile Developer','Game Developer',
+      'Machine Learning Engineer','AI Engineer','Cloud Engineer','Network Engineer','Security Engineer',
+      'Database Administrator','Site Reliability Engineer','Technical Lead','Software Architect',
+      'Product Owner','Scrum Master','Data Engineer','Platform Engineer'
     ],
-    'Academic': [
-      'Associate Professor', 'Full Professor', 'Department Chair',
-      'Dean', 'Provost', 'Research Director', 'Grant Manager',
-      'Academic Advisor', 'Curriculum Developer', 'Assessment Specialist',
-      'Librarian', 'Archivist', 'Museum Curator', 'Policy Analyst',
-      'Research Coordinator', 'Academic Administrator'
+    Academic: [
+      'Associate Professor','Full Professor','Department Chair','Dean','Provost','Research Director',
+      'Grant Manager','Academic Advisor','Curriculum Developer','Assessment Specialist','Librarian',
+      'Archivist','Museum Curator','Policy Analyst','Research Coordinator','Academic Administrator',
+      'PhD Candidate','Postdoctoral Researcher'
     ]
   };
 
-  let templateId = 200;
-  
-  categories.forEach(category => {
-    categoryTemplates[category].forEach((templateName, index) => {
-      additionalTemplates.push({
-        id: templateId + index,
-        name: templateName,
-        category: category,
-        description: `Professional ${templateName.toLowerCase()} template`,
-        preview: `/templates/${templateName.toLowerCase().replace(/\s+/g, '-')}.png`,
-        html: `
-          <div class="template-${templateName.toLowerCase().replace(/\s+/g, '-')}">
-            <header>
-              <h1>{{firstName}} {{lastName}}</h1>
-              <p class="title">{{title}}</p>
-              <div class="contact">
-                <p>{{email}} | {{phone}} | {{location}}</p>
-              </div>
-            </header>
-            <main>
-              <section class="summary">
-                <h2>${templateName} Summary</h2>
-                <p>{{summary}}</p>
-              </section>
-              <section class="experience">
-                <h2>Experience</h2>
-                {{#each experience}}
-                <div class="position">
-                  <h3>{{title}}</h3>
-                  <p class="company">{{company}} | {{startDate}} - {{endDate}}</p>
-                  <ul>{{#each achievements}}<li>{{this}}</li>{{/each}}</ul>
-                </div>
-                {{/each}}
-              </section>
-              <section class="education">
-                <h2>Education</h2>
-                {{#each education}}
-                <div class="degree">
-                  <h3>{{degree}}</h3>
-                  <p>{{institution}}, {{year}}</p>
-                </div>
-                {{/each}}
-              </section>
-              <section class="skills">
-                <h2>Skills</h2>
-                <p>{{skills}}</p>
-              </section>
-            </main>
-          </div>
-        `
-      });
-    });
-    templateId += categoryTemplates[category].length;
-  });
+  // Compute next unique ID
+  const existingMaxId = resumeTemplates.reduce((max, t) => Math.max(max, t.id || 0), 0);
+  let nextId = existingMaxId + 1;
 
-  return additionalTemplates;
+  // Round-robin through categories and roles until targetCount reached
+  let added = 0;
+  let catIndex = 0;
+  const roleIndices = { Professional: 0, Creative: 0, Technical: 0, Academic: 0 };
+
+  while (resumeTemplates.length + added < targetCount) {
+    const category = categories[catIndex % categories.length];
+    const roles = roleSeeds[category];
+    const role = roles[roleIndices[category] % roles.length];
+
+    const slug = role.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const name = role;
+
+    resumeTemplates.push({
+      id: nextId,
+      name,
+      category,
+      description: `${category} template for ${role.toLowerCase()}`,
+      preview: `/templates/${slug}.png`,
+      html: `
+        <div class="template-${slug}">
+          <header>
+            <h1>{{firstName}} {{lastName}}</h1>
+            <p class="title">{{title}}</p>
+            <div class="contact">
+              <p>{{email}} | {{phone}} | {{location}}</p>
+            </div>
+          </header>
+          <main>
+            <section class="summary">
+              <h2>${name} Summary</h2>
+              <p>{{summary}}</p>
+            </section>
+            <section class="experience">
+              <h2>Experience</h2>
+              {{#each experience}}
+              <div class="position">
+                <h3>{{title}}</h3>
+                <p class="company">{{company}} | {{startDate}} - {{endDate}}</p>
+                <ul>{{#each achievements}}<li>{{this}}</li>{{/each}}</ul>
+              </div>
+              {{/each}}
+            </section>
+            <section class="education">
+              <h2>Education</h2>
+              {{#each education}}
+              <div class="degree">
+                <h3>{{degree}}</h3>
+                <p>{{institution}}, {{year}}</p>
+              </div>
+              {{/each}}
+            </section>
+            <section class="skills">
+              <h2>Skills</h2>
+              <p>{{skills}}</p>
+            </section>
+          </main>
+        </div>
+      `
+    });
+
+    added += 1;
+    nextId += 1;
+    roleIndices[category] += 1;
+    catIndex += 1;
+  }
 };
 
-// Add generated templates to the main array
-resumeTemplates.push(...generateAdditionalTemplates()); 
+ensureTemplateCount(220);

@@ -6,7 +6,7 @@ async function addNirfOpenUniversityData() {
     const client = new MongoClient('mongodb://localhost:27017/');
     await client.connect();
 
-    const db = client.db('shiksha');
+    const db = client.db('diksha-buddy');
     const collection = db.collection('colleges');
 
     console.log('🎓 Adding NIRF Open University Data to Database...');

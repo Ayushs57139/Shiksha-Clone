@@ -283,7 +283,7 @@ const CollegesByLocation = () => {
   const fetchCollegesByLocation = async (location) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/colleges?limit=1000`);
+      const response = await fetch(`http://localhost:5000/api/colleges?limit=10000&page=1`);
       const data = await response.json();
       
       if (data.success) {

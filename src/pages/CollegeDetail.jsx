@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   FaArrowLeft,
   FaStar,
@@ -28,9 +28,11 @@ import {
 import ReviewForm from '../components/reviews/ReviewForm';
 import ReviewsList from '../components/reviews/ReviewsList';
 import { useAuth } from '../context/AuthContext';
+import { allCollegesList } from '../data/collegeData';
 
 const CollegeDetail = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [college, setCollege] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,17 +46,22 @@ const CollegeDetail = () => {
   useEffect(() => {
     const fetchCollege = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/colleges/${slug}`);
-        if (response.ok) {
-          const data = await response.json();
-          setCollege(data.data);
-          // Fetch review statistics
-          fetchReviewStats(data.data._id);
+        setLoading(true);
+        setError('');
+        
+        // Find college from local data using slug
+        const foundCollege = allCollegesList.find(c => c.slug === slug);
+        
+        if (foundCollege) {
+          setCollege(foundCollege);
+          // Set default review stats for now
+          setTotalReviews(0);
+          setAverageRating(foundCollege.rating || 0);
         } else {
           setError('College not found');
         }
       } catch (error) {
-        console.error('Error fetching college:', error);
+        console.error('Error finding college:', error);
         setError('Failed to load college details');
       } finally {
         setLoading(false);
@@ -66,16 +73,11 @@ const CollegeDetail = () => {
 
   const fetchReviewStats = async (collegeId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/reviews/college/${collegeId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setTotalReviews(data.total);
-        
-        // Calculate average rating
-        if (data.reviews.length > 0) {
-          const totalRating = data.reviews.reduce((sum, review) => sum + review.rating, 0);
-          setAverageRating(totalRating / data.reviews.length);
-        }
+      // For now, use mock data since we don't have a reviews API
+      // In the future, this can be connected to a real reviews system
+      setTotalReviews(0);
+      if (college && college.rating) {
+        setAverageRating(college.rating);
       }
     } catch (error) {
       console.error('Error fetching review stats:', error);
@@ -84,10 +86,9 @@ const CollegeDetail = () => {
 
   const handleReviewSubmit = (newReview) => {
     setShowReviewForm(false);
-    // Refresh review statistics
-    if (college) {
-      fetchReviewStats(college._id);
-    }
+    // For now, just close the form since we don't have a reviews API
+    // In the future, this can be connected to a real reviews system
+    console.log('Review submitted:', newReview);
   };
 
   const renderStars = (rating) => {
